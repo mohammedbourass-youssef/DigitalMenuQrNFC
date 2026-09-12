@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NFC_Backend.Extensions;
 using NFC_Backend.Infrastructure.Data;
 using NFC_Backend.Repos.Implementations;
@@ -14,28 +14,35 @@ var connectionString = builder.Configuration.GetConnectionString("SmartMenuDb")
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
-//Inject Services
+builder.Services.AddJWTBearerToken(builder.Configuration);
 builder.Services.AddDependencyInjection();
-//Cors
+builder.Services.AddRateLimiter(builder.Configuration);
+builder.Services.AddQuartzWithConfigurations();
+
+
+
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000") 
+        policy.WithOrigins(
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials(); 
+              .AllowCredentials();
     });
 });
-
-// after app.Build():
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-app.UseCors("AllowFrontend");
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -44,6 +51,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowFrontend");
+app.UseRateLimiter();
+app.UseAuthentication();        
 app.UseAuthorization();
 
 app.MapControllers();

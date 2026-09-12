@@ -1,0 +1,135 @@
+{
+  "common": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "actions": "Actions",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "confirm": "Confirm",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "logout": "Logout",
+    "confirmLogout": "Are you sure you want to logout?",
+    "logoutDesc": "You will be redirected to the login page."
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "menuItems": "Menu Items",
+    "categories": "Categories",
+    "nfcTags": "NFC Tags",
+    "settings": "Settings",
+    "admin": "Admin",
+    "operations": "Operations",
+    "operationsDesc": "Keep menu, categories, and NFC tags aligned with what's on the floor."
+  },
+  "topBar": {
+    "searchPlaceholder": "Search menu, tags, or items",
+    "user": "User"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "menuItems": "Menu items",
+    "totalProducts": "Total products",
+    "categories": "Categories",
+    "activeGroupings": "Active groupings",
+    "nfcTags": "NFC tags",
+    "currentlyTracked": "Currently tracked",
+    "recentMenuSnapshot": "Recent menu snapshot",
+    "available": "Available",
+    "unavailable": "Unavailable"
+  },
+  "categories": {
+    "title": "Categories",
+    "newCategory": "New category",
+    "edit": "Edit"
+  },
+  "menuItems": {
+    "title": "Menu Items",
+    "addItem": "Add item",
+    "loading": "Loading menu items...",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "edit": "Edit"
+  },
+  "nfcTags": {
+    "title": "NFC Tags",
+    "addTag": "Add tag",
+    "code": "Code",
+    "location": "Location",
+    "status": "Status",
+    "lastScanned": "Last scanned",
+    "never": "Never"
+  },
+  "notFound": {
+    "title": "404 Page Not Found",
+    "description": "Did you forget to add the page to the router?"
+  },
+  "errorBoundary": {
+    "title": "Something went wrong",
+    "description": "This part of the app hit an error. The rest of the app is still running.",
+    "tryAgain": "Try again"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDesc": "Choose your preferred language for the interface.",
+    "currentLanguage": "Current language",
+    "saved": "Settings saved successfully!"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full Name",
+    "restaurantName": "Restaurant Name",
+    "phoneNumber": "Business Phone Number",
+    "address": "Address",
+    "city": "City",
+    "logo": "Restaurant Logo",
+    "primaryColor": "Brand Color",
+    "next": "Next",
+    "back": "Back",
+    "submit": "Create Account",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "step1": "Your Information",
+    "step2": "Business Information",
+    "createYourBusinessAccount": "Create your business account",
+    "acceptTerms": "I accept the general terms and conditions",
+    "acceptTermsDesc": "By creating an account, you agree to our Terms of Service and Privacy Policy.",
+    "instructionsTitle": "Before you continue",
+    "instructionsInfo": "You will need to verify your email address after registration. A confirmation code will be sent to your email.",
+    "infoValidEmail": "Please provide a valid email address you have access to.",
+    "infoSecureData": "Your data is encrypted and stored securely.",
+    "success": "Account created successfully!",
+    "confirmEmail": "Confirm Your Email",
+    "confirmEmailDesc": "We sent a 6-digit code to your email address. Enter it below to verify your account.",
+    "enterCode": "Enter 6-digit code",
+    "verifyEmail": "Verify Email",
+    "resendCode": "Resend Code",
+    "skipForNow": "Not now, skip",
+    "role": "Role",
+    "codeSentTo": "Code sent to",
+    "emailVerified": "Email verified successfully!",
+    "invalidCode": "Invalid code. Please try again.",
+    "errors": {
+      "emailExists": "A user with this email already exists.",
+      "phoneExists": "A business with this phone number already exists.",
+      "nameExists": "A business with this restaurant name already exists.",
+      "unexpected": "An unexpected error occurred. Please try again later.",
+      "pleaseCompletePersonal": "Please complete your personal information.",
+      "pleaseCompleteBusiness": "Please complete the business information.",
+      "acceptTermsRequired": "You must accept the terms and conditions.",
+      "unableToCreate": "Unable to create your account.",
+      "unableToLogin": "Unable to login.",
+      "enterBothFields": "Please enter both email and password."
+    }
+  }
+}

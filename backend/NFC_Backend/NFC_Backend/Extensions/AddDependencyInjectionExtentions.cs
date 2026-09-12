@@ -1,4 +1,5 @@
-﻿using NFC_Backend.Repos.Implementations;
+﻿using NFC_Backend.Adapters;
+using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
 
@@ -13,6 +14,9 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IUserRepo, UserRepo>();
             services.AddScoped<ITenantRepo, TenantRepo>();
             services.AddScoped<ICookieService, CookieService>();
+            services.AddHttpClient<IExchangeRateApiAdapter, ExchangeRateApiAdapter>();
+            services.AddScoped<IExchangeRateService, ExchangeRateService>();
+            services.AddScoped<IExchangeRateRepo, ExchangeRateRepo>();
             return services;
         }
     }

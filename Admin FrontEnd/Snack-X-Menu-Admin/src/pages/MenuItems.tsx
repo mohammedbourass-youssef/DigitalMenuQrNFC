@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getMenuItems } from "@/services/menuService";
 import type { MenuItem } from "@/types";
 
 export default function MenuItemsPage() {
+  const { t } = useTranslation();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -19,14 +21,14 @@ export default function MenuItemsPage() {
   }, []);
 
   if (loading) {
-    return <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">Loading menu items...</div>;
+    return <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">{t('menuItems.loading')}</div>;
   }
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Menu Items</h1>
-        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">Add item</button>
+        <h1 className="text-2xl font-bold text-slate-900">{t('menuItems.title')}</h1>
+        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">{t('menuItems.addItem')}</button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -39,12 +41,12 @@ export default function MenuItemsPage() {
                 <p className="mt-1 text-sm text-slate-500">{item.description}</p>
               </div>
               <span className={`rounded-full px-2 py-1 text-xs ${item.available ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
-                {item.available ? "Available" : "Unavailable"}
+                {item.available ? t('menuItems.available') : t('menuItems.unavailable')}
               </span>
             </div>
             <div className="mt-4 flex items-center justify-between">
               <span className="text-lg font-bold text-slate-900">${item.price.toFixed(2)}</span>
-              <button className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700">Edit</button>
+              <button className="rounded-xl border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700">{t('menuItems.edit')}</button>
             </div>
           </div>
         ))}

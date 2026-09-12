@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getNFCTags } from "@/services/nfcService";
 import type { NFCTag } from "@/types";
 
 export default function NFCTagsPage() {
+  const { t } = useTranslation();
   const [tags, setTags] = useState<NFCTag[]>([]);
 
   useEffect(() => {
@@ -18,18 +20,18 @@ export default function NFCTagsPage() {
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">NFC Tags</h1>
-        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">Add tag</button>
+        <h1 className="text-2xl font-bold text-slate-900">{t('nfcTags.title')}</h1>
+        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">{t('nfcTags.addTag')}</button>
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <table className="min-w-full divide-y divide-slate-200">
           <thead className="bg-slate-50">
             <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">Code</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">Location</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">Status</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">Last scanned</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">{t('nfcTags.code')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">{t('nfcTags.location')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">{t('nfcTags.status')}</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700">{t('nfcTags.lastScanned')}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 bg-white">
@@ -42,7 +44,7 @@ export default function NFCTagsPage() {
                     {tag.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">{tag.lastScannedAt ? new Date(tag.lastScannedAt).toLocaleString() : "Never"}</td>
+                <td className="px-4 py-3 text-sm text-slate-600">{tag.lastScannedAt ? new Date(tag.lastScannedAt).toLocaleString() : t('nfcTags.never')}</td>
               </tr>
             ))}
           </tbody>

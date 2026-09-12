@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { getCategories } from "@/services/categoryService";
 import { getMenuItems } from "@/services/menuService";
@@ -6,6 +7,7 @@ import { getNFCTags } from "@/services/nfcService";
 import type { Category, MenuItem, NFCTag } from "@/types";
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [tags, setTags] = useState<NFCTag[]>([]);
@@ -29,14 +31,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <section className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Menu items" value={String(menuItems.length)} hint="Total products" />
-        <StatCard title="Categories" value={String(categories.length)} hint="Active groupings" />
-        <StatCard title="NFC tags" value={String(tags.length)} hint="Currently tracked" />
+        <StatCard title={t('dashboard.menuItems')} value={String(menuItems.length)} hint={t('dashboard.totalProducts')} />
+        <StatCard title={t('dashboard.categories')} value={String(categories.length)} hint={t('dashboard.activeGroupings')} />
+        <StatCard title={t('dashboard.nfcTags')} value={String(tags.length)} hint={t('dashboard.currentlyTracked')} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">Recent menu snapshot</h2>
+          <h2 className="text-xl font-bold text-slate-900">{t('dashboard.recentMenuSnapshot')}</h2>
           <div className="mt-4 space-y-3">
             {menuItems.slice(0, 5).map((item) => (
               <div key={item.id} className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
@@ -47,7 +49,7 @@ export default function DashboardPage() {
                 <div className="text-right">
                   <p className="font-semibold text-slate-900">${item.price.toFixed(2)}</p>
                   <p className={`text-xs ${item.available ? "text-emerald-600" : "text-red-500"}`}>
-                    {item.available ? "Available" : "Unavailable"}
+                    {item.available ? t('dashboard.available') : t('dashboard.unavailable')}
                   </p>
                 </div>
               </div>
@@ -56,7 +58,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-xl font-bold text-slate-900">Categories</h2>
+          <h2 className="text-xl font-bold text-slate-900">{t('dashboard.categories')}</h2>
           <div className="mt-4 space-y-3">
             {categories.map((category) => (
               <div key={category.id} className="flex items-center justify-between rounded-xl bg-slate-50 p-3">

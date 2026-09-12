@@ -51,9 +51,15 @@ namespace NFC_Backend.Domain.Entities
 
         [Column(TypeName = "timestamp with time zone")]
         public DateTime? UpdatedAt { get; set; }
-
+        // Default currency for this tenant's menu pricing
+        [MaxLength(3)]
+        public string CurrencyCode { get; set; } = "MAD";
         // Navigation
         public ICollection<User> Users { get; set; } = new List<User>();
+        
+
+        // Navigation
+        public Currency Currency { get; set; } = null!;
         // public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
         // public ICollection<Category> Categories { get; set; } = new List<Category>();
     }

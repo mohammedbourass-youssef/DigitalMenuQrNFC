@@ -1,0 +1,135 @@
+{
+  "common": {
+    "edit": "تعديل",
+    "delete": "حذف",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "loading": "جاري التحميل...",
+    "noData": "لا توجد بيانات",
+    "actions": "الإجراءات",
+    "search": "بحث",
+    "back": "رجوع",
+    "next": "التالي",
+    "confirm": "تأكيد",
+    "close": "إغلاق",
+    "yes": "نعم",
+    "no": "لا",
+    "logout": "تسجيل الخروج",
+    "confirmLogout": "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    "logoutDesc": "سيتم إعادة توجيهك إلى صفحة تسجيل الدخول."
+  },
+  "sidebar": {
+    "dashboard": "لوحة التحكم",
+    "menuItems": "عناصر القائمة",
+    "categories": "الفئات",
+    "nfcTags": "وسوم NFC",
+    "settings": "الإعدادات",
+    "admin": "管理",
+    "operations": "العمليات",
+    "operationsDesc": "حافظ على تزامن القائمة والفئات ووسوم NFC مع ما هو موجود في المطعم."
+  },
+  "topBar": {
+    "searchPlaceholder": "بحث في القائمة، الوسوم، أو العناصر",
+    "user": "المستخدم"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "menuItems": "عناصر القائمة",
+    "totalProducts": "إجمالي المنتجات",
+    "categories": "الفئات",
+    "activeGroupings": "المجموعات النشطة",
+    "nfcTags": "وسوم NFC",
+    "currentlyTracked": "قيد المتابعة حالياً",
+    "recentMenuSnapshot": "نظرة عامة على القائمة الأخيرة",
+    "available": "متاح",
+    "unavailable": "غير متاح"
+  },
+  "categories": {
+    "title": "الفئات",
+    "newCategory": "فئة جديدة",
+    "edit": "تعديل"
+  },
+  "menuItems": {
+    "title": "عناصر القائمة",
+    "addItem": "إضافة عنصر",
+    "loading": "جاري تحميل عناصر القائمة...",
+    "available": "متاح",
+    "unavailable": "غير متاح",
+    "edit": "تعديل"
+  },
+  "nfcTags": {
+    "title": "وسوم NFC",
+    "addTag": "إضافة وسم",
+    "code": "الرمز",
+    "location": "الموقع",
+    "status": "الحالة",
+    "lastScanned": "آخر مسح",
+    "never": "أبداً"
+  },
+  "notFound": {
+    "title": "404 الصفحة غير موجودة",
+    "description": "هل نسيت إضافة الصفحة إلى الراوتر؟"
+  },
+  "errorBoundary": {
+    "title": "حدث خطأ ما",
+    "description": "واجهت هذه_part من التطبيق خطأ. باقي التطبيق لا يزال يعمل.",
+    "tryAgain": "حاول مرة أخرى"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "languageDesc": "اختر لغتك المفضلة للواجهة.",
+    "currentLanguage": "اللغة الحالية",
+    "saved": "تم حفظ الإعدادات بنجاح!"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "fullName": "الاسم الكامل",
+    "restaurantName": "اسم المطعم",
+    "phoneNumber": "رقم الهاتف التجاري",
+    "address": "العنوان",
+    "city": "المدينة",
+    "logo": "شعار المطعم",
+    "primaryColor": "لون العلامة التجارية",
+    "next": "التالي",
+    "back": "رجوع",
+    "submit": "إنشاء حساب",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "step1": "معلوماتك",
+    "step2": "معلومات العمل",
+    "createYourBusinessAccount": "أنشئ حسابك التجاري",
+    "acceptTerms": "أوافق على الشروط والأحكام العامة",
+    "acceptTermsDesc": "بإنشاء حساب، أنت توافق على شروط الخدمة وسياسة الخصوصية.",
+    "instructionsTitle": "قبل المتابعة",
+    "instructionsInfo": "ستحتاج إلى التحقق من عنوان بريدك الإلكتروني بعد التسجيل. سيتم إرسال رمز التأكيد إلى بريدك الإلكتروني.",
+    "infoValidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح لديك وصول إليه.",
+    "infoSecureData": "بياناتك مشفرة ومخزنة بشكل آمن.",
+    "success": "تم إنشاء الحساب بنجاح!",
+    "confirmEmail": "تأكيد بريدك الإلكتروني",
+    "confirmEmailDesc": "أرسلنا رمزًا مكوّنًا من 6 أرقام إلى عنوان بريدك الإلكتروني. أدخله أدناه للتحقق من حسابك.",
+    "enterCode": "أدخل الرمز المكوّن من 6 أرقام",
+    "verifyEmail": "تحقق من البريد",
+    "resendCode": "إعادة إرسال الرمز",
+    "skipForNow": "ليس الآن، تخطى",
+    "role": "الدور",
+    "codeSentTo": "تم إرسال الرمز إلى",
+    "emailVerified": "تم التحقق من البريد الإلكتروني بنجاح!",
+    "invalidCode": "الرمز غير صحيح. يرجى المحاولة مرة أخرى.",
+    "errors": {
+      "emailExists": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل.",
+      "phoneExists": "يوجد نشاط تجاري بهذا الرقم بالفعل.",
+      "nameExists": "يوجد نشاط تجاري بهذا اسم المطعم بالفعل.",
+      "unexpected": "حدث خطأ غير متوقع. يرجى المحاولة لاحقًا.",
+      "pleaseCompletePersonal": "يرجى إكمال معلوماتك الشخصية.",
+      "pleaseCompleteBusiness": "يرجى إكمال معلومات العمل.",
+      "acceptTermsRequired": "يجب عليك قبول الشروط والأحكام.",
+      "unableToCreate": "تعذر إنشاء حسابك.",
+      "unableToLogin": "تعذر تسجيل الدخول.",
+      "enterBothFields": "يرجى إدخال البريد الإلكتروني وكلمة المرور."
+    }
+  }
+}

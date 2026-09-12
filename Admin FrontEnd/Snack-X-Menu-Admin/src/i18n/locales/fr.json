@@ -1,0 +1,135 @@
+{
+  "common": {
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "loading": "Chargement...",
+    "noData": "Aucune donnée disponible",
+    "actions": "Actions",
+    "search": "Rechercher",
+    "back": "Retour",
+    "next": "Suivant",
+    "confirm": "Confirmer",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "logout": "Déconnexion",
+    "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "logoutDesc": "Vous serez redirigé vers la page de connexion."
+  },
+  "sidebar": {
+    "dashboard": "Tableau de bord",
+    "menuItems": "Articles du menu",
+    "categories": "Catégories",
+    "nfcTags": "Tags NFC",
+    "settings": "Paramètres",
+    "admin": "Admin",
+    "operations": "Opérations",
+    "operationsDesc": "Gardez le menu, les catégories et les tags NFC alignés avec ce qui est sur le terrain."
+  },
+  "topBar": {
+    "searchPlaceholder": "Rechercher menu, tags ou articles",
+    "user": "Utilisateur"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "menuItems": "Articles du menu",
+    "totalProducts": "Total des produits",
+    "categories": "Catégories",
+    "activeGroupings": "Groupements actifs",
+    "nfcTags": "Tags NFC",
+    "currentlyTracked": "Actuellement suivis",
+    "recentMenuSnapshot": "Aperçu récent du menu",
+    "available": "Disponible",
+    "unavailable": "Indisponible"
+  },
+  "categories": {
+    "title": "Catégories",
+    "newCategory": "Nouvelle catégorie",
+    "edit": "Modifier"
+  },
+  "menuItems": {
+    "title": "Articles du menu",
+    "addItem": "Ajouter un article",
+    "loading": "Chargement des articles...",
+    "available": "Disponible",
+    "unavailable": "Indisponible",
+    "edit": "Modifier"
+  },
+  "nfcTags": {
+    "title": "Tags NFC",
+    "addTag": "Ajouter un tag",
+    "code": "Code",
+    "location": "Emplacement",
+    "status": "Statut",
+    "lastScanned": "Dernière lecture",
+    "never": "Jamais"
+  },
+  "notFound": {
+    "title": "404 Page non trouvée",
+    "description": "Avez-vous oublié d'ajouter la page au routeur ?"
+  },
+  "errorBoundary": {
+    "title": "Une erreur s'est produite",
+    "description": "Cette partie de l'application a rencontré une erreur. Le reste de l'application fonctionne toujours.",
+    "tryAgain": "Réessayer"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "languageDesc": "Choisissez votre langue préférée pour l'interface.",
+    "currentLanguage": "Langue actuelle",
+    "saved": "Paramètres enregistrés avec succès !"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Créer un compte",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "fullName": "Nom complet",
+    "restaurantName": "Nom du restaurant",
+    "phoneNumber": "Numéro de téléphone professionnel",
+    "address": "Adresse",
+    "city": "Ville",
+    "logo": "Logo du restaurant",
+    "primaryColor": "Couleur de marque",
+    "next": "Suivant",
+    "back": "Retour",
+    "submit": "Créer un compte",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "step1": "Vos informations",
+    "step2": "Informations de l'entreprise",
+    "createYourBusinessAccount": "Créez votre compte professionnel",
+    "acceptTerms": "J'accepte les conditions générales",
+    "acceptTermsDesc": "En créant un compte, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité.",
+    "instructionsTitle": "Avant de continuer",
+    "instructionsInfo": "Vous devrez vérifier votre adresse e-mail après l'inscription. Un code de confirmation vous sera envoyé par e-mail.",
+    "infoValidEmail": "Veuillez fournir une adresse e-mail valide à laquelle vous avez accès.",
+    "infoSecureData": "Vos données sont cryptées et stockées en toute sécurité.",
+    "success": "Compte créé avec succès !",
+    "confirmEmail": "Confirmez votre e-mail",
+    "confirmEmailDesc": "Nous avons envoyé un code à 6 chiffres à votre adresse e-mail. Entrez-le ci-dessous pour vérifier votre compte.",
+    "enterCode": "Entrez le code à 6 chiffres",
+    "verifyEmail": "Vérifier l'e-mail",
+    "resendCode": "Renvoyer le code",
+    "skipForNow": "Pas maintenant, ignorer",
+    "role": "Rôle",
+    "codeSentTo": "Code envoyé à",
+    "emailVerified": "E-mail vérifié avec succès !",
+    "invalidCode": "Code invalide. Veuillez réessayer.",
+    "errors": {
+      "emailExists": "Un utilisateur avec cet e-mail existe déjà.",
+      "phoneExists": "Une entreprise avec ce numéro de téléphone existe déjà.",
+      "nameExists": "Une entreprise avec ce nom de restaurant existe déjà.",
+      "unexpected": "Une erreur inattendue s'est produite. Veuillez réessayer plus tard.",
+      "pleaseCompletePersonal": "Veuillez compléter vos informations personnelles.",
+      "pleaseCompleteBusiness": "Veuillez compléter les informations de l'entreprise.",
+      "acceptTermsRequired": "Vous devez accepter les conditions générales.",
+      "unableToCreate": "Impossible de créer votre compte.",
+      "unableToLogin": "Impossible de se connecter.",
+      "enterBothFields": "Veuillez entrer votre e-mail et votre mot de passe."
+    }
+  }
+}

@@ -22,6 +22,138 @@ namespace NFC_Backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Currency", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .IsFixedLength();
+
+                    b.Property<byte>("DecimalPlaces")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((byte)2);
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Currencies");
+
+                    b.HasData(
+                        new
+                        {
+                            Code = "MAD",
+                            DecimalPlaces = (byte)2,
+                            IsActive = true,
+                            Name = "Dirham marocain",
+                            Symbol = "DH"
+                        },
+                        new
+                        {
+                            Code = "USD",
+                            DecimalPlaces = (byte)2,
+                            IsActive = true,
+                            Name = "Dollar américain",
+                            Symbol = "$"
+                        },
+                        new
+                        {
+                            Code = "EUR",
+                            DecimalPlaces = (byte)2,
+                            IsActive = true,
+                            Name = "Euro",
+                            Symbol = "€"
+                        },
+                        new
+                        {
+                            Code = "JPY",
+                            DecimalPlaces = (byte)0,
+                            IsActive = true,
+                            Name = "Yen japonais",
+                            Symbol = "¥"
+                        },
+                        new
+                        {
+                            Code = "KRW",
+                            DecimalPlaces = (byte)0,
+                            IsActive = true,
+                            Name = "Won coréen",
+                            Symbol = "₩"
+                        },
+                        new
+                        {
+                            Code = "CNY",
+                            DecimalPlaces = (byte)2,
+                            IsActive = true,
+                            Name = "Yuan chinois",
+                            Symbol = "¥"
+                        },
+                        new
+                        {
+                            Code = "GBP",
+                            DecimalPlaces = (byte)2,
+                            IsActive = true,
+                            Name = "Livre sterling",
+                            Symbol = "£"
+                        });
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.ExchangeRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BaseCurrency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .IsFixedLength();
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,6)");
+
+                    b.Property<DateOnly>("RateDate")
+                        .HasColumnType("date");
+
+                    b.Property<string>("TargetCurrency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .IsFixedLength();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TargetCurrency");
+
+                    b.HasIndex("BaseCurrency", "TargetCurrency", "RateDate")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Rate");
+
+                    b.ToTable("ExchangeRates");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -42,6 +174,14 @@ namespace NFC_Backend.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasDefaultValue("MAD")
+                        .IsFixedLength();
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
@@ -83,6 +223,8 @@ namespace NFC_Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CurrencyCode");
 
                     b.HasIndex("Subdomain")
                         .IsUnique();
@@ -157,6 +299,36 @@ namespace NFC_Backend.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.ExchangeRate", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Currency", "Base")
+                        .WithMany("BaseRates")
+                        .HasForeignKey("BaseCurrency")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Currency", "Target")
+                        .WithMany("TargetRates")
+                        .HasForeignKey("TargetCurrency")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Base");
+
+                    b.Navigation("Target");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Currency");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
@@ -165,6 +337,13 @@ namespace NFC_Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Currency", b =>
+                {
+                    b.Navigation("BaseRates");
+
+                    b.Navigation("TargetRates");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>

@@ -7,6 +7,8 @@
      string? Address,
       string? City
      );
+
+    public record LoginDTO(string Email , string Password);
     public class CreateUserDTO
     {
         public string FullName { get; set; }

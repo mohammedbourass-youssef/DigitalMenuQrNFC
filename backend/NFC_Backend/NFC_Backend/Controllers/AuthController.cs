@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
@@ -42,6 +44,8 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpPost("register")]
+        [EnableRateLimiting(RateLimitingTools.LoginRegisterRateLimit)]
+
         public async Task<ActionResult<UserResponseDto>> Register([FromForm] RegisterDTO register)
         {
             _logger.LogInformation("Registration attempt for email: {Email}", register.email);
@@ -133,67 +137,194 @@ namespace NFC_Backend.Controllers
             }
         }
 
-        //[HttpPost("login")]
-        //public async Task<ActionResult<UserResponseDto>> Login([FromBody] LoginDTO login)
-        //{
-        //    _logger.LogInformation("Login attempt for email: {Email}", login.Email);
-        //    try
-        //    {
-        //        var user = await _userRepo.GetUserByEmail(login.Email);
-        //        if (user == null)
-        //        {
-        //            _logger.LogWarning("Login failed - user not found: {Email}", login.Email);
-        //            return Unauthorized(new { error = "Invalid email or password." });
-        //        }
+        [HttpPost("login")]
+        [EnableRateLimiting(RateLimitingTools.LoginRegisterRateLimit)]
+        public async Task<ActionResult<UserResponseDto>> Login([FromBody] LoginDTO login)
+        {
+            _logger.LogInformation("Login attempt for email: {Email}", login.Email);
+            try
+            {
+                var user = await _userRepo.GetUserByEmail(login.Email);
+                if (user == null)
+                {
+                    _logger.LogWarning("Login failed - user not found: {Email}", login.Email);
+                    return Unauthorized(new { error = "Invalid email or password." });
+                }
 
-        //        bool isPasswordValid = _TokenService.VerifyPassword(login.Password, user.Password);
-        //        if (!isPasswordValid)
-        //        {
-        //            _logger.LogWarning("Login failed - invalid password for email: {Email}", login.Email);
-        //            return Unauthorized(new { error = "Invalid email or password." });
-        //        }
+                bool isPasswordValid = _TokenService.VerifyPassword(login.Password, user.PasswordHash);
+                if (!isPasswordValid)
+                {
+                    _logger.LogWarning("Login failed - invalid password for email: {Email}", login.Email);
+                    return Unauthorized(new { error = "Invalid email or password." });
+                }
 
-        //        string refreshToken = _TokenService.GenerateRefreshToken();
-        //        int daysToExpire = int.Parse(_configuration["Jwt:RefreshTokenExpiryDays"]
-        //            ?? throw new InvalidOperationException("Jwt:RefreshTokenExpiryDays not configured."));
+                string refreshToken = _TokenService.GenerateRefreshToken();
+                int daysToExpire = int.Parse(_configuration["Jwt:RefreshTokenExpiryDays"]
+                    ?? throw new InvalidOperationException("Jwt:RefreshTokenExpiryDays not configured."));
 
-        //        await _userRepo.UpdateRefreshToken(
-        //            user.Id,
-        //            _TokenService.HashPassword(refreshToken),
-        //            DateTime.UtcNow.AddDays(daysToExpire));
+                await _userRepo.UpdateRefreshToken(
+                    user.Id,
+                    _TokenService.HashPassword(refreshToken),
+                    daysToExpire);
 
-        //        string accessToken = _TokenService.GenerateAccessToken(user);
-        //        _cookieService.SetAuthCookies(
-        //            accessToken,
-        //            refreshToken,
-        //            DateTime.UtcNow.AddMinutes(15),
-        //            DateTime.UtcNow.AddDays(daysToExpire));
+                string accessToken = _TokenService.GenerateAccessToken(user);
+                _cookieService.SetAuthCookies(
+                    accessToken,
+                    refreshToken,
+                    DateTime.UtcNow.AddMinutes(15),
+                    DateTime.UtcNow.AddDays(daysToExpire));
 
-        //        _logger.LogInformation("Login successful for UserId: {UserId}", user.Id);
-        //        return Ok(new UserResponseDto
-        //        {
-        //            Email = user.Email,
-        //            FullName = user.FullName,
-        //            Id = user.Id,
-        //            RestaurantName = user.Tenant?.RestaurantName,
-        //            Role = user.Role.ToString(),
-        //            TenantId = user.TenantId
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Unexpected error during login for email: {Email}", login.Email);
-        //        return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An unexpected error occurred. Please try again later." });
-        //    }
-        //}
+                _logger.LogInformation("Login successful for UserId: {UserId}", user.Id);
+                return Ok(new UserResponseDto
+                {
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    Id = user.Id,
+                    RestaurantName = user.Tenant?.RestaurantName,
+                    Role = user.Role.ToString(),
+                    TenantId = user.TenantId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during login for email: {Email}", login.Email);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { error = "An unexpected error occurred. Please try again later." });
+            }
+        }
 
-        //[HttpPost("logout")]
-        //public ActionResult Logout()
-        //{
-        //    _logger.LogInformation("Logout requested");
-        //    _cookieService.ClearAuthCookies();
-        //    _logger.LogInformation("Logout successful");
-        //    return Ok(new { message = "Logged out successfully." });
-        //}
+        [HttpPost("logout")]
+        [EnableRateLimiting(RateLimitingTools.RefreshRateLimit)]
+        public async Task<ActionResult> Logout()
+        {
+            try
+            {
+                // 1. Read refresh token from cookie
+                var refreshToken = Request.Cookies["refreshToken"];
+                if (refreshToken == null)
+                {
+                    _logger.LogWarning("Logout failed - no refresh token cookie found");
+                    return Unauthorized(new { error = "No active session found." });
+                }
+
+                // 2. Find user by hashed refresh token in DB
+                var user = await _userRepo.GetUserByRefreshToken(
+                    _TokenService.HashPassword(refreshToken)
+                );
+                if (user == null)
+                {
+                    _logger.LogWarning("Logout failed - refresh token not found in DB");
+                    _cookieService.ClearAuthCookies(); // clear anyway for safety
+                    return Unauthorized(new { error = "Invalid session." });
+                }
+
+                // 3. Check expiry
+                if (user.RefreshTokenExpiryTime < DateTime.UtcNow)
+                {
+                    _logger.LogWarning("Logout called with expired refresh token. UserId: {UserId}", user.Id);
+                    _cookieService.ClearAuthCookies(); // clear expired cookies anyway
+                    return Unauthorized(new { error = "Session already expired. Please login again." });
+                }
+
+                _logger.LogInformation("Logout requested for UserId: {UserId}", user.Id);
+
+                // 4. Invalidate refresh token in DB
+                await _userRepo.DeleteUserRefreshToken(user.Id);
+                _logger.LogInformation("Refresh token deleted from DB for UserId: {UserId}", user.Id);
+
+                // 5. Clear cookies
+                _cookieService.ClearAuthCookies();
+                _logger.LogInformation("Auth cookies cleared for UserId: {UserId}", user.Id);
+
+                _logger.LogInformation("Logout successful for UserId: {UserId}", user.Id);
+                return Ok(new { message = "Logged out successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during logout");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { error = "An unexpected error occurred during logout. Please try again." });
+            }
+        }
+
+        [HttpPost("refresh")]
+        [EnableRateLimiting(RateLimitingTools.RefreshRateLimit)]
+        public async Task<ActionResult> Refresh()
+        {
+            try
+            {
+                // 1. Read refresh token from cookie
+                var refreshToken = Request.Cookies["refreshToken"];
+                if (refreshToken == null)
+                {
+                    _logger.LogWarning("Token refresh failed - no refresh token cookie found");
+                    return Unauthorized(new { error = "No active session found. Please login again." });
+                }
+
+                // 2. Find user by hashed refresh token in DB
+                var user = await _userRepo.GetUserByRefreshToken(
+                    _TokenService.HashPassword(refreshToken)
+                );
+                if (user == null)
+                {
+                    _logger.LogWarning("Token refresh failed - refresh token not found in DB");
+                    return Unauthorized(new { error = "Invalid session. Please login again." });
+                }
+
+                _logger.LogInformation("Token refresh requested for UserId: {UserId}", user.Id);
+
+                // 3. Check expiry
+                if (user.RefreshTokenExpiryTime < DateTime.UtcNow)
+                {
+                    _logger.LogWarning("Token refresh failed - refresh token expired for UserId: {UserId}", user.Id);
+                    _cookieService.ClearAuthCookies();
+                    return Unauthorized(new { error = "Session expired. Please login again." });
+                }
+
+                // 4. Generate new tokens
+                string newAccessToken = _TokenService.GenerateAccessToken(user);
+                string newRefreshToken = _TokenService.GenerateRefreshToken();
+                _logger.LogInformation("New tokens generated for UserId: {UserId}", user.Id);
+
+                // 5. Update refresh token in DB
+                int daysToExpire = int.Parse(
+                    _configuration["Jwt:RefreshTokenExpiryDays"]
+                    ?? throw new InvalidOperationException("Jwt:RefreshTokenExpiryDays not configured.")
+                );
+
+                await _userRepo.UpdateRefreshToken(
+                    user.Id,
+                    _TokenService.HashPassword(newRefreshToken),
+                    daysToExpire
+                );
+                _logger.LogInformation("Refresh token updated in DB for UserId: {UserId}", user.Id);
+
+                // 6. Set new cookies
+                _cookieService.SetAuthCookies(
+                    newAccessToken,
+                    newRefreshToken,
+                    DateTime.UtcNow.AddMinutes(15),
+                    DateTime.UtcNow.AddDays(daysToExpire)
+                );
+                _logger.LogInformation("New auth cookies set for UserId: {UserId}", user.Id);
+
+                _logger.LogInformation("Token refresh completed successfully for UserId: {UserId}", user.Id);
+                return Ok(new { message = "Token refreshed successfully." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Configuration error during token refresh");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { error = "Server configuration error. Please contact support." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during token refresh");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { error = "An unexpected error occurred. Please try again." });
+            }
+        }
+
+
+
     }
 }

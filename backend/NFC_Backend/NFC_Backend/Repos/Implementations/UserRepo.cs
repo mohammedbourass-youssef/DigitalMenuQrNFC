@@ -43,5 +43,34 @@ namespace NFC_Backend.Repos.Implementations
         
         public  Task<User?> GetUserByEmail(string Email)
         =>_dbContext.Users.AsNoTracking().Where(u=>u.Email == Email).FirstOrDefaultAsync();    
+
+        public async Task DeleteUserRefreshToken(Guid Id)
+        {
+            User user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == Id);
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            user.RefreshTokenRevockedAt = DateTime.UtcNow;
+            user.IsRevoked = true;
+
+            await _dbContext.SaveChangesAsync();
+        }
+        public  Task<User?> GetUserByRefreshToken(string HashedRefreshToken)
+          => _dbContext.Users.FirstOrDefaultAsync(u => u.RefreshToken == HashedRefreshToken);
+        public async Task UpdateRefreshToken(Guid Id, string NewRefreshToken, int DaysToExpire)
+        {
+            User user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == Id);
+            user.RefreshToken = NewRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(DaysToExpire);
+            user.RefreshTokenRevockedAt = null;
+            user.IsRevoked = false;
+
+            await _dbContext.SaveChangesAsync();
+        }
+        public async Task UpdateLastLoginAt(Guid Id)
+        {
+            User user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == Id);
+            user.LastLoginAt = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }

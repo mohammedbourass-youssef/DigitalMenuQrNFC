@@ -1,6 +1,38 @@
-import { Bell, Search } from "lucide-react";
+import { useState } from "react";
+import { Bell, LogOut, User, Mail, Building2, Shield, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function TopBar() {
+  const { t } = useTranslation();
+  const { user, logout } = useAuth();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+
+  const initials = user?.fullName
+    ? user.fullName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
+
+  const displayName = user?.fullName || t('topBar.user');
+  const displayRole = user?.role || t('topBar.user');
+
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -10,27 +42,111 @@ export default function TopBar() {
           </div>
           <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 lg:flex">
             <Search className="h-4 w-4" />
-            Search menu, tags, or items
+            {t('topBar.searchPlaceholder')}
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <button className="relative rounded-xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50">
             <Bell className="h-4 w-4" />
-            <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-orange-500" />
+            <span className="absolute end-1.5 top-1.5 h-2 w-2 rounded-full bg-orange-500" />
           </button>
 
-          <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
-              JD
-            </div>
-            <div className="leading-tight">
-              <p className="text-sm font-semibold text-slate-900">Jordan Davis</p>
-              <p className="text-xs text-slate-500">Shift lead</p>
-            </div>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2 transition hover:bg-slate-50">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white">
+                  {initials}
+                </div>
+                <div className="leading-tight text-start">
+                  <p className="text-sm font-semibold text-slate-900">{displayName}</p>
+                  <p className="text-xs text-slate-500">{displayRole}</p>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" sideOffset={8} className="w-72">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex items-center gap-3 px-1 py-2">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-500 text-lg font-bold text-white">
+                    {initials}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{displayName}</p>
+                    <p className="text-xs text-slate-500">{displayRole}</p>
+                  </div>
+                </div>
+              </DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              <div className="px-2 py-2 space-y-2">
+                <div className="flex items-center gap-3 rounded-lg px-2 py-1.5">
+                  <Mail className="h-4 w-4 text-slate-400" />
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-slate-400">{t('auth.email')}</p>
+                    <p className="text-sm text-slate-700">{user?.email || '-'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-lg px-2 py-1.5">
+                  <Building2 className="h-4 w-4 text-slate-400" />
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-slate-400">{t('auth.restaurantName')}</p>
+                    <p className="text-sm text-slate-700">{user?.restaurantName || '-'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-lg px-2 py-1.5">
+                  <Shield className="h-4 w-4 text-slate-400" />
+                  <div>
+                    <p className="text-[10px] uppercase tracking-wide text-slate-400">{t('auth.role')}</p>
+                    <p className="text-sm text-slate-700">{user?.role || '-'}</p>
+                  </div>
+                </div>
+
+                {user?.id && (
+                  <div className="flex items-center gap-3 rounded-lg px-2 py-1.5">
+                    <User className="h-4 w-4 text-slate-400" />
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wide text-slate-400">ID</p>
+                      <p className="text-xs text-slate-500 font-mono">{user.id}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => setShowLogoutDialog(true)}
+                className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>{t('common.logout')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('common.logout')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('common.confirmLogout')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => logout()}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {t('common.logout')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </header>
   );
 }
