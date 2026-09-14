@@ -56,3 +56,44 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface MyRestaurantUpdateInfosDTO {
+  restaurantName: string;
+  phoneNumber?: string;
+  address?: string;
+  city?: string;
+  currencyCode: string;
+  primaryColor?: string;
+  logo?: File | null;
+}
+
+export interface MyRestaurantInfosResponse {
+  restaurantName: string;
+  subdomain: string;
+  logoUrl: string | null;
+  primaryColor: string | null;
+  phoneNumber: string | null;
+  address: string | null;
+  city: string | null;
+  status: string;
+  currencyCode: string;
+  createdAt: string;
+  trialEndsAt: string | null;
+  isInFreeTrial: boolean;
+  subscriptionEndsAt: string | null;
+}
+
+export interface MyProfileResponse {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+  emailConfirmed: boolean;
+  lastLoginAt: string | null;
+  createdAt: string;
+}
+
+export interface UpdateMyProfileDTO {
+  fullName: string;
+}

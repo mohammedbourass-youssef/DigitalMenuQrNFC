@@ -10,6 +10,7 @@ using NFC_Backend.Infrastructure.Tools;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
+using System.Security.Claims;
 
 namespace NFC_Backend.Controllers
 {
@@ -324,7 +325,55 @@ namespace NFC_Backend.Controllers
             }
         }
 
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<ActionResult<UserResponseDto>> Me()
+        {
+            try
+            {
+                // 1. Get userId from JWT claims
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    _logger.LogWarning("Me failed - invalid or missing userId in token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
 
+                // 2. Find user
+                var user = await _userRepo.GetUserByID(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("Me failed - user not found. UserId: {UserId}", userId);
+                    return NotFound(new { error = "User not found." });
+                }
 
+                // 3. Find tenant
+                var tenant = await _tenantRepo.GetByID(user.TenantId ?? Guid.Empty);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("Me failed - tenant not found. TenantId: {TenantId}", user.TenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                _logger.LogInformation("Me called successfully. UserId: {UserId}, TenantId: {TenantId}",
+                    userId, tenant.Id);
+
+                return Ok(new UserResponseDto
+                {
+                    Id = userId,
+                    Email = user.Email,
+                    FullName = user.FullName,
+                    RestaurantName = tenant.RestaurantName,
+                    Role = user.Role.ToString(),
+                    TenantId = tenant.Id
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in Me endpoint");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { error = "An unexpected error occurred. Please try again." });
+            }
+        }
     }
 }

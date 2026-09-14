@@ -13,14 +13,14 @@ namespace NFC_Backend.Extensions
                 var jobKey = new JobKey("ExchangeRateJob");
 
                 q.AddJob<ExchangeRateJob>(opts => opts.WithIdentity(jobKey));
-                q.AddTrigger(opts => opts
-                    .ForJob(jobKey)
-                    .WithIdentity("ExchangeRateJob-StartupTrigger")
-                    .StartNow());
+                //q.AddTrigger(opts => opts
+                //    .ForJob(jobKey)
+                //    .WithIdentity("ExchangeRateJob-StartupTrigger")
+                //    .StartNow());
                 q.AddTrigger(opts => opts
                     .ForJob(jobKey)
                     .WithIdentity("ExchangeRateJob-DailyTrigger")
-                    .WithCronSchedule("0 0 0 * * ?")); // sec min hour day month day-of-week
+                    .WithCronSchedule("0 0 0 * * ?")); 
             });
 
             services.AddQuartzHostedService(opts =>

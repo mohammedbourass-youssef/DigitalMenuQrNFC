@@ -42,6 +42,23 @@ namespace NFC_Backend.Extensions
                             context.Token = token;
                         }
                         return Task.CompletedTask;
+                    },
+                     OnAuthenticationFailed = context =>
+                     {
+                         Console.WriteLine($"❌ Authentication failed: {context.Exception.Message}");
+                         return Task.CompletedTask;
+                     },
+
+                    OnTokenValidated = context =>
+                    {
+                        Console.WriteLine($"✅ Token validated for: {context.Principal?.Identity?.Name}");
+                        return Task.CompletedTask;
+                    },
+
+                    OnChallenge = context =>
+                    {
+                        Console.WriteLine($"❌ Challenge triggered: {context.Error} - {context.ErrorDescription}");
+                        return Task.CompletedTask;
                     }
                 };
             });

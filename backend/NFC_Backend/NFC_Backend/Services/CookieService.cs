@@ -4,7 +4,7 @@
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly bool _isProduction;
-
+        
         private const string AccessTokenCookie = "accessToken";
         private const string RefreshTokenCookie = "refreshToken";
         private const string AccessTokenExpiryCookie = "accessTokenExpiresAt";
@@ -24,34 +24,52 @@
             var baseOptions = new CookieOptions
             {
                 HttpOnly = true,
-                Secure = _isProduction,
-                SameSite = SameSiteMode.Strict
+                Secure = true,              // ← false for local dev
+                SameSite = SameSiteMode.None, // ← change Strict to Lax
+                Domain = null,               // ← do NOT set domain in dev
+                Path = "/"                   // ← make sure path is root
             };
 
             HttpContext.Response.Cookies.Append(AccessTokenCookie, accessToken, new CookieOptions
             {
-                HttpOnly = baseOptions.HttpOnly,
-                Secure = baseOptions.Secure,
-                SameSite = baseOptions.SameSite,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
                 Expires = accessExpiresAt
             });
 
             HttpContext.Response.Cookies.Append(RefreshTokenCookie, refreshToken, new CookieOptions
             {
-                HttpOnly = baseOptions.HttpOnly,
-                Secure = baseOptions.Secure,
-                SameSite = baseOptions.SameSite,
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
                 Expires = refreshExpiresAt
             });
 
-            // readable by JS — lets frontend know when to proactively refresh
+            // Readable by JS — lets frontend know when to proactively refresh
             HttpContext.Response.Cookies.Append(AccessTokenExpiryCookie, accessExpiresAt.ToString("o"), new CookieOptions
             {
                 HttpOnly = false,
-                Secure = baseOptions.Secure,
-                SameSite = baseOptions.SameSite,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/",
                 Expires = accessExpiresAt
             });
+        }
+
+        public void ClearAuthCookies()
+        {
+            var clearOptions = new CookieOptions
+            {
+                Path = "/",
+                SameSite = SameSiteMode.Lax
+            };
+
+            HttpContext.Response.Cookies.Delete(AccessTokenCookie, clearOptions);
+            HttpContext.Response.Cookies.Delete(RefreshTokenCookie, clearOptions);
+            HttpContext.Response.Cookies.Delete(AccessTokenExpiryCookie, clearOptions);
         }
 
         public string? GetAccessToken()
@@ -62,13 +80,6 @@
         public string? GetRefreshToken()
         {
             return HttpContext.Request.Cookies.TryGetValue(RefreshTokenCookie, out var token) ? token : null;
-        }
-
-        public void ClearAuthCookies()
-        {
-            HttpContext.Response.Cookies.Delete(AccessTokenCookie);
-            HttpContext.Response.Cookies.Delete(RefreshTokenCookie);
-            HttpContext.Response.Cookies.Delete(AccessTokenExpiryCookie);
         }
     }
 }

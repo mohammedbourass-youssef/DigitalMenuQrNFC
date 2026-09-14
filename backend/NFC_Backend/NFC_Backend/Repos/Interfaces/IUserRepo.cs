@@ -12,6 +12,11 @@ namespace NFC_Backend.Repos.Interfaces
         public  Task UpdateRefreshToken(Guid Id , string NewRefreshToken , int DaysToExpire);
         public  Task UpdateLastLoginAt(Guid Id);
         public  Task<User?> GetUserByRefreshToken(string HashedRefreshToken);
+        public Task<User?> GetUserByID(Guid Id);
 
+        public  Task UpdateMyProfileAsync(Guid userId, UpdateMyProfileDTO dto);
+        public Task<MyProfileResponse> GetMyProfileAsync(Guid userId);
+        public Task<int> RequestForVerification(Guid userId);
+        public Task VerifyEmail(Guid userId, int code);
     }
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,13 +12,17 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
-  const { login, error: authError, isLoading } = useAuth();
+  const { login, error: authError, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   const changeLanguage = (lng: string) => {
     i18n.changeLanguage(lng);

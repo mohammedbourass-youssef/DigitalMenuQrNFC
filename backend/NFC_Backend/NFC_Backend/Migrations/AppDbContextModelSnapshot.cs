@@ -22,6 +22,79 @@ namespace NFC_Backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("categories", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.CategoryTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Descriptions")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId", "Lang")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CategoryTranslation_Lang");
+
+                    b.ToTable("category_translations", (string)null);
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Currency", b =>
                 {
                     b.Property<string>("Code")
@@ -299,6 +372,67 @@ namespace NFC_Backend.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.VerificationCode", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Code")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("ExpiredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("VerificationsStatus")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "VerificationsStatus")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_ActivePendingCode")
+                        .HasFilter("\"VerificationsStatus\" = 'Pending'");
+
+                    b.ToTable("verification_codes", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Category", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany("Categories")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.CategoryTranslation", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Category", "Category")
+                        .WithMany("Translations")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.ExchangeRate", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Currency", "Base")
@@ -339,6 +473,22 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.VerificationCode", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.User", "User")
+                        .WithMany("VerificationCodes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Category", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Currency", b =>
                 {
                     b.Navigation("BaseRates");
@@ -348,7 +498,14 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
+                {
+                    b.Navigation("VerificationCodes");
                 });
 #pragma warning restore 612, 618
         }

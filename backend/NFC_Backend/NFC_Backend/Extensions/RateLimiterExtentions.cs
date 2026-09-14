@@ -23,7 +23,7 @@ namespace NFC_Backend.Extensions
 
                 options.AddFixedWindowLimiter(RateLimitingTools.LoginRegisterRateLimit, opt =>
                 {
-                    opt.PermitLimit = 3;
+                    opt.PermitLimit = 100;
                     opt.Window = TimeSpan.FromMinutes(10);
                     opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                     opt.QueueLimit = 0;

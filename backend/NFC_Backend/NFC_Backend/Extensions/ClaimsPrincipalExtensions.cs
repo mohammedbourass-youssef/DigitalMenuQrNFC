@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using NFC_Backend.Domain.Entities;
+using System.Security.Claims;
 
 namespace NFC_Backend.Extensions
 {
@@ -12,7 +13,7 @@ namespace NFC_Backend.Extensions
 
         public static Guid? GetUserId(this ClaimsPrincipal user)
         {
-            var value = user.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value;
+            var value = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return Guid.TryParse(value, out var userId) ? userId : null;
         }
     }

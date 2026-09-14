@@ -15,7 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddJWTBearerToken(builder.Configuration);
-builder.Services.AddDependencyInjection();
+builder.Services.AddDependencyInjection(builder.Configuration);
 builder.Services.AddRateLimiter(builder.Configuration);
 builder.Services.AddQuartzWithConfigurations();
 
@@ -28,9 +28,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:5173",
-                "http://127.0.0.1:5173"
-              )
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://127.0.0.1:5173"
+)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();

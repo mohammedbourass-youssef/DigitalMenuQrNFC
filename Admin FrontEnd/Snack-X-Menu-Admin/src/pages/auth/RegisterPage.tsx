@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Loader2, ArrowLeft, ArrowRight, Info, Mail, Shield, Upload } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,10 +14,14 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export default function RegisterPage() {
   const { t, i18n } = useTranslation();
-  const { register, error: authError, isLoading } = useAuth();
+  const { register, error: authError, isLoading, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
 
   const [formData, setFormData] = useState({
     fullName: '',

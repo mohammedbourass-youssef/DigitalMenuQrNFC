@@ -6,21 +6,24 @@ namespace NFC_Backend.Services
     public class MinioFileStorageService : IFileStorageService
     {
         private readonly IMinioClient _minioClient;
+        private readonly string _endpoint;
+        private readonly bool _useSsl;
+
 
         public MinioFileStorageService(IConfiguration configuration)
         {
-            var endpoint = configuration["Minio:Endpoint"]
+             _endpoint = configuration["Minio:Endpoint"]
                 ?? throw new InvalidOperationException("Minio:Endpoint not configured.");
             var accessKey = configuration["Minio:AccessKey"]
                 ?? throw new InvalidOperationException("Minio:AccessKey not configured.");
             var secretKey = configuration["Minio:SecretKey"]
                 ?? throw new InvalidOperationException("Minio:SecretKey not configured.");
-            var useSsl = configuration.GetValue<bool>("Minio:UseSsl", false);
+             _useSsl = configuration.GetValue<bool>("Minio:UseSsl", false);
 
             _minioClient = new MinioClient()
-                .WithEndpoint(endpoint)
+                .WithEndpoint(_endpoint)
                 .WithCredentials(accessKey, secretKey)
-                .WithSSL(useSsl)
+                .WithSSL(_useSsl)
                 .Build();
         }
 
@@ -76,12 +79,11 @@ namespace NFC_Backend.Services
                 .WithObject(objectKey));
         }
 
-        public async Task<string> GetFileUrlAsync(string objectKey, string bucketName, int expiryInSeconds = 3600)
+        public Task<string> GetFileUrlAsync(string objectKey, string bucketName, int expiryInSeconds = 3600)
         {
-            return await _minioClient.PresignedGetObjectAsync(new PresignedGetObjectArgs()
-                .WithBucket(bucketName)
-                .WithObject(objectKey)
-                .WithExpiry(expiryInSeconds));
+            var scheme = _useSsl ? "https" : "http";
+            var url = $"{scheme}://{_endpoint}/{bucketName}/{objectKey}";
+            return Task.FromResult(url);
         }
     }
 }

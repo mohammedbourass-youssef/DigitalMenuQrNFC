@@ -77,10 +77,110 @@
   },
   "settings": {
     "title": "الإعدادات",
+    "restaurantInfo": "معلومات المطعم",
+    "restaurantInfoDesc": "عرض وإدارة تفاصيل مطعمك.",
+    "edit": "تعديل",
+    "save": "حفظ التغييرات",
+    "cancel": "إلغاء",
+    "logoSection": "شعار المطعم",
+    "logoNotEditable": "يمكن تغيير الشعار هنا فقط.",
+    "viewLogoUrl": "عرض الشعار",
+    "notSet": "غير محدد",
+    "memberSince": "عضو منذ",
+    "openMenu": "فتح قائمتك",
+    "currencyLabel": "العملة",
+    "colorLabel": "لون العلامة التجارية",
+    "statusLabel": "الحالة",
+    "trialBanner": "أنت في فترة تجريبية مجانية. تنتهي فترة التجربة في {{date}}.",
+    "seePlans": "عرض الباقات",
+    "choosePlan": "اختر باقة",
+    "comingSoon": "قريباً",
     "language": "اللغة",
     "languageDesc": "اختر لغتك المفضلة للواجهة.",
     "currentLanguage": "اللغة الحالية",
-    "saved": "تم حفظ الإعدادات بنجاح!"
+    "saved": "تم حفظ الإعدادات بنجاح!",
+    "retry": "إعادة المحاولة",
+    "fields": {
+      "restaurantName": "اسم المطعم",
+      "phoneNumber": "رقم الهاتف",
+      "address": "العنوان",
+      "city": "المدينة",
+      "currency": "العملة",
+      "primaryColor": "لون العلامة التجارية",
+      "logo": "الشعار",
+      "subdomain": "النطاق الفرعي",
+      "status": "الحالة",
+      "memberSince": "عضو منذ"
+    },
+    "status": {
+      "trial": "تجريبي",
+      "active": "نشط",
+      "suspended": "معلق",
+      "cancelled": "ملغي"
+    },
+    "plans": {
+      "title": "اختر باقة",
+      "description": "اختر الباقة التي تناسب مطعمك.",
+      "mostPopular": "الأكثر شعبية",
+      "choosePlan": "اختر الباقة",
+      "comingSoon": "قريباً"
+    },
+    "confirm": {
+      "title": "تأكيد التعديل",
+      "description": "هل أنت متأكد أنك تريد حفظ هذه التغييرات على معلومات المطعم؟",
+      "confirm": "نعم، احفظ التغييرات",
+      "cancel": "إلغاء"
+    },
+    "toast": {
+      "updateSuccess": "تم تحديث معلومات المطعم بنجاح.",
+      "updateError": "فشل تحديث معلومات المطعم.",
+      "logoUploaded": "تم رفع الشعار بنجاح."
+    },
+    "profile": {
+      "title": "معلومات المستخدم",
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "role": "الدور",
+      "isActive": "حالة الحساب",
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "emailConfirmed": "البريد موثق",
+      "verified": "موثق",
+      "notVerified": "غير موثق",
+      "verifyNow": "تحقق الآن",
+      "lastLogin": "آخر تسجيل دخول",
+      "memberSince": "عضو منذ",
+      "never": "أبداً",
+      "edit": "تعديل الملف الشخصي",
+      "save": "حفظ التغييرات",
+      "cancel": "إلغاء",
+      "deleteAccount": "حذف حسابي",
+      "confirm": {
+        "title": "تأكيد تعديل الملف الشخصي",
+        "description": "هل أنت متأكد أنك تريد تحديث معلومات ملفك الشخصي؟",
+        "confirm": "نعم، تحديث",
+        "cancel": "إلغاء"
+      },
+      "delete": {
+        "title": "حذف الحساب",
+        "description": "هذا الإجراء لا رجعة فيه ولا يمكن التراجع عنه. سيتم حذف جميع بياناتك بما في ذلك مطعمك وعناصر القائمة ووسوم NFC إلى الأبد.",
+        "confirm": "نعم، احذف حسابي",
+        "cancel": "إلغاء",
+        "typeToConfirm": "اكتب DELETE للتأكيد",
+        "placeholder": "اكتب DELETE هنا"
+      },
+      "toast": {
+        "updateSuccess": "تم تحديث الملف الشخصي بنجاح.",
+        "updateError": "فشل تحديث الملف الشخصي.",
+        "verifyEmailSent": "تم إرسال بريد التحقق. يرجى التحقق من صندوق الوارد.",
+        "deleteSuccess": "تم حذف الحساب بنجاح."
+      },
+      "roles": {
+        "SuperAdmin": "super admin",
+        "TenantOwner": "صاحب المطعم",
+        "TenantStaff": "موظف"
+      }
+    }
   },
   "auth": {
     "login": "تسجيل الدخول",
@@ -119,6 +219,20 @@
     "codeSentTo": "تم إرسال الرمز إلى",
     "emailVerified": "تم التحقق من البريد الإلكتروني بنجاح!",
     "invalidCode": "الرمز غير صحيح. يرجى المحاولة مرة أخرى.",
+    "sendCode": "إرسال الرمز",
+    "sendingCode": "جارٍ إرسال الرمز...",
+    "verifying": "جارٍ التحقق...",
+    "codeExpiresIn": "ينتهي الرمز خلال",
+    "resendIn": "إعادة الإرسال خلال",
+    "codeSentSuccess": "تم إرسال رمز التحقق بنجاح.",
+    "codeExpired": "انتهت صلاحية الرمز. يرجى طلب رمز جديد.",
+    "codeAlreadyUsed": "تم استخدام هذا الرمز بالفعل.",
+    "codeInvalid": "الرمز غير صحيح. يرجى المحاولة مرة أخرى.",
+    "codeNotFound": "الرمز غير موجود.",
+    "emailAlreadyConfirmed": "البريد الإلكتروني مؤكد بالفعل.",
+    "verifiedTitle": "تم التحقق من البريد!",
+    "verifiedDesc": "تم التحقق من بريدك الإلكتروني بنجاح. يمكنك الآن الوصول إلى جميع الميزات.",
+    "continueToDashboard": "الانتقال إلى لوحة التحكم",
     "errors": {
       "emailExists": "يوجد مستخدم بهذا البريد الإلكتروني بالفعل.",
       "phoneExists": "يوجد نشاط تجاري بهذا الرقم بالفعل.",

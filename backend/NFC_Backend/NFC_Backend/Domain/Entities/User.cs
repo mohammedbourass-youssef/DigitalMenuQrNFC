@@ -47,5 +47,6 @@ namespace NFC_Backend.Domain.Entities
 
         // Navigation
         public Tenant? Tenant { get; set; }
+        public ICollection<VerificationCode> VerificationCodes { get; set; } = new List<VerificationCode>();
     }
 }

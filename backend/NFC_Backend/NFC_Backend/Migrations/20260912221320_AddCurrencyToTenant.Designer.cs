@@ -189,7 +189,7 @@ namespace NFC_Backend.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("LogoUrl")
+                    b.Property<string>("Logo")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 

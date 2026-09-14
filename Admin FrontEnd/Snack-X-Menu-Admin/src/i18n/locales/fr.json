@@ -77,10 +77,110 @@
   },
   "settings": {
     "title": "Paramètres",
+    "restaurantInfo": "Informations du restaurant",
+    "restaurantInfoDesc": "Consultez et gérez les détails de votre restaurant.",
+    "edit": "Modifier",
+    "save": "Enregistrer les modifications",
+    "cancel": "Annuler",
+    "logoSection": "Logo du restaurant",
+    "logoNotEditable": "Le logo ne peut être modifié que ici.",
+    "viewLogoUrl": "Voir le logo",
+    "notSet": "Non défini",
+    "memberSince": "Membre depuis",
+    "openMenu": "Ouvrir votre menu",
+    "currencyLabel": "Devise",
+    "colorLabel": "Couleur de marque",
+    "statusLabel": "Statut",
+    "trialBanner": "Vous êtes en période d'essai gratuit. Votre essai se termine le {{date}}.",
+    "seePlans": "Voir les offres",
+    "choosePlan": "Choisir un forfait",
+    "comingSoon": "Bientôt disponible",
     "language": "Langue",
     "languageDesc": "Choisissez votre langue préférée pour l'interface.",
     "currentLanguage": "Langue actuelle",
-    "saved": "Paramètres enregistrés avec succès !"
+    "saved": "Paramètres enregistrés avec succès !",
+    "retry": "Réessayer",
+    "fields": {
+      "restaurantName": "Nom du restaurant",
+      "phoneNumber": "Numéro de téléphone",
+      "address": "Adresse",
+      "city": "Ville",
+      "currency": "Devise",
+      "primaryColor": "Couleur de marque",
+      "logo": "Logo",
+      "subdomain": "Sous-domaine",
+      "status": "Statut",
+      "memberSince": "Membre depuis"
+    },
+    "status": {
+      "trial": "Essai",
+      "active": "Actif",
+      "suspended": "Suspendu",
+      "cancelled": "Annulé"
+    },
+    "plans": {
+      "title": "Choisir un forfait",
+      "description": "Sélectionnez le forfait qui correspond le mieux à votre restaurant.",
+      "mostPopular": "Le plus populaire",
+      "choosePlan": "Choisir",
+      "comingSoon": "Bientôt disponible"
+    },
+    "confirm": {
+      "title": "Confirmer la modification",
+      "description": "Êtes-vous sûr de vouloir enregistrer ces modifications aux informations de votre restaurant ?",
+      "confirm": "Oui, enregistrer",
+      "cancel": "Annuler"
+    },
+    "toast": {
+      "updateSuccess": "Informations du restaurant mises à jour avec succès.",
+      "updateError": "Échec de la mise à jour des informations du restaurant.",
+      "logoUploaded": "Logo téléchargé avec succès."
+    },
+    "profile": {
+      "title": "Informations utilisateur",
+      "fullName": "Nom complet",
+      "email": "Adresse e-mail",
+      "role": "Rôle",
+      "isActive": "Statut du compte",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "emailConfirmed": "E-mail vérifié",
+      "verified": "Vérifié",
+      "notVerified": "Non vérifié",
+      "verifyNow": "Vérifier maintenant",
+      "lastLogin": "Dernière connexion",
+      "memberSince": "Membre depuis",
+      "never": "Jamais",
+      "edit": "Modifier le profil",
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "deleteAccount": "Supprimer mon compte",
+      "confirm": {
+        "title": "Confirmer la modification du profil",
+        "description": "Êtes-vous sûr de vouloir mettre à jour vos informations de profil ?",
+        "confirm": "Oui, mettre à jour",
+        "cancel": "Annuler"
+      },
+      "delete": {
+        "title": "Supprimer le compte",
+        "description": "Cette action est permanente et ne peut pas être annulée. Toutes vos données y compris votre restaurant, vos articles de menu et vos tags NFC seront supprimées définitivement.",
+        "confirm": "Oui, supprimer mon compte",
+        "cancel": "Annuler",
+        "typeToConfirm": "Tapez SUPPRIMER pour confirmer",
+        "placeholder": "Tapez SUPPRIMER ici"
+      },
+      "toast": {
+        "updateSuccess": "Profil mis à jour avec succès.",
+        "updateError": "Échec de la mise à jour du profil.",
+        "verifyEmailSent": "E-mail de vérification envoyé. Veuillez vérifier votre boîte de réception.",
+        "deleteSuccess": "Compte supprimé avec succès."
+      },
+      "roles": {
+        "SuperAdmin": "Super Admin",
+        "TenantOwner": "Propriétaire du restaurant",
+        "TenantStaff": "Personnel"
+      }
+    }
   },
   "auth": {
     "login": "Connexion",
@@ -119,6 +219,20 @@
     "codeSentTo": "Code envoyé à",
     "emailVerified": "E-mail vérifié avec succès !",
     "invalidCode": "Code invalide. Veuillez réessayer.",
+    "sendCode": "Envoyer le code",
+    "sendingCode": "Envoi du code...",
+    "verifying": "Vérification...",
+    "codeExpiresIn": "Le code expire dans",
+    "resendIn": "Renvoyer dans",
+    "codeSentSuccess": "Code de vérification envoyé avec succès.",
+    "codeExpired": "Le code a expiré. Veuillez en demander un nouveau.",
+    "codeAlreadyUsed": "Ce code a déjà été utilisé.",
+    "codeInvalid": "Code invalide. Veuillez réessayer.",
+    "codeNotFound": "Code introuvable.",
+    "emailAlreadyConfirmed": "L'e-mail est déjà confirmé.",
+    "verifiedTitle": "E-mail vérifié !",
+    "verifiedDesc": "Votre e-mail a été vérifié avec succès. Vous pouvez maintenant accéder à toutes les fonctionnalités.",
+    "continueToDashboard": "Accéder au tableau de bord",
     "errors": {
       "emailExists": "Un utilisateur avec cet e-mail existe déjà.",
       "phoneExists": "Une entreprise avec ce numéro de téléphone existe déjà.",

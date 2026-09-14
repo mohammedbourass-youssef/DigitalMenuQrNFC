@@ -60,6 +60,7 @@ namespace NFC_Backend.Domain.Entities
 
         // Navigation
         public Currency Currency { get; set; } = null!;
+        public ICollection<Category> Categories { get; set; } = new List<Category>();
         // public ICollection<MenuItem> MenuItems { get; set; } = new List<MenuItem>();
         // public ICollection<Category> Categories { get; set; } = new List<Category>();
     }

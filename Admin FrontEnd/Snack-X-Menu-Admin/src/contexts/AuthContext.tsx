@@ -9,7 +9,8 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { getCurrentUser, login, logout, register } from '@/services/authService';
+import axiosInstance from '@/lib/axios';
+import { login, logout, register } from '@/services/authService';
 import type { AuthState, LoginDTO, RegisterDTO, UserResponseDto } from '@/types';
 
 const USER_STORAGE_KEY = 'smartmenu-user';
@@ -56,29 +57,27 @@ const AuthContext = createContext<AuthContextValue>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserResponseDto | null>(getStoredUser);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const getUserSession = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-      saveUserToStorage(currentUser);
-    } catch {
-      setUser(null);
-      clearUserFromStorage();
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void getUserSession();
-  }, [getUserSession]);
+    const restoreSession = async () => {
+      try {
+        const response = await axiosInstance.get('/auth/me');
+        setUser(response.data);
+        setIsAuthenticated(true);
+      } catch {
+        setUser(null);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    restoreSession();
+  }, []);
 
   const handleLogin = useCallback(
     async (data: LoginDTO) => {
@@ -88,10 +87,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const currentUser = await login(data);
         setUser(currentUser);
+        setIsAuthenticated(true);
         saveUserToStorage(currentUser);
         navigate('/');
       } catch (err: any) {
-        const message = err?.response?.data?.error || 'Invalid credentials';
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          (!err?.response ? 'Unable to connect to server. Please check your internet and try again.' : 'Invalid credentials');
         setError(message);
         throw err;
       } finally {
@@ -109,10 +112,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const currentUser = await register(data);
         setUser(currentUser);
+        setIsAuthenticated(true);
         saveUserToStorage(currentUser);
         navigate('/');
       } catch (err: any) {
-        const message = err?.response?.data?.error || 'Unable to create account';
+        const message =
+          err?.response?.data?.error ||
+          err?.response?.data?.message ||
+          (!err?.response ? 'Unable to connect to server. Please check your internet and try again.' : 'Unable to create account');
         setError(message);
         throw err;
       } finally {
@@ -141,14 +148,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      isAuthenticated: !!user,
+      isAuthenticated,
       isLoading,
       error,
       login: handleLogin,
       register: handleRegister,
       logout: handleLogout,
     }),
-    [error, handleLogin, handleLogout, handleRegister, isLoading, user],
+    [error, handleLogin, handleLogout, handleRegister, isAuthenticated, isLoading, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

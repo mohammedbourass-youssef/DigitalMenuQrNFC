@@ -4,6 +4,7 @@ using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Infrastructure.Data;
 using NFC_Backend.Infrastructure.Tools;
+using NFC_Backend.Migrations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
 
@@ -13,13 +14,18 @@ namespace NFC_Backend.Repos.Implementations
     {
         private readonly AppDbContext _dbContext;
         private readonly IConfiguration _configuration;
-
-        public TenantRepo(AppDbContext dbContext , IConfiguration configuration)
+        private readonly IFileStorageService _fileStorageService;
+        public TenantRepo(AppDbContext dbContext , IConfiguration configuration , IFileStorageService fileStorageService)
         {
             _dbContext = dbContext;
             _configuration = configuration;
+            _fileStorageService = fileStorageService;
         }
-        public  Task<Tenant?> GetByPhoneNumber(string phoneNumber) => _dbContext.Tenants.Where(t=>t.PhoneNumber
+        public Task<Tenant?> GetByIDTracking(Guid Id) => _dbContext.Tenants.Where(t => t.Id
+       == Id).FirstOrDefaultAsync();
+        public Task<Tenant?> GetByID(Guid Id) => _dbContext.Tenants.AsNoTracking().Where(t => t.Id
+        == Id).FirstOrDefaultAsync();
+        public  Task<Tenant?> GetByPhoneNumber(string phoneNumber) => _dbContext.Tenants.AsNoTracking().Where(t=>t.PhoneNumber
         ==  phoneNumber).FirstOrDefaultAsync ();
         public Task<bool> IsSubDomainExits(string SubDomaine) =>
      _dbContext.Tenants.AnyAsync(t => t.Subdomain.ToLower() == SubDomaine.ToLower());
@@ -57,11 +63,66 @@ namespace NFC_Backend.Repos.Implementations
                 SubscriptionEndsAt = DateTime.UtcNow.AddDays(Days),
                 TrialEndsAt = DateTime.UtcNow.AddDays(Days),
                 UpdatedAt = null, 
+                CurrencyCode = "MAD"
             };
             await _dbContext.Tenants.AddAsync(tenant);
             await _dbContext.SaveChangesAsync();
             return new TenantResponse(tenant.Id, tenant.Subdomain);
-           
+        }
+
+        public async Task<MyRestaurantInfosResponse> GetMyRestaurantInfosAsync(Guid userId)
+        {
+            // 1. Find the user
+            var user = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+            {
+                throw new NotFoundException($"User not found.");
+            }
+
+            if (user.TenantId == null)
+            {
+                throw new NotFoundException($"No restaurant associated with this user.");
+            }
+
+            // 2. Find the tenant
+            var tenant = await _dbContext.Tenants
+                .FirstOrDefaultAsync(t => t.Id == user.TenantId);
+
+            if (tenant == null)
+            {
+                throw new NotFoundException($"Restaurant not found.");
+            }
+
+            // 3. Check if still in free trial
+            bool isInFreeTrial = tenant.Status == TenantStatus.Trial
+                              && tenant.TrialEndsAt.HasValue
+                              && tenant.TrialEndsAt.Value > DateTime.UtcNow;
+
+            // 4. Return response
+            return new MyRestaurantInfosResponse(
+                RestaurantName: tenant.RestaurantName,
+                Subdomain: tenant.Subdomain,
+                LogoUrl:await _fileStorageService.GetFileUrlAsync(tenant.LogoUrl , tenant.BucketName ),
+                PrimaryColor: tenant.PrimaryColor,
+                PhoneNumber: tenant.PhoneNumber,
+                Address: tenant.Address,
+                City: tenant.City,
+                Status: tenant.Status.ToString(),
+                CurrencyCode: tenant.CurrencyCode,
+                CreatedAt: tenant.CreatedAt,
+                TrialEndsAt: isInFreeTrial ? tenant.TrialEndsAt : null,
+                IsInFreeTrial: isInFreeTrial,
+                SubscriptionEndsAt: tenant.SubscriptionEndsAt
+            );
+        }
+
+
+        public async Task SaveUpdate(Tenant tenant)
+        {
+            _dbContext.Tenants.Update(tenant); 
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

@@ -77,10 +77,110 @@
   },
   "settings": {
     "title": "Settings",
+    "restaurantInfo": "Restaurant Information",
+    "restaurantInfoDesc": "View and manage your restaurant details.",
+    "edit": "Edit",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "logoSection": "Restaurant Logo",
+    "logoNotEditable": "Logo can only be changed here.",
+    "viewLogoUrl": "View logo",
+    "notSet": "Not set",
+    "memberSince": "Member since",
+    "openMenu": "Open your menu",
+    "currencyLabel": "Currency",
+    "colorLabel": "Brand Color",
+    "statusLabel": "Status",
+    "trialBanner": "You are on a free trial. Your trial ends on {{date}}.",
+    "seePlans": "See Plans",
+    "choosePlan": "Choose a Plan",
+    "comingSoon": "Coming soon",
     "language": "Language",
     "languageDesc": "Choose your preferred language for the interface.",
     "currentLanguage": "Current language",
-    "saved": "Settings saved successfully!"
+    "saved": "Settings saved successfully!",
+    "retry": "Retry",
+    "fields": {
+      "restaurantName": "Restaurant Name",
+      "phoneNumber": "Phone Number",
+      "address": "Address",
+      "city": "City",
+      "currency": "Currency",
+      "primaryColor": "Brand Color",
+      "logo": "Logo",
+      "subdomain": "Subdomain",
+      "status": "Status",
+      "memberSince": "Member Since"
+    },
+    "status": {
+      "trial": "Trial",
+      "active": "Active",
+      "suspended": "Suspended",
+      "cancelled": "Cancelled"
+    },
+    "plans": {
+      "title": "Choose a Plan",
+      "description": "Select the plan that best fits your restaurant.",
+      "mostPopular": "Most Popular",
+      "choosePlan": "Choose Plan",
+      "comingSoon": "Coming soon"
+    },
+    "confirm": {
+      "title": "Confirm Update",
+      "description": "Are you sure you want to save these changes to your restaurant information?",
+      "confirm": "Yes, Save Changes",
+      "cancel": "Cancel"
+    },
+    "toast": {
+      "updateSuccess": "Restaurant information updated successfully.",
+      "updateError": "Failed to update restaurant information.",
+      "logoUploaded": "Logo uploaded successfully."
+    },
+    "profile": {
+      "title": "User Information",
+      "fullName": "Full Name",
+      "email": "Email Address",
+      "role": "Role",
+      "isActive": "Account Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "emailConfirmed": "Email Verified",
+      "verified": "Verified",
+      "notVerified": "Not Verified",
+      "verifyNow": "Verify Now",
+      "lastLogin": "Last Login",
+      "memberSince": "Member Since",
+      "never": "Never",
+      "edit": "Edit Profile",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "deleteAccount": "Delete My Account",
+      "confirm": {
+        "title": "Confirm Profile Update",
+        "description": "Are you sure you want to update your profile information?",
+        "confirm": "Yes, Update",
+        "cancel": "Cancel"
+      },
+      "delete": {
+        "title": "Delete Account",
+        "description": "This action is permanent and cannot be undone. All your data including your restaurant, menu items, and NFC tags will be deleted forever.",
+        "confirm": "Yes, Delete My Account",
+        "cancel": "Cancel",
+        "typeToConfirm": "Type DELETE to confirm",
+        "placeholder": "Type DELETE here"
+      },
+      "toast": {
+        "updateSuccess": "Profile updated successfully.",
+        "updateError": "Failed to update profile.",
+        "verifyEmailSent": "Verification email sent. Please check your inbox.",
+        "deleteSuccess": "Account deleted successfully."
+      },
+      "roles": {
+        "SuperAdmin": "Super Admin",
+        "TenantOwner": "Restaurant Owner",
+        "TenantStaff": "Staff"
+      }
+    }
   },
   "auth": {
     "login": "Login",
@@ -119,6 +219,20 @@
     "codeSentTo": "Code sent to",
     "emailVerified": "Email verified successfully!",
     "invalidCode": "Invalid code. Please try again.",
+    "sendCode": "Send Code",
+    "sendingCode": "Sending code...",
+    "verifying": "Verifying...",
+    "codeExpiresIn": "Code expires in",
+    "resendIn": "Resend in",
+    "codeSentSuccess": "Verification code sent successfully.",
+    "codeExpired": "Code has expired. Please request a new one.",
+    "codeAlreadyUsed": "This code has already been used.",
+    "codeInvalid": "Invalid code. Please try again.",
+    "codeNotFound": "Code not found.",
+    "emailAlreadyConfirmed": "Email is already confirmed.",
+    "verifiedTitle": "Email Verified!",
+    "verifiedDesc": "Your email has been successfully verified. You can now access all features.",
+    "continueToDashboard": "Continue to Dashboard",
     "errors": {
       "emailExists": "A user with this email already exists.",
       "phoneExists": "A business with this phone number already exists.",

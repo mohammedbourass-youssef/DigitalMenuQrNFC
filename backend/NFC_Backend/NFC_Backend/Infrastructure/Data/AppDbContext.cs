@@ -13,7 +13,9 @@ namespace NFC_Backend.Infrastructure.Data
         public DbSet<Tenant> Tenants { get; set; } = null!;
         public DbSet<Currency> Currencies { get; set; } = null!;
         public DbSet<ExchangeRate> ExchangeRates { get; set; } = null!;
-
+        public DbSet<VerificationCode> VerificationCodes { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
+        public DbSet<CategoryTranslation> CategoryTranslations { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -125,7 +127,89 @@ namespace NFC_Backend.Infrastructure.Data
                     .HasForeignKey(e => e.TargetCurrency)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+            modelBuilder.Entity<VerificationCode>(entity =>
+            {
+                entity.ToTable("verification_codes");
 
+                entity.HasKey(v => v.Id);
+
+                entity.Property(v => v.Code)
+                      .IsRequired();
+
+                entity.Property(v => v.VerificationsStatus)
+                      .HasConversion<string>()
+                      .HasMaxLength(20)
+                      .IsRequired();
+
+                entity.Property(v => v.ExpiredAt)
+                      .IsRequired();
+
+                entity.Property(v => v.CreatedAt)
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(v => v.UserId);
+                entity.HasIndex(v => v.Code);
+
+                entity.HasOne(v => v.User)
+                      .WithMany(u => u.VerificationCodes) 
+                      .HasForeignKey(v => v.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasIndex(v => new { v.UserId, v.VerificationsStatus })
+      .IsUnique()
+      .HasFilter("\"VerificationsStatus\" = 'Pending'")
+      .HasDatabaseName("UQ_ActivePendingCode");
+            });
+
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.ToTable("categories");
+
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.Color)
+                      .HasMaxLength(20);
+
+                entity.Property(c => c.DisplayOrder)
+                      .HasDefaultValue(0);
+
+                entity.Property(c => c.IsActive)
+                      .HasDefaultValue(true);
+
+                entity.Property(c => c.CreatedAt)
+                      .HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(c => c.TenantId);
+
+                entity.HasOne(c => c.Tenant)
+                      .WithMany(t => t.Categories)
+                      .HasForeignKey(c => c.TenantId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CategoryTranslation>(entity =>
+            {
+                entity.ToTable("category_translations");
+
+                entity.HasKey(ct => ct.Id);
+
+                entity.Property(ct => ct.Lang)
+                      .HasMaxLength(5)
+                      .IsRequired();
+
+                entity.Property(ct => ct.Name)
+                      .HasMaxLength(150)
+                      .IsRequired();
+
+                // One translation per language per category
+                entity.HasIndex(ct => new { ct.CategoryId, ct.Lang })
+                      .IsUnique()
+                      .HasDatabaseName("UQ_CategoryTranslation_Lang");
+
+                entity.HasOne(ct => ct.Category)
+                      .WithMany(c => c.Translations)
+                      .HasForeignKey(ct => ct.CategoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }
