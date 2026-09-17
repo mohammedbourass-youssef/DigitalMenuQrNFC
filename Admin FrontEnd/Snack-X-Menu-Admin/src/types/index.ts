@@ -13,6 +13,52 @@ export interface Category {
   name: string;
   description: string;
   color: string;
+  imageUrl?: string;
+  displayOrder?: number;
+}
+
+export interface AdminCategoryItem {
+  name: string | null;
+  desc: string | null;
+  color: string;
+  imageUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface AdminCategoryMeta {
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  hasMore: boolean;
+}
+
+export interface AdminCategoryResponse {
+  meta: AdminCategoryMeta;
+  data: AdminCategoryItem[];
+}
+
+export interface CreateCategoryDTO {
+  name: string;
+  description?: string;
+  color?: string;
+  image?: File;
+  displayOrder?: number;
+}
+
+export interface CreateCategoryResponse {
+  categoryId: string;
+  names: Record<string, string>;
+  descriptions: Record<string, string>;
+}
+
+export interface UpdateCategoryLanguagesRequest {
+  categoryId: string;
+  translations: Record<string, { name: string; description?: string }>;
+}
+
+export interface UpdateCategoryLanguagesResponse {
+  updated: number;
 }
 
 export interface NFCTag {

@@ -21,6 +21,7 @@
 
         public void SetAuthCookies(string accessToken, string refreshToken, DateTime accessExpiresAt, DateTime refreshExpiresAt)
         {
+            ClearAuthCookies();
             var baseOptions = new CookieOptions
             {
                 HttpOnly = true,
@@ -64,12 +65,22 @@
             var clearOptions = new CookieOptions
             {
                 Path = "/",
-                SameSite = SameSiteMode.Lax
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None
+                // Domain = null, // match whatever SetAuthCookies uses
             };
 
             HttpContext.Response.Cookies.Delete(AccessTokenCookie, clearOptions);
             HttpContext.Response.Cookies.Delete(RefreshTokenCookie, clearOptions);
-            HttpContext.Response.Cookies.Delete(AccessTokenExpiryCookie, clearOptions);
+
+            HttpContext.Response.Cookies.Delete(AccessTokenExpiryCookie, new CookieOptions
+            {
+                Path = "/",
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.None
+            });
         }
 
         public string? GetAccessToken()

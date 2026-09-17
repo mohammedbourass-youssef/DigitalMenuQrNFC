@@ -101,7 +101,7 @@ namespace NFC_Backend.Controllers
                     Email = register.email,
                     FullName = register.fullName,
                     Password = _TokenService.HashPassword(register.PassWord),
-                    RefreshTokenHash = _TokenService.HashPassword(refreshToken),
+                    RefreshTokenHash = _TokenService.HashRefreshToken(refreshToken),
                     TenantId = newTenant.Id,
                 };
 
@@ -146,6 +146,7 @@ namespace NFC_Backend.Controllers
             try
             {
                 var user = await _userRepo.GetUserByEmail(login.Email);
+                
                 if (user == null)
                 {
                     _logger.LogWarning("Login failed - user not found: {Email}", login.Email);
@@ -165,7 +166,7 @@ namespace NFC_Backend.Controllers
 
                 await _userRepo.UpdateRefreshToken(
                     user.Id,
-                    _TokenService.HashPassword(refreshToken),
+                    _TokenService.HashRefreshToken(refreshToken),
                     daysToExpire);
 
                 string accessToken = _TokenService.GenerateAccessToken(user);
@@ -194,7 +195,6 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpPost("logout")]
-        [EnableRateLimiting(RateLimitingTools.RefreshRateLimit)]
         public async Task<ActionResult> Logout()
         {
             try
@@ -209,7 +209,7 @@ namespace NFC_Backend.Controllers
 
                 // 2. Find user by hashed refresh token in DB
                 var user = await _userRepo.GetUserByRefreshToken(
-                    _TokenService.HashPassword(refreshToken)
+                    _TokenService.HashRefreshToken(refreshToken)
                 );
                 if (user == null)
                 {
@@ -248,7 +248,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpPost("refresh")]
-        [EnableRateLimiting(RateLimitingTools.RefreshRateLimit)]
+       // [EnableRateLimiting(RateLimitingTools.RefreshRateLimit)]
         public async Task<ActionResult> Refresh()
         {
             try
@@ -260,10 +260,10 @@ namespace NFC_Backend.Controllers
                     _logger.LogWarning("Token refresh failed - no refresh token cookie found");
                     return Unauthorized(new { error = "No active session found. Please login again." });
                 }
-
+                string hashedToken = _TokenService.HashRefreshToken(refreshToken);
                 // 2. Find user by hashed refresh token in DB
                 var user = await _userRepo.GetUserByRefreshToken(
-                    _TokenService.HashPassword(refreshToken)
+                    hashedToken
                 );
                 if (user == null)
                 {
@@ -294,7 +294,7 @@ namespace NFC_Backend.Controllers
 
                 await _userRepo.UpdateRefreshToken(
                     user.Id,
-                    _TokenService.HashPassword(newRefreshToken),
+                    _TokenService.HashRefreshToken(newRefreshToken),
                     daysToExpire
                 );
                 _logger.LogInformation("Refresh token updated in DB for UserId: {UserId}", user.Id);

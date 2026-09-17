@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NFC_Backend.Adapters;
 using NFC_Backend.Extensions;
+using NFC_Backend.Infrastructure.Configs;
 using NFC_Backend.Infrastructure.Data;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
@@ -10,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("SmartMenuDb")
     ?? throw new InvalidOperationException("Connection string 'SmartMenuDb' not found.");
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));

@@ -1,43 +1,112 @@
 import { useEffect, useState } from "react";
+import { AlertCircle, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
-import { getCategories } from "@/services/categoryService";
-import type { Category } from "@/types";
+import { useAdminCategories } from "@/hooks/useAdminCategories";
+import { useToast } from "@/hooks/use-toast";
+import { CategoryCard } from "@/components/categories/CategoryCard";
+import { CategoryCardSkeleton } from "@/components/categories/CategoryCardSkeleton";
+import { CategoriesPagination } from "@/components/categories/CategoriesPagination";
+import { AddCategorySheet } from "@/components/categories/AddCategorySheet";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { Spinner } from "@/components/ui/spinner";
+import type { AdminCategoryItem } from "@/types";
+
+const PAGE_COUNT_DEFAULT = 8;
 
 export default function CategoriesPage() {
-  const { t } = useTranslation();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const { i18n, t } = useTranslation();
+  const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showAddSheet, setShowAddSheet] = useState(false);
+  const lang = searchParams.get("lang") || i18n.language || "en";
+  const pageNumber = Math.max(1, Number(searchParams.get("pageNumber")) || 1);
+  const pageCount = Math.max(1, Number(searchParams.get("pageCount")) || PAGE_COUNT_DEFAULT);
+  const query = useAdminCategories(lang, pageNumber, pageCount);
+  const status = query.error && "response" in query.error
+    ? (query.error.response as { status?: number } | undefined)?.status
+    : undefined;
 
   useEffect(() => {
-    const load = async () => {
-      const data = await getCategories();
-      setCategories(data);
-    };
+    if (!searchParams.get("lang")) {
+      setSearchParams((current) => {
+        current.set("lang", i18n.language || "en");
+        current.set("pageNumber", String(pageNumber));
+        current.set("pageCount", String(pageCount));
+        return current;
+      }, { replace: true });
+    }
+  }, [i18n.language, pageCount, pageNumber, searchParams, setSearchParams]);
 
-    void load();
-  }, []);
+  useEffect(() => {
+    if (status === 400) toast({ variant: "destructive", title: t("categories.validationError") });
+    if (status === 500) toast({ variant: "destructive", title: t("categories.serverError") });
+  }, [status, t, toast]);
+
+  const changePage = (nextPage: number) => {
+    setSearchParams((current) => {
+      current.set("lang", lang);
+      current.set("pageNumber", String(nextPage));
+      current.set("pageCount", String(pageCount));
+      return current;
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const changeLanguage = (nextLang: string) => {
+    void i18n.changeLanguage(nextLang);
+    setSearchParams((current) => {
+      current.set("lang", nextLang);
+      current.set("pageNumber", "1");
+      current.set("pageCount", String(pageCount));
+      return current;
+    });
+  };
+
+  const handleDeactivate = (category: AdminCategoryItem) => {
+    // TODO: wire real API when available
+    toast({ title: t("categories.deactivate.toastTitle"), description: t("categories.deactivate.toastDescription", { name: category.name || "—" }) });
+    void query.refetch();
+  };
+  const isEmpty = !query.isLoading && !query.data?.data?.length;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">{t('categories.title')}</h1>
-        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">{t('categories.newCategory')}</button>
+    <div dir={lang === "ar" ? "rtl" : "ltr"} className="space-y-6">
+      <div className="sticky top-[73px] z-10 -mx-6 border-b border-slate-200 bg-background/95 px-6 py-4 backdrop-blur">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <h1 className="font-display text-2xl font-bold text-slate-900">{t("categories.title")}</h1>
+            <Badge variant="secondary">{t("categories.total", { count: query.data?.meta.totalCount ?? 0 })}</Badge>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex rounded-lg border border-slate-200 bg-white p-1" role="group" aria-label="Language">
+              {["en", "ar", "fr"].map((option) => (
+                <button key={option} type="button" onClick={() => changeLanguage(option)} className={`rounded-md px-3 py-1 text-xs font-bold uppercase transition ${lang === option ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100"}`} aria-pressed={lang === option}>{option}</button>
+              ))}
+            </div>
+            <Button onClick={() => setShowAddSheet(true)}><Plus />{t("categories.add")}</Button>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {categories.map((category) => (
-          <div key={category.id} className="rounded-2xl border border-slate-200 p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="h-3 w-3 rounded-full" style={{ backgroundColor: category.color }} />
-                <p className="font-semibold text-slate-900">{category.name}</p>
-              </div>
-              <button className="text-sm font-medium text-slate-600">{t('categories.edit')}</button>
-            </div>
-            <p className="mt-3 text-sm text-slate-500">{category.description}</p>
-          </div>
-        ))}
-      </div>
+      {status === 404 ? (
+        <Alert variant="destructive"><AlertCircle /><AlertTitle>{t("categories.accountNotFound")}</AlertTitle><AlertDescription>{t("categories.accountNotFoundDescription")}</AlertDescription></Alert>
+      ) : query.isLoading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <CategoryCardSkeleton key={index} />)}</div>
+      ) : isEmpty ? (
+        <Empty className="min-h-[420px] border border-dashed border-slate-300 bg-white"><EmptyHeader><EmptyMedia variant="icon"><Plus /></EmptyMedia><EmptyTitle>{t("categories.empty_title")}</EmptyTitle><EmptyDescription>{t("categories.empty_sub")}</EmptyDescription></EmptyHeader><EmptyContent><Button onClick={() => setShowAddSheet(true)}>{t("categories.add")}</Button></EmptyContent></Empty>
+      ) : query.isError ? (
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-10 text-center"><p className="font-semibold text-red-800">{t("categories.serverError")}</p><Button variant="outline" onClick={() => void query.refetch()}>{t("categories.retry")}</Button></div>
+      ) : (
+        <div className="relative">{query.isFetching && <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/50 pt-8 backdrop-blur-[1px]"><Spinner className="h-6 w-6 text-primary" /></div>}<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{query.data?.data.map((category, index) => <CategoryCard key={`${category.name}-${category.createdAt}-${index}`} category={category} activeLabel={t("categories.active")} inactiveLabel={t("categories.inactive")} createdLabel={(time) => t("categories.created", { time })} onDeactivate={handleDeactivate} />)}</div></div>
+      )}
+
+      {query.data && query.data.meta.totalCount > 0 && <CategoriesPagination pageNumber={pageNumber} pageCount={pageCount} totalCount={query.data.meta.totalCount} hasMore={query.data.meta.hasMore} showingLabel={t("categories.showing")} onPageChange={changePage} />}
+      <AddCategorySheet open={showAddSheet} onOpenChange={setShowAddSheet} onCreated={() => void query.refetch()} onCategoryCreated={() => void query.refetch()} />
     </div>
   );
 }

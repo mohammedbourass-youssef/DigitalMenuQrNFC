@@ -1,10 +1,69 @@
-import type { Category } from "@/types";
+import axiosInstance from "@/lib/axios";
+import type {
+  Category,
+  AdminCategoryResponse,
+  CreateCategoryDTO,
+  CreateCategoryResponse,
+  UpdateCategoryLanguagesRequest,
+  UpdateCategoryLanguagesResponse,
+} from "@/types";
 
-const categories: Category[] = [
-  { id: "c1", name: "Burgers", description: "Signature burgers and sandwiches.", color: "#f97316" },
-  { id: "c2", name: "Mains", description: "Hearty mains and combos.", color: "#14b8a6" },
-  { id: "c3", name: "Drinks", description: "Refreshing drinks and shakes.", color: "#a78bfa" },
-  { id: "c4", name: "Desserts", description: "Sweet treats and desserts.", color: "#facc15" },
-];
+export const getAdminCategories = async (
+  lang: string,
+  pageNumber: number,
+  pageCount: number
+): Promise<AdminCategoryResponse> => {
+  const { data } = await axiosInstance.get<AdminCategoryResponse>(
+    "Cateogries/categories-Admin",
+    { params: { lang, pageNumber, pageCount } }
+  );
+  return data;
+};
 
-export const getCategories = (): Promise<Category[]> => Promise.resolve(categories);
+export const getCategories = async (): Promise<Category[]> => {
+  const { data } = await axiosInstance.get<AdminCategoryResponse>("Cateogries/categories-Admin");
+  return data.data.map((item) => ({
+    id: `${item.createdAt}-${item.name ?? ""}`,
+    name: item.name ?? "",
+    description: item.desc ?? "",
+    color: item.color,
+    imageUrl: item.imageUrl ?? undefined,
+  }));
+};
+
+export const createCategory = async (
+  data: CreateCategoryDTO,
+  signal?: AbortSignal
+): Promise<CreateCategoryResponse> => {
+  const formData = new FormData();
+  formData.append("Name", data.name);
+  if (data.description) formData.append("Description", data.description);
+  if (data.color) formData.append("Color", data.color);
+  if (data.displayOrder != null) formData.append("SortOrder", String(data.displayOrder));
+  if (data.image) formData.append("Image", data.image);
+
+  const response = await axiosInstance.post<CreateCategoryResponse>(
+    "Cateogries",
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+      signal,
+    }
+  );
+  return response.data;
+};
+
+export const updateCategoryLanguages = async (
+  data: UpdateCategoryLanguagesRequest,
+  signal?: AbortSignal
+): Promise<UpdateCategoryLanguagesResponse> => {
+  const response = await axiosInstance.put<UpdateCategoryLanguagesResponse>(
+    "Cateogries/category-languages",
+    {
+      CategoryId: data.categoryId,
+      Translations: data.translations,
+    },
+    { signal }
+  );
+  return response.data;
+};

@@ -66,5 +66,22 @@ namespace NFC_Backend.Services
         {
             return BCrypt.Net.BCrypt.Verify(plainPassword, hashedPassword);
         }
+
+        public string HashRefreshToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToBase64String(bytes);
+        }
+
+        public bool VerifyRefreshToken(string plainToken, string hashedToken)
+        {
+            var computedHash = HashRefreshToken(plainToken);
+
+            var computedBytes = Encoding.UTF8.GetBytes(computedHash);
+            var storedBytes = Encoding.UTF8.GetBytes(hashedToken);
+
+            // Constant-time comparison — avoids leaking info via response-time differences
+            return CryptographicOperations.FixedTimeEquals(computedBytes, storedBytes);
+        }
     }
 }

@@ -46,8 +46,101 @@
   },
   "categories": {
     "title": "Catégories",
+    "total": "{{count}} catégories",
+    "active": "Active",
+    "inactive": "Inactive",
+    "empty_title": "Aucune catégorie trouvée",
+    "empty_sub": "Commencez par ajouter votre première catégorie",
+    "add": "Ajouter une catégorie",
+    "retry": "Réessayer",
+    "created": "Créée {{time}}",
+    "showing": "Affichage de {{from}}–{{to}} sur {{total}} résultats",
+    "validationError": "Vérifiez la requête de catégorie et réessayez.",
+    "serverError": "Impossible de charger les catégories.",
+    "accountNotFound": "Compte introuvable",
+    "accountNotFoundDescription": "Le compte restaurant demandé est introuvable.",
     "newCategory": "Nouvelle catégorie",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "seeDetails": "Voir les détails",
+    "deactivate": {
+      "button": "Désactiver",
+      "title": "Désactiver la catégorie ?",
+      "description": "Voulez-vous vraiment désactiver « {{name}} » ? Elle n'apparaîtra plus dans votre menu.",
+      "confirm": "Oui, désactiver",
+      "toastTitle": "Désactivation demandée",
+      "toastDescription": "« {{name}} » sera désactivée une fois connectée à l'API."
+    },
+    "details": {
+      "back": "Retour aux catégories",
+      "notFound": "Catégorie introuvable",
+      "notFoundDescription": "Nous n'avons pas trouvé les détails de cette catégorie (« {{id}} »). Revenez à la liste et rouvrez-la.",
+      "imageAlt": "Image de la catégorie",
+      "noDescription": "Pas de description",
+      "name": "Nom",
+      "color": "Couleur",
+      "status": "Statut",
+      "createdAt": "Créée le"
+    },
+    "form": {
+      "title": "Ajouter une catégorie",
+      "description": "Créez une nouvelle catégorie pour votre menu. Ajoutez un nom, une image et une couleur pour la rendre visible.",
+      "preview": "Aperçu en direct",
+      "detailsSection": "Détails",
+      "appearanceSection": "Apparence",
+      "nameLabel": "Nom de la catégorie",
+      "namePlaceholder": "ex. Burgers, Boissons, Desserts...",
+      "nameHelper": "Écrivez dans n'importe quelle langue — nous traduirons automatiquement pour les autres langues de votre menu. Vous pourrez réviser et modifier chaque traduction plus tard.",
+      "nameRequired": "Le nom de la catégorie est obligatoire.",
+      "nameTooLong": "Le nom doit contenir 50 caractères ou moins.",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Ajoutez une courte description pour aider les clients à comprendre cette catégorie (optionnel).",
+      "descriptionHelper": "Optionnel — écrivez la description dans n'importe quelle langue, notre IA la traduira automatiquement. Vous pourrez réviser et modifier chaque traduction plus tard.",
+      "displayOrderLabel": "Position d'affichage",
+      "imageLabel": "Image",
+      "colorLabel": "Couleur",
+      "colorHelper": "Optionnel — nous assignerons une couleur par défaut si vous passez cette étape.",
+      "cancel": "Annuler",
+      "createButton": "Créer la catégorie"
+    },
+    "imageUpload": {
+      "label": "Image de la catégorie",
+      "dropHere": "Déposez une image ici",
+      "orClick": "ou cliquez pour parcourir",
+      "maxSize": "Max 5 Mo",
+      "previewAlt": "Aperçu de l'image de la catégorie",
+      "change": "Changer l'image",
+      "remove": "Supprimer l'image",
+      "invalidType": "Veuillez télécharger une image JPG, PNG ou WebP.",
+      "tooLarge": "L'image doit être inférieure à 5 Mo."
+    },
+    "colorPicker": {
+      "hexLabel": "Code couleur hexadécimal"
+    },
+    "displayOrder": {
+      "decrease": "Déplacer la position plus tôt",
+      "increase": "Déplacer la position plus tard",
+      "helper": "Position dans le menu. Les nouvelles catégories sont placées à la fin par défaut."
+    },
+    "preview": {
+      "noName": "Aperçu de la catégorie",
+      "unnamed": "Catégorie sans nom",
+      "placeholder": "La description apparaîtra ici..."
+    },
+    "toast": {
+      "createSuccess": "Catégorie créée ! Les traductions sont en cours de génération en arrière-plan.",
+      "createError": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "translations": {
+      "title": "Catégorie créée !",
+      "description": "Voici comment le nom et la description de votre catégorie apparaîtront dans chaque langue.",
+      "name": "Nom",
+      "description": "Description",
+      "noDescription": "Pas de description",
+      "skip": "Passer",
+      "update": "Mettre à jour",
+      "updateSuccess": "Traductions mises à jour avec succès.",
+      "updateError": "Échec de la mise à jour des traductions."
+    }
   },
   "menuItems": {
     "title": "Articles du menu",

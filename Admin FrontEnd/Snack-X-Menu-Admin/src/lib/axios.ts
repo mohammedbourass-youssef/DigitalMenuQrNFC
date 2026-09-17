@@ -22,7 +22,6 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
     const url = originalRequest.url || '';
 
-    // ✅ If refresh itself fails → go to login immediately
     if (url.includes('/auth/refresh')) {
       isRefreshing = false;
       processQueue(error);

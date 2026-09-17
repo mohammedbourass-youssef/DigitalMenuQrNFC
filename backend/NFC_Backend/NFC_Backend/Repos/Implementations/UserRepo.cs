@@ -43,7 +43,7 @@ namespace NFC_Backend.Repos.Implementations
         }
         
         public  Task<User?> GetUserByEmail(string Email)
-        =>_dbContext.Users.AsNoTracking().Where(u=>u.Email == Email).FirstOrDefaultAsync();
+        =>_dbContext.Users.AsNoTracking().Where(u=>u.Email == Email).Include(t => t.Tenant).FirstOrDefaultAsync();
         public Task<User?> GetUserByID(Guid Id)
        => _dbContext.Users.AsNoTracking().Where(u => u.Id == Id).FirstOrDefaultAsync();
         public async Task DeleteUserRefreshToken(Guid Id)

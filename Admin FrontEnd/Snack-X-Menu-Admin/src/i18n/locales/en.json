@@ -46,8 +46,101 @@
   },
   "categories": {
     "title": "Categories",
+    "total": "{{count}} categories",
+    "active": "Active",
+    "inactive": "Inactive",
+    "empty_title": "No categories found",
+    "empty_sub": "Start by adding your first category",
+    "add": "Add Category",
+    "retry": "Retry",
+    "created": "Created {{time}}",
+    "showing": "Showing {{from}}–{{to}} of {{total}} results",
+    "validationError": "Please check the category request and try again.",
+    "serverError": "Unable to load categories.",
+    "accountNotFound": "Account not found",
+    "accountNotFoundDescription": "We could not find the restaurant account for this request.",
     "newCategory": "New category",
-    "edit": "Edit"
+    "edit": "Edit",
+    "seeDetails": "See Details",
+    "deactivate": {
+      "button": "Deactivate",
+      "title": "Deactivate category?",
+      "description": "Are you sure you want to deactivate \"{{name}}\"? It will no longer appear in your menu.",
+      "confirm": "Yes, Deactivate",
+      "toastTitle": "Deactivation requested",
+      "toastDescription": "\"{{name}}\" will be deactivated once connected to the API."
+    },
+    "details": {
+      "back": "Back to categories",
+      "notFound": "Category not found",
+      "notFoundDescription": "We couldn't find the details for this category (\"{{id}}\"). Go back to the list and open it again.",
+      "imageAlt": "Category image",
+      "noDescription": "No description",
+      "name": "Name",
+      "color": "Color",
+      "status": "Status",
+      "createdAt": "Created"
+    },
+    "form": {
+      "title": "Add New Category",
+      "description": "Create a new category for your menu. You can add a name, image, and color to make it stand out.",
+      "preview": "Live Preview",
+      "detailsSection": "Details",
+      "appearanceSection": "Appearance",
+      "nameLabel": "Category Name",
+      "namePlaceholder": "e.g. Burgers, Drinks, Desserts...",
+      "nameHelper": "Write it in any language — we'll automatically translate it for your other menu languages. You can review and edit each translation anytime later.",
+      "nameRequired": "Category name is required.",
+      "nameTooLong": "Name must be 50 characters or less.",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Add a short description to help customers understand this category (optional).",
+      "descriptionHelper": "Optional — write the description in any language you want, our AI will translate it automatically. You can review and edit each translation anytime later.",
+      "displayOrderLabel": "Display Position",
+      "imageLabel": "Image",
+      "colorLabel": "Color",
+      "colorHelper": "Optional — we'll assign a default color if you skip this.",
+      "cancel": "Cancel",
+      "createButton": "Create Category"
+    },
+    "imageUpload": {
+      "label": "Category image",
+      "dropHere": "Drop an image here",
+      "orClick": "or click to browse",
+      "maxSize": "Max 5 MB",
+      "previewAlt": "Category image preview",
+      "change": "Change image",
+      "remove": "Remove image",
+      "invalidType": "Please upload a JPG, PNG, or WebP image.",
+      "tooLarge": "Image must be smaller than 5 MB."
+    },
+    "colorPicker": {
+      "hexLabel": "Hex color code"
+    },
+    "displayOrder": {
+      "decrease": "Move position earlier",
+      "increase": "Move position later",
+      "helper": "Position in the menu. New categories are placed at the end by default."
+    },
+    "preview": {
+      "noName": "Category preview",
+      "unnamed": "Untitled category",
+      "placeholder": "Description will appear here..."
+    },
+    "toast": {
+      "createSuccess": "Category created! Translations are being generated in the background.",
+      "createError": "Something went wrong. Please try again."
+    },
+    "translations": {
+      "title": "Category created!",
+      "description": "Here's how your category name and description will appear in each language.",
+      "name": "Name",
+      "description": "Description",
+      "noDescription": "No description",
+      "skip": "Skip",
+      "update": "Update",
+      "updateSuccess": "Translations updated successfully.",
+      "updateError": "Failed to update translations."
+    }
   },
   "menuItems": {
     "title": "Menu Items",

@@ -6,6 +6,7 @@ import TopBar from '@/components/layout/TopBar';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import CategoriesPage from '@/pages/Categories';
+import CategoryDetailsPage from '@/pages/CategoryDetails';
 import DashboardPage from '@/pages/Dashboard';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
@@ -28,6 +29,7 @@ function ProtectedLayout() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/menu-items" element={<MenuItemsPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
             <Route path="/nfc-tags" element={<NFCTagsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />
