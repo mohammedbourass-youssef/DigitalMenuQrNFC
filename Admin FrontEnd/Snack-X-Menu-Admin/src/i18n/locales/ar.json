@@ -64,11 +64,21 @@
     "seeDetails": "عرض التفاصيل",
     "deactivate": {
       "button": "إلغاء التنشيط",
-      "title": "إلغاء تنشيط الفئة؟",
-      "description": "هل أنت متأكد أنك تريد إلغاء تنشيط « {{name}} »؟ لن تظهر بعد الآن في قائمتك.",
-      "confirm": "نعم، إلغاء التنشيط",
-      "toastTitle": "طلب إلغاء التنشيط",
-      "toastDescription": "سيتم إلغاء تنشيط « {{name}} » بمجرد الاتصال بواجهة API."
+      "title": "إلغاء تنشيط هذه الفئة؟",
+      "description": "سيؤدي إلغاء تنشيط هذه الفئة إلى تعطيل جميع عناصر القائمة بداخلها. إذا كنت ترغب في إبقاء هذه العناصر نشطة، قم بنقلها إلى فئة أخرى أولاً.",
+      "confirmAnyway": "إلغاء التنشيط على أي حال",
+      "moveItemsFirst": "نقل العناصر أولاً",
+      "toastSuccess": "تم تعطيل الفئة.",
+      "toastErrorForbidden": "ليس لديك صلاحية لإلغاء تنشيط هذه الفئة.",
+      "toastErrorNotFound": "الفئة غير موجودة أو معطلة بالفعل.",
+      "toastErrorGeneric": "فشل في تعطيل الفئة."
+    },
+    "activate": {
+      "button": "تفعيل",
+      "toastSuccess": "تم تفعيل الفئة.",
+      "toastErrorForbidden": "ليس لديك صلاحية لتفعيل هذه الفئة.",
+      "toastErrorNotFound": "الفئة غير موجودة.",
+      "toastErrorGeneric": "فشل في تفعيل الفئة."
     },
     "details": {
       "back": "العودة إلى الفئات",
@@ -79,7 +89,19 @@
       "name": "الاسم",
       "color": "اللون",
       "status": "الحالة",
-      "createdAt": "تاريخ الإنشاء"
+      "createdAt": "تاريخ الإنشاء",
+      "displayOrder": "ترتيب العرض",
+      "translations": "الترجمات",
+      "translationsEmpty": "لا توجد ترجمات متاحة.",
+      "loadError": "تعذر تحميل تفاصيل الفئة.",
+      "updateColorOrder": "تحديث اللون والترتيب",
+      "updateLanguages": "تحديث اللغات",
+      "editColorOrderTitle": "تحديث اللون والترتيب",
+      "editColorOrderDescription": "غيّر لون عرض هذه الفئة وترتيبها في القائمة.",
+      "editTranslationsTitle": "تحديث اللغات",
+      "editTranslationsDescription": "عدّل اسم ووصف الفئة لكل لغة.",
+      "displayUpdateSuccess": "تم تحديث لون الفئة وترتيبها.",
+      "displayUpdateError": "تعذر تحديث الفئة."
     },
     "form": {
       "title": "إضافة فئة جديدة",
@@ -138,6 +160,9 @@
       "noDescription": "لا يوجد وصف",
       "skip": "تخطي",
       "update": "تحديث",
+      "confirmTitle": "تأكيد التحديث؟",
+      "confirmDescription": "سيتم حفظ اسم الفئة ووصفها المترجمين لجميع اللغات.",
+      "confirmButton": "نعم، تحديث",
       "updateSuccess": "تم تحديث الترجمات بنجاح.",
       "updateError": "فشل في تحديث الترجمات."
     }

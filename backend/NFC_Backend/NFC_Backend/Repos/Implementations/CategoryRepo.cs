@@ -93,7 +93,91 @@ namespace NFC_Backend.Repos.Implementations
             return categories;
         }
 
-        public Task<Category?> GetCategoryByIDAsync(Guid id)
-        => _db.Categories.Where(c => c.Id == id && c.IsActive == true).FirstOrDefaultAsync();
+        public async Task<Category?> GetCategoryOfAdmin(Guid TenantId, Guid categoryId)
+        {
+            var categories = await _db.Categories
+                .AsNoTracking()
+                .Where(c => c.TenantId == TenantId && c.Id == categoryId)
+                .Include(c => c.Translations)
+                .FirstOrDefaultAsync();
+            return categories;
+        }
+
+        public Task<Category?> GetCategoryByIDAsync(Guid id , Guid TenantID)
+        => _db.Categories.Where(c => c.Id == id && c.IsActive == true && c.TenantId == TenantID).FirstOrDefaultAsync();
+
+        public async Task DisactiveCategory(Guid id)
+        {
+            //First disactive All Menus Related 
+            // now Disacteave The Category 
+            Category? category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            if (category == null)
+                throw new NotFoundException();
+            category.IsActive = false;
+            category.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+        public async Task ActiveCategory(Guid id)
+        {
+            //First disactive All Menus Related 
+            // now Disacteave The Category 
+            Category? category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
+            if (category == null)
+                throw new NotFoundException();
+            if (category.IsActive)
+                return;
+            category.IsActive = true;
+            category.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+        }
+        public Task<Category?> GetCategoryByIDIncludingInactiveAsync(Guid id , Guid Tenant)
+          => _db.Categories.Where(c => c.Id == id && c.TenantId == Tenant).FirstOrDefaultAsync();
+
+        public async Task UpdateColorAndOrder(Guid categoryId, Guid tenantId, string color, int displayOrder)
+        {
+            var category = await _db.Categories
+                .FirstOrDefaultAsync(c => c.Id == categoryId && c.TenantId == tenantId);
+
+            if (category == null)
+                throw new NotFoundException("Category not found.");
+
+            category.Color = color;
+            category.DisplayOrder = displayOrder;
+            category.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<List<SimpleCategoryInfoDto>> GetCategoriesSimple(Guid tenantId, SearchCategoryRequest search)
+        {
+            var translationsQuery = _db.CategoryTranslations
+                .Where(t => t.Lang == search.Language);
+
+            if (!string.IsNullOrWhiteSpace(search.Query))
+            {
+                translationsQuery = translationsQuery
+                    .Where(t => t.Name.Contains(search.Query));
+            }
+
+            var data = await _db.Categories
+                .AsNoTracking()
+                .Where(c => c.TenantId == tenantId && c.IsActive)
+                .Join(
+                    translationsQuery,
+                    c => c.Id,
+                    t => t.CategoryId,
+                    (c, t) => new { c, t } // keep as anonymous type first
+                )
+                .OrderBy(x => x.t.Name) // order on the raw joined result — EF can translate this
+                .Select(x => new SimpleCategoryInfoDto(
+                    x.c.Id,
+                    x.t.Name,
+                    x.t.Descriptions,
+                    x.c.Color
+                ))
+                .ToListAsync();
+
+            return data;
+        }
     }
 }

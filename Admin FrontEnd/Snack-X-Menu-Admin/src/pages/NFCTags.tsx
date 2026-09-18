@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { getNFCTags } from "@/services/nfcService";
+import { formatLocalDateTime } from "@/lib/date";
 import type { NFCTag } from "@/types";
 
 export default function NFCTagsPage() {
@@ -44,7 +45,7 @@ export default function NFCTagsPage() {
                     {tag.status}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">{tag.lastScannedAt ? new Date(tag.lastScannedAt).toLocaleString() : t('nfcTags.never')}</td>
+                <td className="px-4 py-3 text-sm text-slate-600">{tag.lastScannedAt ? formatLocalDateTime(tag.lastScannedAt) : t('nfcTags.never')}</td>
               </tr>
             ))}
           </tbody>

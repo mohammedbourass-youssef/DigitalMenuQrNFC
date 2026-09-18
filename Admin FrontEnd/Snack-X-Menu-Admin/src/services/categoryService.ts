@@ -2,6 +2,7 @@ import axiosInstance from "@/lib/axios";
 import type {
   Category,
   AdminCategoryResponse,
+  CategoryAdminInfo,
   CreateCategoryDTO,
   CreateCategoryResponse,
   UpdateCategoryLanguagesRequest,
@@ -23,7 +24,7 @@ export const getAdminCategories = async (
 export const getCategories = async (): Promise<Category[]> => {
   const { data } = await axiosInstance.get<AdminCategoryResponse>("Cateogries/categories-Admin");
   return data.data.map((item) => ({
-    id: `${item.createdAt}-${item.name ?? ""}`,
+    id: item.id,
     name: item.name ?? "",
     description: item.desc ?? "",
     color: item.color,
@@ -64,6 +65,49 @@ export const updateCategoryLanguages = async (
       Translations: data.translations,
     },
     { signal }
+  );
+  return response.data;
+};
+
+export const updateCategoryDisplay = async (
+  categoryId: string,
+  color: string,
+  displayOrder: number
+): Promise<{ message: string }> => {
+  const response = await axiosInstance.patch<{ message: string }>(
+    "Cateogries/display",
+    {
+      CategoryId: categoryId,
+      Color: color,
+      DisplayOrder: displayOrder,
+    }
+  );
+  return response.data;
+};
+
+export const getCategoryInfoAdmin = async (
+  categoryId: string
+): Promise<CategoryAdminInfo> => {
+  const response = await axiosInstance.get<CategoryAdminInfo>(
+    `Cateogries/${categoryId}/info-Admin`
+  );
+  return response.data;
+};
+
+export const deactivateCategory = async (
+  categoryId: string
+): Promise<{ message: string }> => {
+  const response = await axiosInstance.patch<{ message: string }>(
+    `Cateogries/${categoryId}/disactive`
+  );
+  return response.data;
+};
+
+export const activateCategory = async (
+  categoryId: string
+): Promise<{ message: string }> => {
+  const response = await axiosInstance.patch<{ message: string }>(
+    `Cateogries/${categoryId}/active`
   );
   return response.data;
 };

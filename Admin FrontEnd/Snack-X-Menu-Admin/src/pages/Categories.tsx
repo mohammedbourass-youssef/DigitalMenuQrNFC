@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { AlertCircle, Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useToast } from "@/hooks/use-toast";
+import { deactivateCategory, activateCategory } from "@/services/categoryService";
 import { CategoryCard } from "@/components/categories/CategoryCard";
 import { CategoryCardSkeleton } from "@/components/categories/CategoryCardSkeleton";
 import { CategoriesPagination } from "@/components/categories/CategoriesPagination";
@@ -14,13 +16,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Spinner } from "@/components/ui/spinner";
-import type { AdminCategoryItem } from "@/types";
+import type { AdminCategoryItem, AdminCategoryResponse } from "@/types";
 
 const PAGE_COUNT_DEFAULT = 8;
 
 export default function CategoriesPage() {
   const { i18n, t } = useTranslation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showAddSheet, setShowAddSheet] = useState(false);
   const lang = searchParams.get("lang") || i18n.language || "en";
@@ -67,11 +70,54 @@ export default function CategoriesPage() {
     });
   };
 
-  const handleDeactivate = (category: AdminCategoryItem) => {
-    // TODO: wire real API when available
-    toast({ title: t("categories.deactivate.toastTitle"), description: t("categories.deactivate.toastDescription", { name: category.name || "—" }) });
-    void query.refetch();
+  const queryKey = ["admin-categories", lang, pageNumber, pageCount] as const;
+
+  const statusOf = (err: unknown): number | undefined => {
+    if (typeof err === "object" && err !== null && "response" in err) {
+      return (err as { response?: { status?: number } }).response?.status;
+    }
+    return undefined;
   };
+
+  const showToggleError = (err: unknown, kind: "activate" | "deactivate") => {
+    const status = statusOf(err);
+    let message = t(`categories.${kind}.toastErrorGeneric`);
+    if (status === 403) message = t(`categories.${kind}.toastErrorForbidden`);
+    else if (status === 404) message = t(`categories.${kind}.toastErrorNotFound`);
+    toast({ variant: "destructive", title: message });
+    throw err;
+  };
+
+  const flipIsActive = (categoryId: string, isActive: boolean) => {
+    queryClient.setQueryData<AdminCategoryResponse>(queryKey, (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        data: old.data.map((c) => (c.id === categoryId ? { ...c, isActive } : c)),
+      };
+    });
+  };
+
+  const handleDeactivate = async (category: AdminCategoryItem) => {
+    try {
+      await deactivateCategory(category.id);
+      flipIsActive(category.id, false);
+      toast({ title: t("categories.deactivate.toastSuccess") });
+    } catch (err: unknown) {
+      showToggleError(err, "deactivate");
+    }
+  };
+
+  const handleActivate = async (category: AdminCategoryItem) => {
+    try {
+      await activateCategory(category.id);
+      flipIsActive(category.id, true);
+      toast({ title: t("categories.activate.toastSuccess") });
+    } catch (err: unknown) {
+      showToggleError(err, "activate");
+    }
+  };
+
   const isEmpty = !query.isLoading && !query.data?.data?.length;
 
   return (
@@ -102,7 +148,7 @@ export default function CategoriesPage() {
       ) : query.isError ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-10 text-center"><p className="font-semibold text-red-800">{t("categories.serverError")}</p><Button variant="outline" onClick={() => void query.refetch()}>{t("categories.retry")}</Button></div>
       ) : (
-        <div className="relative">{query.isFetching && <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/50 pt-8 backdrop-blur-[1px]"><Spinner className="h-6 w-6 text-primary" /></div>}<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{query.data?.data.map((category, index) => <CategoryCard key={`${category.name}-${category.createdAt}-${index}`} category={category} activeLabel={t("categories.active")} inactiveLabel={t("categories.inactive")} createdLabel={(time) => t("categories.created", { time })} onDeactivate={handleDeactivate} />)}</div></div>
+        <div className="relative">{query.isFetching && <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/50 pt-8 backdrop-blur-[1px]"><Spinner className="h-6 w-6 text-primary" /></div>}<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{query.data?.data.map((category) => <CategoryCard key={category.id} category={category} activeLabel={t("categories.active")} inactiveLabel={t("categories.inactive")} createdLabel={(time) => t("categories.created", { time })} onDeactivate={handleDeactivate} onActivate={handleActivate} />)}</div></div>
       )}
 
       {query.data && query.data.meta.totalCount > 0 && <CategoriesPagination pageNumber={pageNumber} pageCount={pageCount} totalCount={query.data.meta.totalCount} hasMore={query.data.meta.hasMore} showingLabel={t("categories.showing")} onPageChange={changePage} />}

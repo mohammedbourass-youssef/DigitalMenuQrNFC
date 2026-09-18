@@ -16,10 +16,12 @@ namespace NFC_Backend.Infrastructure.Data
         public DbSet<VerificationCode> VerificationCodes { get; set; } = null!;
         public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<CategoryTranslation> CategoryTranslations { get; set; } = null!;
+        public DbSet<MenuItem> MenuItems { get; set; } = null!;
+        public DbSet<MenuItemTranslation> MenuItemTranslations { get; set; } = null!;
+        public DbSet<MenuImage> MenuImages { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
             modelBuilder.Entity<User>(entity =>
             {
                 entity.ToTable("users");
@@ -208,6 +210,51 @@ namespace NFC_Backend.Infrastructure.Data
                 entity.HasOne(ct => ct.Category)
                       .WithMany(c => c.Translations)
                       .HasForeignKey(ct => ct.CategoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<MenuItem>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+                entity.Property(m => m.PriceInDefaultCurrency).HasColumnType("decimal(18,2)");
+                entity.Property(m => m.DiscountedPrice).HasColumnType("decimal(18,2)");
+                entity.Property(m => m.DefaultCurrencyCode).HasMaxLength(3).IsRequired();
+
+                entity.HasOne(m => m.Category)
+                      .WithMany() // add ICollection<MenuItem> on Category if you want reverse nav
+                      .HasForeignKey(m => m.CategoryId)
+                      .OnDelete(DeleteBehavior.Restrict); // see note below
+
+                entity.HasOne(m => m.Tenant)
+                      .WithMany()
+                      .HasForeignKey(m => m.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(m => new { m.TenantId, m.CategoryId }); // common query pattern
+            });
+
+            modelBuilder.Entity<MenuItemTranslation>(entity =>
+            {
+                entity.HasKey(t => t.Id);
+                entity.Property(t => t.Lang).HasMaxLength(10).IsRequired();
+                entity.Property(t => t.Name).IsRequired();
+
+                entity.HasOne(t => t.Menu)
+                      .WithMany(m => m.Translations)
+                      .HasForeignKey(t => t.MenuId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(t => new { t.MenuId, t.Lang }).IsUnique(); 
+            });
+
+            modelBuilder.Entity<MenuImage>(entity =>
+            {
+                entity.HasKey(i => i.Id);
+                entity.Property(i => i.Url).IsRequired();
+
+                entity.HasOne(i => i.Menu)
+                      .WithMany(m => m.Images)
+                      .HasForeignKey(i => i.MenuId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }

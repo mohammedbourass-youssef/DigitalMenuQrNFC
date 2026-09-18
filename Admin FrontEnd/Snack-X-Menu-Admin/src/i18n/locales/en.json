@@ -64,11 +64,21 @@
     "seeDetails": "See Details",
     "deactivate": {
       "button": "Deactivate",
-      "title": "Deactivate category?",
-      "description": "Are you sure you want to deactivate \"{{name}}\"? It will no longer appear in your menu.",
-      "confirm": "Yes, Deactivate",
-      "toastTitle": "Deactivation requested",
-      "toastDescription": "\"{{name}}\" will be deactivated once connected to the API."
+      "title": "Deactivate this category?",
+      "description": "Deactivating this category will also deactivate all menu items inside it. If you'd like to keep those items active, move them to another category first.",
+      "confirmAnyway": "Deactivate anyway",
+      "moveItemsFirst": "Move items first",
+      "toastSuccess": "Category deactivated.",
+      "toastErrorForbidden": "You don't have permission to deactivate this category.",
+      "toastErrorNotFound": "Category not found or already inactive.",
+      "toastErrorGeneric": "Failed to deactivate category."
+    },
+    "activate": {
+      "button": "Activate",
+      "toastSuccess": "Category activated.",
+      "toastErrorForbidden": "You don't have permission to activate this category.",
+      "toastErrorNotFound": "Category not found.",
+      "toastErrorGeneric": "Failed to activate category."
     },
     "details": {
       "back": "Back to categories",
@@ -76,10 +86,22 @@
       "notFoundDescription": "We couldn't find the details for this category (\"{{id}}\"). Go back to the list and open it again.",
       "imageAlt": "Category image",
       "noDescription": "No description",
-      "name": "Name",
-      "color": "Color",
-      "status": "Status",
-      "createdAt": "Created"
+"name":  "Name",
+                    "color":  "Color",
+                    "status":  "Status",
+                    "createdAt":  "Created",
+                    "displayOrder":  "Display order",
+                    "translations":  "Translations",
+                    "translationsEmpty":  "No translations available.",
+                    "loadError":  "Unable to load category details.",
+                    "updateColorOrder":  "Update Color & Order",
+                    "updateLanguages":  "Update Languages",
+                    "editColorOrderTitle":  "Update Color & Order",
+                    "editColorOrderDescription":  "Change this category's display color and position in the menu.",
+                    "editTranslationsTitle":  "Update Languages",
+                    "editTranslationsDescription":  "Edit the category's name and description for each language.",
+                    "displayUpdateSuccess":  "Category color and order updated.",
+                    "displayUpdateError":  "Failed to update category."
     },
     "form": {
       "title": "Add New Category",
@@ -138,6 +160,9 @@
       "noDescription": "No description",
       "skip": "Skip",
       "update": "Update",
+      "confirmTitle": "Confirm update?",
+      "confirmDescription": "Your translated category name and description will be saved for all languages.",
+      "confirmButton": "Yes, Update",
       "updateSuccess": "Translations updated successfully.",
       "updateError": "Failed to update translations."
     }

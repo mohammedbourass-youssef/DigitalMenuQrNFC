@@ -54,6 +54,7 @@ import { useRestaurantInfos } from "@/hooks/useRestaurantInfos";
 import { useRestaurantUpdate } from "@/hooks/useRestaurantUpdate";
 import { useMyProfile } from "@/hooks/useMyProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
+import { formatLocalDate, formatLocalDateTime } from "@/lib/date";
 import type { MyRestaurantInfosResponse, MyRestaurantUpdateInfosDTO } from "@/types";
 
 const CURRENCIES = ["MAD", "USD", "EUR", "JPY", "KRW", "CNY", "GBP"];
@@ -284,24 +285,6 @@ export default function SettingsPage() {
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const formatDateTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
   // Profile handlers
   const handleEditProfile = () => {
     if (profile) {
@@ -523,7 +506,7 @@ export default function SettingsPage() {
                     <div className="flex items-center gap-3">
                       <Sparkles className="h-5 w-5 text-amber-600" />
                       <p className="text-sm text-amber-800">
-                        {t("settings.trialBanner", { date: formatDate(restaurant.trialEndsAt!) })}
+                        {t("settings.trialBanner", { date: formatLocalDate(restaurant.trialEndsAt) })}
                       </p>
                     </div>
                     <Button
@@ -677,7 +660,7 @@ export default function SettingsPage() {
                 {/* Member Since */}
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">{t("settings.fields.memberSince")}</Label>
-                  <p className="text-base font-medium">{formatDate(restaurant.createdAt)}</p>
+                  <p className="text-base font-medium">{formatLocalDate(restaurant.createdAt)}</p>
                 </div>
               </div>
 
@@ -827,14 +810,14 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">{t("settings.profile.lastLogin")}</Label>
                   <p className="text-base font-medium">
-                    {profile.lastLoginAt ? formatDateTime(profile.lastLoginAt) : t("settings.profile.never")}
+                    {profile.lastLoginAt ? formatLocalDateTime(profile.lastLoginAt) : t("settings.profile.never")}
                   </p>
                 </div>
 
                 {/* Member Since */}
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">{t("settings.profile.memberSince")}</Label>
-                  <p className="text-base font-medium">{formatDate(profile.createdAt)}</p>
+                  <p className="text-base font-medium">{formatLocalDate(profile.createdAt)}</p>
                 </div>
               </div>
 

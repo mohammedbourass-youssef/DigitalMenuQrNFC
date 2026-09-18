@@ -64,11 +64,21 @@
     "seeDetails": "Voir les détails",
     "deactivate": {
       "button": "Désactiver",
-      "title": "Désactiver la catégorie ?",
-      "description": "Voulez-vous vraiment désactiver « {{name}} » ? Elle n'apparaîtra plus dans votre menu.",
-      "confirm": "Oui, désactiver",
-      "toastTitle": "Désactivation demandée",
-      "toastDescription": "« {{name}} » sera désactivée une fois connectée à l'API."
+      "title": "Désactiver cette catégorie ?",
+      "description": "Désactiver cette catégorie désactivera également tous les articles du menu qu'elle contient. Si vous souhaitez garder ces articles actifs, déplacez-les dans une autre catégorie d'abord.",
+      "confirmAnyway": "Désactiver quand même",
+      "moveItemsFirst": "Déplacer les articles d'abord",
+      "toastSuccess": "Catégorie désactivée.",
+      "toastErrorForbidden": "Vous n'avez pas la permission de désactiver cette catégorie.",
+      "toastErrorNotFound": "Catégorie introuvable ou déjà désactivée.",
+      "toastErrorGeneric": "Échec de la désactivation de la catégorie."
+    },
+    "activate": {
+      "button": "Activer",
+      "toastSuccess": "Catégorie activée.",
+      "toastErrorForbidden": "Vous n'avez pas la permission d'activer cette catégorie.",
+      "toastErrorNotFound": "Catégorie introuvable.",
+      "toastErrorGeneric": "Échec de l'activation de la catégorie."
     },
     "details": {
       "back": "Retour aux catégories",
@@ -79,7 +89,19 @@
       "name": "Nom",
       "color": "Couleur",
       "status": "Statut",
-      "createdAt": "Créée le"
+      "createdAt": "Créée le",
+      "displayOrder": "Ordre d'affichage",
+      "translations": "Traductions",
+      "translationsEmpty": "Aucune traduction disponible.",
+      "loadError": "Impossible de charger les détails de la catégorie.",
+      "updateColorOrder": "Modifier la couleur et l'ordre",
+      "updateLanguages": "Mettre à jour les langues",
+      "editColorOrderTitle": "Modifier la couleur et l'ordre",
+      "editColorOrderDescription": "Modifiez la couleur d'affichage et la position de cette catégorie dans le menu.",
+      "editTranslationsTitle": "Mettre à jour les langues",
+      "editTranslationsDescription": "Modifiez le nom et la description de la catégorie pour chaque langue.",
+      "displayUpdateSuccess": "Couleur et ordre de la catégorie mis à jour.",
+      "displayUpdateError": "Échec de la mise à jour de la catégorie."
     },
     "form": {
       "title": "Ajouter une catégorie",
@@ -138,6 +160,9 @@
       "noDescription": "Pas de description",
       "skip": "Passer",
       "update": "Mettre à jour",
+      "confirmTitle": "Confirmer la mise à jour ?",
+      "confirmDescription": "Le nom et la description traduits de votre catégorie seront enregistrés pour toutes les langues.",
+      "confirmButton": "Oui, mettre à jour",
       "updateSuccess": "Traductions mises à jour avec succès.",
       "updateError": "Échec de la mise à jour des traductions."
     }

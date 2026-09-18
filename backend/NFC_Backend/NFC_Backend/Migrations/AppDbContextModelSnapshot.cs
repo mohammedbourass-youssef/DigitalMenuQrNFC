@@ -227,6 +227,120 @@ namespace NFC_Backend.Migrations
                     b.ToTable("ExchangeRates");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("MenuId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId");
+
+                    b.ToTable("MenuImages");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CoverImage")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("DefaultCurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character varying(3)");
+
+                    b.Property<decimal?>("DiscountedPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("PreparationTimeMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PriceInDefaultCurrency")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Sku")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("TenantId", "CategoryId");
+
+                    b.ToTable("MenuItems");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItemTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Descriptions")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Guid>("MenuId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuId", "Lang")
+                        .IsUnique();
+
+                    b.ToTable("MenuItemTranslations");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
@@ -452,6 +566,47 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Target");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuImage", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.MenuItem", "Menu")
+                        .WithMany("Images")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItem", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItemTranslation", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.MenuItem", "Menu")
+                        .WithMany("Translations")
+                        .HasForeignKey("MenuId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Menu");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Currency", "Currency")
@@ -494,6 +649,13 @@ namespace NFC_Backend.Migrations
                     b.Navigation("BaseRates");
 
                     b.Navigation("TargetRates");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItem", b =>
+                {
+                    b.Navigation("Images");
+
+                    b.Navigation("Translations");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>

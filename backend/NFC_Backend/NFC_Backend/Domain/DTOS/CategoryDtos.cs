@@ -37,6 +37,7 @@ namespace NFC_Backend.Domain.DTOS
 
     // ✅ Null-safe — API can return null name/desc for missing translations
     public record AdminCategorisData(
+        Guid Id,
         string? Name,
         string? Desc,
         string? Color,
@@ -44,4 +45,19 @@ namespace NFC_Backend.Domain.DTOS
         bool IsActive,
         DateTime CreatedAt
     );
+    public class UpdateCategoryDisplayRequest
+    {
+        public Guid CategoryId { get; set; }
+        public string Color { get; set; } = null!;
+        public int DisplayOrder { get; set; }
+    }
+    public record SimpleCategoryInfoDto (Guid id , string Name , string Desc , string color);
+
+    public class SearchCategoryRequest
+    {
+        public string? Query { get; set; }
+
+        [Required(ErrorMessage = "Language is required.")]
+        public string Language { get; set; }
+    }
 }

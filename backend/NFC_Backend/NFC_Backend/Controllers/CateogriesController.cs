@@ -10,6 +10,7 @@ using NFC_Backend.Extensions;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace NFC_Backend.Controllers
@@ -166,7 +167,6 @@ namespace NFC_Backend.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
-
         [HttpPut("category-languages")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
         public async Task<ActionResult> UpdatesCategoryLanguages(UpdateCateogryRequest updateCateogry)
@@ -200,7 +200,7 @@ namespace NFC_Backend.Controllers
                     _logger.LogWarning("UpdatesCategoryLanguages failed - tenant not found. TenantId: {TenantId}", tenantId);
                     return NotFound(new { error = "Restaurant not found." });
                 }
-                Category? category = await _categoryRepo.GetCategoryByIDAsync(updateCateogry.CategoryId);
+                Category? category = await _categoryRepo.GetCategoryByIDAsync(updateCateogry.CategoryId ,tenant.Id);
                 if (category == null)
                 {
                     _logger.LogWarning(
@@ -286,6 +286,7 @@ namespace NFC_Backend.Controllers
                     var imageUrl = await _fileStorageService.GetFileUrlAsync(c.ImageUrl, tenant.BucketName);
 
                     return new AdminCategorisData(
+                        c.Id,
                         translation?.Name,
                         translation?.Descriptions,
                         c.Color,
@@ -320,6 +321,286 @@ namespace NFC_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "GetAllForAdmin unexpected error");
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+        [HttpPatch("{id}/disactive")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult> DisactiveCategory(Guid id)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    _logger.LogWarning("DisactiveCategory failed - invalid or missing userId in token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                User user = await _userRepo.GetUserByID(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("DisactiveCategory failed - user not found. UserId: {UserId}", userId);
+                    return NotFound(new { error = "User not found." });
+                }
+
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("DisactiveCategory failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                Tenant? tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("DisactiveCategory failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                Category? category = await _categoryRepo.GetCategoryByIDAsync(id , tenant.Id);
+                if (category == null)
+                {
+                    _logger.LogWarning("DisactiveCategory failed - category not found. CategoryId: {CategoryId}", id);
+                    return NotFound(new { error = "Category not found." });
+                }
+
+                if (category.TenantId != tenantId)
+                {
+                    _logger.LogWarning(
+                        "DisactiveCategory failed - category {CategoryId} does not belong to tenant. CategoryTenantId: {CategoryTenantId}, TokenTenantId: {TokenTenantId}",
+                        category.Id, category.TenantId, tenantId);
+                    return Forbid();
+                }
+
+                await _categoryRepo.DisactiveCategory(id);
+
+                _logger.LogInformation("DisactiveCategory succeeded for CategoryId: {CategoryId}, TenantId: {TenantId}", id, tenantId);
+
+                return Ok(new { message = "Category disabled successfully." });
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in DisactiveCategory for CategoryId: {CategoryId}", id);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+        [HttpPatch("{id}/active")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult> ActiveCategory(Guid id)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                    return Unauthorized(new { error = "Invalid token." });
+
+                User user = await _userRepo.GetUserByID(userId);
+                if (user == null)
+                    return NotFound(new { error = "User not found." });
+
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                    return Unauthorized(new { error = "Invalid token." });
+
+                Tenant? tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("DisactiveCategory failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                Category? category = await _categoryRepo.GetCategoryByIDIncludingInactiveAsync(id , tenant.Id); // see note below
+                if (category == null)
+                    return NotFound(new { error = "Category not found." });
+
+                if (category.TenantId != tenantId)
+                    return Forbid();
+
+                await _categoryRepo.ActiveCategory(id);
+
+                _logger.LogInformation("ActiveCategory succeeded for CategoryId: {CategoryId}, TenantId: {TenantId}", id, tenantId);
+                return Ok(new { message = "Category enabled successfully." });
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in ActiveCategory for CategoryId: {CategoryId}", id);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+        [HttpGet("{id}/info-Admin")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult> GetCategoryInfoOfAdmin(Guid id)
+        {
+            try
+            {
+                _logger.LogInformation("GetCategoryInfoOfAdmin started");
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    _logger.LogWarning("GetCategoryInfoOfAdmin failed - invalid or missing userId in token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                User user = await _userRepo.GetUserByID(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("GetCategoryInfoOfAdmin failed - user not found. UserId: {UserId}", userId);
+                    return NotFound(new { error = "User not found." });
+                }
+
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("GetCategoryInfoOfAdmin failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                Tenant? tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("GetCategoryInfoOfAdmin failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                var categorie = await _categoryRepo.GetCategoryOfAdmin(tenant.Id , id);
+                if (categorie == null)
+                {
+                    _logger.LogWarning("GetCategoryInfoOfAdmin failed - category not found. CategoryId: {CategoryId}", id);
+                    return NotFound(new { error = "Category not found." });
+                }
+
+                return Ok(new
+                {
+                    Id = categorie.Id,
+                    Color = categorie.Color,
+                    ImageUrl = await _fileStorageService.GetFileUrlAsync(categorie.ImageUrl, tenant.BucketName),
+                    DisplayOrder = categorie.DisplayOrder,
+                    IsActive = categorie.IsActive,
+                    translations = categorie.Translations.Select(c => new
+                    {
+                        Id = c.Id,
+                        lang = c.Lang,
+                        Name = c.Name,
+                        Description = c.Descriptions
+                    })
+                });
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetCategoryInfoOfAdmin unexpected error");
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
+        [HttpPatch("display")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult> UpdateCategoryDisplay(UpdateCategoryDisplayRequest request)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    _logger.LogWarning("UpdateCategoryDisplay failed - invalid or missing userId in token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                User user = await _userRepo.GetUserByID(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("UpdateCategoryDisplay failed - user not found. UserId: {UserId}", userId);
+                    return NotFound(new { error = "User not found." });
+                }
+
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("UpdateCategoryDisplay failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                Tenant? tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("UpdateCategoryDisplay failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                await _categoryRepo.UpdateColorAndOrder(
+                    request.CategoryId, tenant.Id, request.Color, request.DisplayOrder);
+
+                _logger.LogInformation(
+                    "UpdateCategoryDisplay succeeded for CategoryId: {CategoryId}, TenantId: {TenantId}",
+                    request.CategoryId, tenantId);
+
+                return Ok(new { message = "Category updated successfully." });
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in UpdateCategoryDisplay for CategoryId: {CategoryId}", request.CategoryId);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
+        [HttpGet("combo")]
+        [Authorize]
+        public async Task<ActionResult> GetSimpleInfos([FromQuery] SearchCategoryRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                _logger.LogInformation("GetSimpleInfos started");
+
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("GetSimpleInfos failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                Tenant? tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("GetSimpleInfos failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                var data = await _categoryRepo.GetCategoriesSimple(tenant.Id, request);
+
+                return Ok(new { data });
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex.Message);
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetSimpleInfos unexpected error");
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }

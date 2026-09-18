@@ -15,6 +15,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<ITenantRepo, TenantRepo>();
             services.AddScoped<IExchangeRateRepo, ExchangeRateRepo>();
             services.AddScoped<ICategoryRepo, CategoryRepo>();
+            services.AddScoped<IMenuItem, MenuItem>();
 
 
             //Services
@@ -22,13 +23,13 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IFileStorageService, MinioFileStorageService>();
             services.AddScoped<ICookieService, CookieService>();
             services.AddScoped<IExchangeRateService, ExchangeRateService>();
-          services.AddScoped<ICategoryTranslationService, CategoryTranslationService>();
+            services.AddScoped<ICategoryTranslationService, CategoryTranslationService>();
 
 
             //Adapters : 
             services.AddHttpClient<IExchangeRateApiAdapter, ExchangeRateApiAdapter>();
             services.AddScoped<IEmailAdapter, GmailSmtpAdapter>();
-         services.AddScoped<IVerificationEmailService, VerificationEmailService>();
+            services.AddScoped<IVerificationEmailService, VerificationEmailService>();
         
           services
     .AddOptions<AzureTranslatorOptions>()

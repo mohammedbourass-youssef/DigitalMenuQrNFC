@@ -18,6 +18,7 @@ export interface Category {
 }
 
 export interface AdminCategoryItem {
+  id: string;
   name: string | null;
   desc: string | null;
   color: string;
@@ -31,6 +32,22 @@ export interface AdminCategoryMeta {
   pageSize: number;
   totalCount: number;
   hasMore: boolean;
+}
+
+export interface CategoryAdminTranslation {
+  id: string;
+  lang: string;
+  name: string;
+  description: string | null;
+}
+
+export interface CategoryAdminInfo {
+  id: string;
+  color: string;
+  imageUrl: string | null;
+  displayOrder: number;
+  isActive: boolean;
+  translations: CategoryAdminTranslation[];
 }
 
 export interface AdminCategoryResponse {

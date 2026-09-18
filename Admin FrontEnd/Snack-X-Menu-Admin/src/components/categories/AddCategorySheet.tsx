@@ -20,11 +20,11 @@ import { ImageUploadField } from "./ImageUploadField";
 import { ColorPickerField } from "./ColorPickerField";
 import { CategoryPreviewCard } from "./CategoryPreviewCard";
 import { DisplayOrderStepper } from "./DisplayOrderStepper";
-import { createCategory, updateCategoryLanguages } from "@/services/categoryService";
+import { CategoryTranslationsEditor, type EditedTranslations } from "./CategoryTranslationsEditor";
+import { createCategory } from "@/services/categoryService";
 import type { CreateCategoryResponse } from "@/types";
 
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
-type UpdateStatus = "idle" | "updating" | "success" | "error";
 
 interface AddCategorySheetProps {
   open: boolean;
@@ -36,17 +36,6 @@ interface AddCategorySheetProps {
 const DEFAULT_COLOR = "#94a3b8";
 const NAME_MAX_LENGTH = 50;
 const DESC_MAX_LENGTH = 300;
-
-const LANGUAGES: Record<string, { label: string; flag: string }> = {
-  en: { label: "English", flag: "🇬🇧" },
-  fr: { label: "French", flag: "🇫🇷" },
-  ar: { label: "Arabic", flag: "🇸🇦" },
-  es: { label: "Spanish", flag: "🇪🇸" },
-  de: { label: "German", flag: "🇩🇪" },
-  "zh-Hans": { label: "Chinese (Simplified)", flag: "🇨🇳" },
-  pt: { label: "Portuguese", flag: "🇵🇹" },
-  ja: { label: "Japanese", flag: "🇯🇵" },
-};
 
 export function AddCategorySheet({
   open,
@@ -70,17 +59,10 @@ export function AddCategorySheet({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // ── Translation update state ──
-  const [updateStatus, setUpdateStatus] = useState<UpdateStatus>("idle");
-  const [updateErrorMessage, setUpdateErrorMessage] = useState<string | null>(null);
-  const updateAbortRef = useRef<AbortController | null>(null);
-
   // ── Translations review state ──
   const [createdCategoryId, setCreatedCategoryId] = useState<string | null>(null);
   const [serverTranslations, setServerTranslations] = useState<CreateCategoryResponse | null>(null);
-  const [editedTranslations, setEditedTranslations] = useState<
-    Record<string, { name: string; description: string }>
-  >({});
+  const [translationsSaving, setTranslationsSaving] = useState(false);
 
   const nameError =
     nameTouched && name.trim().length === 0
@@ -91,7 +73,6 @@ export function AddCategorySheet({
 
   const isNameValid = name.trim().length > 0 && name.trim().length <= NAME_MAX_LENGTH;
   const isSubmitting = submitStatus === "submitting";
-  const isUpdating = updateStatus === "updating";
   const canSubmit = isNameValid && !isSubmitting;
 
   // Sync image preview with file
@@ -115,31 +96,21 @@ export function AddCategorySheet({
       setNameTouched(false);
       setSubmitStatus("idle");
       setErrorMessage(null);
-      setUpdateStatus("idle");
-      setUpdateErrorMessage(null);
       setCreatedCategoryId(null);
       setServerTranslations(null);
-      setEditedTranslations({});
+      setTranslationsSaving(false);
       abortRef.current?.abort();
       abortRef.current = null;
-      updateAbortRef.current?.abort();
-      updateAbortRef.current = null;
     }
   }, [open]);
 
   // Cancel in-flight requests if sheet closes
   useEffect(() => {
-    if (!open) {
-      if (isSubmitting) {
-        abortRef.current?.abort();
-        abortRef.current = null;
-      }
-      if (isUpdating) {
-        updateAbortRef.current?.abort();
-        updateAbortRef.current = null;
-      }
+    if (!open && isSubmitting) {
+      abortRef.current?.abort();
+      abortRef.current = null;
     }
-  }, [open, isSubmitting, isUpdating]);
+  }, [open, isSubmitting]);
 
   const resetForm = useCallback(() => {
     setName("");
@@ -150,11 +121,9 @@ export function AddCategorySheet({
     setNameTouched(false);
     setSubmitStatus("idle");
     setErrorMessage(null);
-    setUpdateStatus("idle");
-    setUpdateErrorMessage(null);
     setCreatedCategoryId(null);
     setServerTranslations(null);
-    setEditedTranslations({});
+    setTranslationsSaving(false);
   }, []);
 
   const handleClose = useCallback(() => {
@@ -164,13 +133,13 @@ export function AddCategorySheet({
 
   const handleSheetOpenChange = useCallback(
     (nextOpen: boolean) => {
-      if (!nextOpen && (isSubmitting || isUpdating)) return;
+      if (!nextOpen && (isSubmitting || translationsSaving)) return;
       if (!nextOpen) {
         resetForm();
       }
       onOpenChange(nextOpen);
     },
-    [isSubmitting, isUpdating, resetForm, onOpenChange]
+    [isSubmitting, translationsSaving, resetForm, onOpenChange]
   );
 
   const handleSubmit = useCallback(async () => {
@@ -196,19 +165,6 @@ export function AddCategorySheet({
 
       setCreatedCategoryId(result.categoryId);
       setServerTranslations(result);
-
-      const initial: Record<string, { name: string; description: string }> = {};
-      const allLangs = new Set([
-        ...Object.keys(result.names),
-        ...Object.keys(result.descriptions),
-      ]);
-      for (const lang of allLangs) {
-        initial[lang] = {
-          name: result.names[lang] ?? "",
-          description: result.descriptions[lang] ?? "",
-        };
-      }
-      setEditedTranslations(initial);
 
       setSubmitStatus("success");
       toast.success(t("categories.toast.createSuccess"));
@@ -248,14 +204,7 @@ export function AddCategorySheet({
     onCategoryCreated,
   ]);
 
-  const handleTranslationEdit = (lang: string, field: "name" | "description", value: string) => {
-    setEditedTranslations((prev) => ({
-      ...prev,
-      [lang]: { ...prev[lang], [field]: value },
-    }));
-  };
-
-  const handleSkip = useCallback(() => {
+  const handleReviewDone = useCallback(() => {
     if (createdCategoryId) {
       onCategoryCreated?.(createdCategoryId);
     }
@@ -263,68 +212,6 @@ export function AddCategorySheet({
     resetForm();
     onOpenChange(false);
   }, [createdCategoryId, onCategoryCreated, onCreated, resetForm, onOpenChange]);
-
-  const handleUpdateTranslations = useCallback(async () => {
-    if (!createdCategoryId || isUpdating) return;
-
-    setUpdateStatus("updating");
-    setUpdateErrorMessage(null);
-
-    const controller = new AbortController();
-    updateAbortRef.current = controller;
-
-    try {
-      const translations: Record<string, { name: string; description?: string }> = {};
-      for (const [lang, edited] of Object.entries(editedTranslations)) {
-        translations[lang] = {
-          name: edited.name,
-          ...(edited.description ? { description: edited.description } : {}),
-        };
-      }
-
-      await updateCategoryLanguages(
-        { categoryId: createdCategoryId, translations },
-        controller.signal
-      );
-
-      setUpdateStatus("success");
-      toast.success(t("categories.translations.updateSuccess"));
-      onCategoryCreated?.(createdCategoryId);
-      onCreated?.();
-      resetForm();
-      onOpenChange(false);
-    } catch (err: unknown) {
-      if (err instanceof DOMException && err.name === "AbortError") return;
-
-      let message = t("categories.translations.updateError");
-      if (
-        err instanceof Object &&
-        "response" in err &&
-        err.response instanceof Object &&
-        "data" in err.response &&
-        err.response.data instanceof Object &&
-        "error" in err.response.data &&
-        typeof err.response.data.error === "string"
-      ) {
-        message = err.response.data.error;
-      }
-
-      setUpdateErrorMessage(message);
-      setUpdateStatus("error");
-      toast.error(message);
-    } finally {
-      updateAbortRef.current = null;
-    }
-  }, [
-    createdCategoryId,
-    isUpdating,
-    editedTranslations,
-    t,
-    onCategoryCreated,
-    onCreated,
-    resetForm,
-    onOpenChange,
-  ]);
 
   const handleNameKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && canSubmit) {
@@ -341,6 +228,16 @@ export function AddCategorySheet({
         ])
       ).sort()
     : [];
+
+  const initialTranslationValues: EditedTranslations = {};
+  for (const lang of allTranslationLangs) {
+    if (serverTranslations) {
+      initialTranslationValues[lang] = {
+        name: serverTranslations.names[lang] ?? "",
+        description: serverTranslations.descriptions[lang] ?? "",
+      };
+    }
+  }
 
   return (
     <Sheet open={open} onOpenChange={handleSheetOpenChange}>
@@ -360,90 +257,16 @@ export function AddCategorySheet({
               </SheetDescription>
             </SheetHeader>
 
-            <div className="flex-1 overflow-y-auto px-6 pb-6">
-              <div className="space-y-3">
-                {allTranslationLangs.map((lang) => {
-                  const meta = LANGUAGES[lang] ?? { label: lang, flag: "" };
-                  const edited = editedTranslations[lang];
-                  const hasDescription = edited?.description !== "";
-
-                  return (
-                    <div key={lang} className="rounded-xl border border-slate-200 p-4">
-                      <p className="mb-3 text-sm font-medium text-slate-700">
-                        {meta.flag} {meta.label}
-                      </p>
-                      <div className="space-y-3">
-                        <div>
-                          <Label className="text-xs text-slate-500">
-                            {t("categories.translations.name")}
-                          </Label>
-                          <Input
-                            value={edited?.name ?? ""}
-                            onChange={(e) => handleTranslationEdit(lang, "name", e.target.value)}
-                            disabled={isUpdating}
-                            className="mt-1 h-9 text-sm"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-xs text-slate-500">
-                            {t("categories.translations.description")}
-                          </Label>
-                          {hasDescription ? (
-                            <Textarea
-                              value={edited?.description ?? ""}
-                              onChange={(e) =>
-                                handleTranslationEdit(lang, "description", e.target.value)
-                              }
-                              rows={2}
-                              disabled={isUpdating}
-                              className="mt-1 resize-none text-sm"
-                            />
-                          ) : (
-                            <p className="mt-1 text-xs italic text-slate-400">
-                              {t("categories.translations.noDescription")}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <SheetFooter className="border-t border-slate-100 px-6 py-4">
-              {updateErrorMessage && (
-                <div
-                  role="alert"
-                  className="mb-3 flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-700"
-                >
-                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  {updateErrorMessage}
-                </div>
-              )}
-              <div className="flex w-full gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleSkip}
-                  disabled={isUpdating}
-                  className="flex-1"
-                >
-                  {t("categories.translations.skip")}
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => void handleUpdateTranslations()}
-                  disabled={isUpdating}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600"
-                >
-                  {isUpdating && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {t("categories.translations.update")}
-                </Button>
-              </div>
-            </SheetFooter>
+            <CategoryTranslationsEditor
+              key={createdCategoryId}
+              categoryId={createdCategoryId ?? ""}
+              languages={allTranslationLangs}
+              initialTranslations={initialTranslationValues}
+              secondaryLabel={t("categories.translations.skip")}
+              onSecondaryClick={handleReviewDone}
+              onSaveSuccess={handleReviewDone}
+              onSavingChange={setTranslationsSaving}
+            />
           </>
         ) : (
           /* ── Category Form ── */

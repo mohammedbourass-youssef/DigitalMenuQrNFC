@@ -1,24 +1,22 @@
 import { useState } from "react";
-import { formatDistanceToNow } from "date-fns";
-import { Eye, ImageOff, Power } from "lucide-react";
+import { Eye, FolderInput, ImageOff, Power } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { formatRelativeTime } from "@/lib/date";
 import type { AdminCategoryItem } from "@/types";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CategoryCardProps {
@@ -26,23 +24,56 @@ interface CategoryCardProps {
   activeLabel: string;
   inactiveLabel: string;
   createdLabel: (time: string) => string;
-  onDeactivate?: (category: AdminCategoryItem) => void;
+  onDeactivate: (category: AdminCategoryItem) => Promise<void>;
+  onActivate: (category: AdminCategoryItem) => Promise<void>;
 }
 
-export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabel, onDeactivate }: CategoryCardProps) {
-  const { t } = useTranslation();
+export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabel, onDeactivate, onActivate }: CategoryCardProps) {
+  const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const [imageFailed, setImageFailed] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isDeactivating, setIsDeactivating] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
   const description = category.desc || "—";
-  const relativeTime = formatDistanceToNow(new Date(category.createdAt), { addSuffix: true });
+  const relativeTime = formatRelativeTime(category.createdAt);
 
   const viewDetails = () => {
-    const categoryId = encodeURIComponent(`${category.createdAt}-${category.name ?? ""}`);
-    navigate(`/categories/${categoryId}`, { state: { category } });
+    navigate(`/categories/${category.id}`);
+  };
+
+  const moveItemsFirst = () => {
+    setConfirmOpen(false);
+    navigate("/menu-items");
+  };
+
+  const handleDeactivate = async () => {
+    if (isDeactivating) return;
+    setIsDeactivating(true);
+    try {
+      await onDeactivate(category);
+      setConfirmOpen(false);
+    } catch {
+      // Keep the modal open so the user can retry or cancel.
+    } finally {
+      setIsDeactivating(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    if (isActivating) return;
+    setIsActivating(true);
+    try {
+      await onActivate(category);
+    } catch {
+      // Error toast handled by the parent; loading state resets here.
+    } finally {
+      setIsActivating(false);
+    }
   };
 
   return (
-    <Card className="overflow-hidden border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md">
+    <Card className={`overflow-hidden border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md ${category.isActive ? "" : "opacity-60"}`}>
       <div className="h-40 w-full bg-slate-100">
         {category.imageUrl && !imageFailed ? (
           <img src={category.imageUrl} alt={category.name || "—"} loading="lazy" onError={() => setImageFailed(true)} className="h-full w-full object-cover" />
@@ -64,27 +95,35 @@ export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabe
           <Button variant="outline" size="sm" className="flex-1" onClick={viewDetails}>
             <Eye />{t("categories.seeDetails")}
           </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" size="sm" className="flex-1 border-red-200 text-red-600 hover:bg-red-50" disabled={!category.isActive}>
-                <Power />{t("categories.deactivate.button")}
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{t("categories.deactivate.title")}</AlertDialogTitle>
-                <AlertDialogDescription>{t("categories.deactivate.description", { name: category.name || "—" })}</AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>{t("common.cancel")}</AlertDialogCancel>
-                <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => onDeactivate?.(category)}>
-                  {t("categories.deactivate.confirm")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          {category.isActive ? (
+            <Button variant="outline" size="sm" className="flex-1 border-red-200 text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>
+              <Power />{t("categories.deactivate.button")}
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" className="flex-1 border-emerald-200 text-emerald-600 hover:bg-emerald-50" disabled={isActivating} onClick={() => void handleActivate()}>
+              {isActivating && <Spinner className="h-4 w-4" />}<Power />{t("categories.activate.button")}
+            </Button>
+          )}
         </div>
       </CardContent>
+
+      <AlertDialog open={confirmOpen} onOpenChange={(open) => { if (!isDeactivating) setConfirmOpen(open); }}>
+        <AlertDialogContent dir={i18n.language === "ar" ? "rtl" : "ltr"} className="max-h-[85vh] overflow-y-auto break-words text-slate-900 sm:max-w-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("categories.deactivate.title")}</AlertDialogTitle>
+            <AlertDialogDescription className="leading-relaxed">{t("categories.deactivate.description", { name: category.name || "—" })}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" disabled={isDeactivating} onClick={() => setConfirmOpen(false)}>{t("common.cancel")}</Button>
+            <Button variant="outline" disabled={isDeactivating} onClick={moveItemsFirst}>
+              <FolderInput />{t("categories.deactivate.moveItemsFirst")}
+            </Button>
+            <Button variant="destructive" disabled={isDeactivating} onClick={handleDeactivate}>
+              {isDeactivating && <Spinner className="h-4 w-4" />}{t("categories.deactivate.confirmAnyway")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
