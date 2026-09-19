@@ -12,6 +12,7 @@ import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ConfirmEmailPage from '@/pages/auth/ConfirmEmailPage';
 import MenuItemsPage from '@/pages/MenuItems';
+import NewMenuItemPage from '@/pages/NewMenuItem';
 import NFCTagsPage from '@/pages/NFCTags';
 import SettingsPage from '@/pages/Settings';
 import NotFound from '@/pages/not-found';
@@ -28,6 +29,7 @@ function ProtectedLayout() {
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/menu-items" element={<MenuItemsPage />} />
+            <Route path="/menu-items/new" element={<NewMenuItemPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
             <Route path="/nfc-tags" element={<NFCTagsPage />} />

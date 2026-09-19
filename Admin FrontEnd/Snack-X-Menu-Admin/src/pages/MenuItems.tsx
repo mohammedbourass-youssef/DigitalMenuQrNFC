@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 import { getMenuItems } from "@/services/menuService";
 import type { MenuItem } from "@/types";
@@ -28,7 +29,12 @@ export default function MenuItemsPage() {
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">{t('menuItems.title')}</h1>
-        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">{t('menuItems.addItem')}</button>
+        <Link
+          to="/menu-items/new"
+          className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white"
+        >
+          {t('menuItems.addItem')}
+        </Link>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

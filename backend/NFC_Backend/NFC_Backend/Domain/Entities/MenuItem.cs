@@ -2,7 +2,7 @@
 {
     public class MenuItem
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } 
         public Guid TenantId { get; set; }
         public Guid CategoryId { get; set; }
 

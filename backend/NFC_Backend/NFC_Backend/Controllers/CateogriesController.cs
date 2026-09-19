@@ -590,7 +590,10 @@ namespace NFC_Backend.Controllers
                 }
 
                 var data = await _categoryRepo.GetCategoriesSimple(tenant.Id, request);
-
+                if(data.Count == 0)
+                {
+                    return NoContent();
+                }
                 return Ok(new { data });
             }
             catch (NotFoundException ex)
