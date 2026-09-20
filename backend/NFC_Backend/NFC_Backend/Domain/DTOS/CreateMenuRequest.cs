@@ -2,6 +2,22 @@
 
 namespace NFC_Backend.Domain.DTOS
 {
+    public class AdminGetAllMenuRequest
+    {
+        [Required(ErrorMessage = "Currency code is required.")]
+        [StringLength(3, MinimumLength = 3, ErrorMessage = "Currency code must be exactly 3 characters (ISO 4217).")]
+        public string CurrencyCode { get; set; } = null!;   // e.g. "MAD", "USD"
+
+        [Required(ErrorMessage = "Language is required.")]
+        [StringLength(10, MinimumLength = 2, ErrorMessage = "Language code must be between 2 and 10 characters.")]
+        public string Language { get; set; } = null!;        // e.g. "en", "ar", "fr"
+
+        [Range(1, 100000, ErrorMessage = "Page must be 1 or greater.")]
+        public int Page { get; set; } = 1;
+
+        [Range(1, 100, ErrorMessage = "PageSize must be between 1 and 100.")]
+        public int PageSize { get; set; } = 20;
+    }
     public class CreateMenuRequest
     {
         [Required(ErrorMessage = "Name is required.")]
@@ -40,10 +56,31 @@ namespace NFC_Backend.Domain.DTOS
     }
     public class UploadMenuImagesRequest
     {
-
-        [Required(ErrorMessage = "Cover image is required.")]
-        public IFormFile CoverImage { get; set; } = null!;
+        public IFormFile? CoverImage { get; set; }
 
         public IEnumerable<IFormFile> Images { get; set; } = Enumerable.Empty<IFormFile>();
     }
+
+    public class UpdateMenuItemDetailsDto
+    {
+        public string? Sku { get; set; }
+        public decimal PriceInDefaultCurrency { get; set; }
+        public decimal? DiscountedPrice { get; set; }
+        public int PreparationTimeMinutes { get; set; }
+        public bool IsAvailable { get; set; }
+        public bool IsFeatured { get; set; }
+    }
+
+    public class ImageOrderDto
+    {
+        public Guid ImageId { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
+    public class MoveMenuItemRequest
+    {
+        [Required(ErrorMessage = "CategoryId is required.")]
+        public Guid CategoryId { get; set; }
+    }
+
 }

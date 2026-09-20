@@ -13,6 +13,9 @@ import RegisterPage from '@/pages/auth/RegisterPage';
 import ConfirmEmailPage from '@/pages/auth/ConfirmEmailPage';
 import MenuItemsPage from '@/pages/MenuItems';
 import NewMenuItemPage from '@/pages/NewMenuItem';
+import MenuItemImagesPage from '@/pages/MenuItemImages';
+import MenuItemTranslationsPage from '@/pages/MenuItemTranslations';
+import EditMenuItemPage from '@/pages/EditMenuItem';
 import NFCTagsPage from '@/pages/NFCTags';
 import SettingsPage from '@/pages/Settings';
 import NotFound from '@/pages/not-found';
@@ -30,6 +33,9 @@ function ProtectedLayout() {
             <Route path="/" element={<DashboardPage />} />
             <Route path="/menu-items" element={<MenuItemsPage />} />
             <Route path="/menu-items/new" element={<NewMenuItemPage />} />
+            <Route path="/menu-items/:menuId/images" element={<MenuItemImagesPage />} />
+            <Route path="/menu-items/:menuId/translations" element={<MenuItemTranslationsPage />} />
+            <Route path="/menu-items/:menuId/edit" element={<EditMenuItemPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
             <Route path="/nfc-tags" element={<NFCTagsPage />} />

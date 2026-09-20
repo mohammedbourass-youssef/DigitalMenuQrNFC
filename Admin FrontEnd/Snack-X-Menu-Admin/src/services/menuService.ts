@@ -1,4 +1,10 @@
+import axiosInstance from "@/lib/axios";
 import type { MenuItem } from "@/types";
+import type {
+  AdminMenuItem,
+  AdminMenusParams,
+  PagedResult,
+} from "@/types/menuItem";
 
 const menuItems: MenuItem[] = [
   {
@@ -53,3 +59,47 @@ const menuItems: MenuItem[] = [
 ];
 
 export const getMenuItems = (): Promise<MenuItem[]> => Promise.resolve(menuItems);
+
+export const getAdminMenus = async (
+  params: AdminMenusParams
+): Promise<PagedResult<AdminMenuItem>> => {
+  const query = new URLSearchParams();
+
+  query.set("currencyCode", params.currencyCode);
+  query.set("language", params.language);
+
+  if (params.page != null) query.set("page", String(params.page));
+  if (params.pageSize != null) query.set("pageSize", String(params.pageSize));
+
+  const { data } = await axiosInstance.get<PagedResult<AdminMenuItem>>(
+    "MenuItems/Admin-menus",
+    { params: query }
+  );
+
+  return data;
+};
+
+export const deactivateMenuItem = async (id: string): Promise<{ message: string }> => {
+  const { data } = await axiosInstance.patch<{ message: string }>(`MenuItems/${id}/disactive`);
+  return data;
+};
+
+export const activateMenuItem = async (id: string): Promise<{ message: string }> => {
+  const { data } = await axiosInstance.patch<{ message: string }>(`MenuItems/${id}/active`);
+  return data;
+};
+
+export const getMenuItemInfoAdmin = async (id: string): Promise<AdminMenuItem> => {
+  const { data } = await axiosInstance.get<AdminMenuItem>(`MenuItems/${id}/info-Admin`);
+  return data;
+};
+
+export const moveMenuItemToCategory = async (
+  id: string,
+  categoryId: string
+): Promise<{ message: string }> => {
+  const { data } = await axiosInstance.put<{ message: string }>(`MenuItems/${id}/move`, {
+    categoryId,
+  });
+  return data;
+};

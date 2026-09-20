@@ -173,7 +173,53 @@
     "loading": "Chargement des articles...",
     "available": "Disponible",
     "unavailable": "Indisponible",
-    "edit": "Modifier"
+    "edit": "Modifier",
+    "loadError": "Impossible de charger les articles du menu.",
+    "retry": "Réessayer",
+    "accessDenied": "Accès refusé",
+    "accessDeniedDescription": "Vous n'avez pas la permission de consulter les articles du menu.",
+    "noItemsTitle": "Aucun article trouvé",
+    "noItemsDescription": "Ajoutez votre premier article et il apparaîtra ici.",
+    "currency": "Devise",
+    "language": "Langue",
+    "pageSize": "Par page",
+    "pageOf": "Page {{page}} sur {{totalPages}}",
+    "totalResults_one": "{{count}} résultat",
+    "totalResults_other": "{{count}} résultats",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "noTranslation": "Aucune traduction",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "columns": {
+      "name": "Nom",
+      "sku": "Code SKU",
+      "price": "Prix",
+      "discountedPrice": "Réduit",
+      "prepTime": "Temps de préparation",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "actions": {
+      "title": "Actions",
+      "viewImages": "Voir les images",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "update": "Modifier l'article",
+      "translations": "Voir les traductions"
+    },
+    "toast": {
+      "activateSuccess": "Article activé avec succès.",
+      "deactivateSuccess": "Article désactivé avec succès.",
+      "error": "Échec de l'action. Veuillez réessayer."
+    },
+    "badges": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "available": "Disponible",
+      "unavailable": "Indisponible",
+      "featured": "Mis en avant"
+    }
   },
   "menuItemForm": {
     "pageTitle": "Créer un article du menu",

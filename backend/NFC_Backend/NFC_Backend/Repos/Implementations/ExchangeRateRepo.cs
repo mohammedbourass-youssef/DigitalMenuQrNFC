@@ -42,5 +42,11 @@ namespace NFC_Backend.Repos.Implementations
 
             await _dbContext.SaveChangesAsync();
         }
+
+        public async Task<List<ExchangeRate>> GetPrices(string to)
+     => await _dbContext.ExchangeRates
+         .AsNoTracking()
+         .Where(e => e.TargetCurrency == to)
+         .ToListAsync();
     }
 }

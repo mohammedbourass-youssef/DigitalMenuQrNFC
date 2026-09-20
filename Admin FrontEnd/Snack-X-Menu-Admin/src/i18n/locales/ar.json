@@ -173,7 +173,53 @@
     "loading": "جاري تحميل عناصر القائمة...",
     "available": "متاح",
     "unavailable": "غير متاح",
-    "edit": "تعديل"
+    "edit": "تعديل",
+    "loadError": "تعذّر تحميل عناصر القائمة.",
+    "retry": "إعادة المحاولة",
+    "accessDenied": "تم رفض الوصول",
+    "accessDeniedDescription": "ليست لديك صلاحية لعرض عناصر القائمة.",
+    "noItemsTitle": "لا توجد عناصر قائمة",
+    "noItemsDescription": "أضف أول عنصر وستظهر هنا.",
+    "currency": "العملة",
+    "language": "اللغة",
+    "pageSize": "لكل صفحة",
+    "pageOf": "الصفحة {{page}} من {{totalPages}}",
+    "totalResults_one": "{{count}} نتيجة",
+    "totalResults_other": "{{count}} نتائج",
+    "previous": "السابق",
+    "next": "التالي",
+    "noTranslation": "لا توجد ترجمة",
+    "minutes_one": "{{count}} دقيقة",
+    "minutes_other": "{{count}} دقائق",
+    "columns": {
+      "name": "الاسم",
+      "sku": "الكود",
+      "price": "السعر",
+      "discountedPrice": "السعر المخفّض",
+      "prepTime": "مدة التحضير",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "actions": {
+      "title": "الإجراءات",
+      "viewImages": "عرض الصور",
+      "activate": "تفعيل",
+      "deactivate": "تعطيل",
+      "update": "تعديل العنصر",
+      "translations": "عرض الترجمات"
+    },
+    "toast": {
+      "activateSuccess": "تم تفعيل العنصر بنجاح.",
+      "deactivateSuccess": "تم تعطيل العنصر بنجاح.",
+      "error": "فشل الإجراء. يرجى المحاولة مرة أخرى."
+    },
+    "badges": {
+      "active": "نشط",
+      "inactive": "غير نشط",
+      "available": "متاح",
+      "unavailable": "غير متاح",
+      "featured": "مميز"
+    }
   },
   "menuItemForm": {
     "pageTitle": "إنشاء عنصر قائمة",

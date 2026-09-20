@@ -173,7 +173,53 @@
     "loading": "Loading menu items...",
     "available": "Available",
     "unavailable": "Unavailable",
-    "edit": "Edit"
+    "edit": "Edit",
+    "loadError": "Could not load menu items.",
+    "retry": "Retry",
+    "accessDenied": "Access denied",
+    "accessDeniedDescription": "You don't have permission to view menu items.",
+    "noItemsTitle": "No menu items found",
+    "noItemsDescription": "Add your first menu item and it will show up here.",
+    "currency": "Currency",
+    "language": "Language",
+    "pageSize": "Per page",
+    "pageOf": "Page {{page}} of {{totalPages}}",
+    "totalResults_one": "{{count}} result",
+    "totalResults_other": "{{count}} results",
+    "previous": "Previous",
+    "next": "Next",
+    "noTranslation": "No translation",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "columns": {
+      "name": "Name",
+      "sku": "SKU / Code",
+      "price": "Price",
+      "discountedPrice": "Discounted",
+      "prepTime": "Prep time",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "actions": {
+      "title": "Actions",
+      "viewImages": "View Images",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "update": "Update Item",
+      "translations": "View Translations"
+    },
+    "toast": {
+      "activateSuccess": "Item activated successfully.",
+      "deactivateSuccess": "Item deactivated successfully.",
+      "error": "Action failed. Please try again."
+    },
+    "badges": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "featured": "Featured"
+    }
   },
   "menuItemForm": {
     "pageTitle": "Create Menu Item",
