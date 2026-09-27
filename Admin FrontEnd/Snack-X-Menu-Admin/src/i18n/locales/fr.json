@@ -22,6 +22,7 @@
     "dashboard": "Tableau de bord",
     "menuItems": "Articles du menu",
     "categories": "Catégories",
+    "tables": "Tables",
     "nfcTags": "Tags NFC",
     "settings": "Paramètres",
     "admin": "Admin",
@@ -165,6 +166,56 @@
       "confirmButton": "Oui, mettre à jour",
       "updateSuccess": "Traductions mises à jour avec succès.",
       "updateError": "Échec de la mise à jour des traductions."
+    }
+  },
+  "tables": {
+    "title": "Tables",
+    "add": "Ajouter une table",
+    "total_one": "{{count}} table",
+    "total_other": "{{count}} tables",
+    "available": "Disponible",
+    "unavailable": "Indisponible",
+    "loadError": "Impossible de charger les tables.",
+    "retry": "Réessayer",
+    "empty_title": "Aucune table trouvée",
+    "empty_sub": "Ajoutez votre première table, elle apparaîtra ici.",
+    "columns": {
+      "number": "Numéro",
+      "name": "Nom",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "form": {
+      "title": "Ajouter une table",
+      "editTitle": "Modifier la table",
+      "description": "Créez une nouvelle table pour votre salle.",
+      "editDescription": "Mettez à jour les informations de cette table.",
+      "numberLabel": "Numéro de table",
+      "numberPlaceholder": "ex : 1",
+      "numberRequired": "Le numéro de table est obligatoire.",
+      "numberInvalid": "Le numéro de table doit être un nombre entier positif.",
+      "nameLabel": "Nom de la table",
+      "namePlaceholder": "ex : Table près de la fenêtre",
+      "nameRequired": "Le nom de la table est obligatoire.",
+      "nameTooLong": "Le nom de la table doit faire 100 caractères ou moins.",
+      "availableLabel": "Disponible",
+      "availableHint": "Indique si les clients peuvent réserver cette table",
+      "createButton": "Créer la table",
+      "updateButton": "Enregistrer"
+    },
+    "toast": {
+      "createSuccess": "Table créée avec succès.",
+      "createError": "Échec de la création de la table.",
+      "updateSuccess": "Table mise à jour avec succès.",
+      "updateError": "Échec de la mise à jour de la table.",
+      "availabilitySuccess": "Disponibilité de la table mise à jour.",
+      "deleteSuccess": "Table supprimée avec succès.",
+      "deleteError": "Échec de la suppression de la table."
+    },
+    "delete": {
+      "title": "Supprimer cette table ?",
+      "description": "La table n°{{number}} ({{name}}) sera supprimée définitivement. Cette action est irréversible.",
+      "confirm": "Supprimer"
     }
   },
   "menuItems": {

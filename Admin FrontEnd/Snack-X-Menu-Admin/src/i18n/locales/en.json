@@ -22,6 +22,7 @@
     "dashboard": "Dashboard",
     "menuItems": "Menu Items",
     "categories": "Categories",
+    "tables": "Tables",
     "nfcTags": "NFC Tags",
     "settings": "Settings",
     "admin": "Admin",
@@ -165,6 +166,56 @@
       "confirmButton": "Yes, Update",
       "updateSuccess": "Translations updated successfully.",
       "updateError": "Failed to update translations."
+    }
+  },
+  "tables": {
+    "title": "Tables",
+    "add": "Add Table",
+    "total_one": "{{count}} table",
+    "total_other": "{{count}} tables",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "loadError": "Could not load tables.",
+    "retry": "Retry",
+    "empty_title": "No tables found",
+    "empty_sub": "Add your first table and it will show up here.",
+    "columns": {
+      "number": "Number",
+      "name": "Name",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "form": {
+      "title": "Add Table",
+      "editTitle": "Edit Table",
+      "description": "Create a new table to add to your floor.",
+      "editDescription": "Update this table's details.",
+      "numberLabel": "Table number",
+      "numberPlaceholder": "e.g. 1",
+      "numberRequired": "Table number is required.",
+      "numberInvalid": "Table number must be a positive whole number.",
+      "nameLabel": "Table name",
+      "namePlaceholder": "e.g. Window table",
+      "nameRequired": "Table name is required.",
+      "nameTooLong": "Table name must be 100 characters or less.",
+      "availableLabel": "Available",
+      "availableHint": "Whether customers can book this table",
+      "createButton": "Create Table",
+      "updateButton": "Save Changes"
+    },
+    "toast": {
+      "createSuccess": "Table created successfully.",
+      "createError": "Failed to create table.",
+      "updateSuccess": "Table updated successfully.",
+      "updateError": "Failed to update table.",
+      "availabilitySuccess": "Table availability updated.",
+      "deleteSuccess": "Table deleted successfully.",
+      "deleteError": "Failed to delete table."
+    },
+    "delete": {
+      "title": "Delete this table?",
+      "description": "Table #{{number}} ({{name}}) will be permanently removed. This cannot be undone.",
+      "confirm": "Delete"
     }
   },
   "menuItems": {

@@ -17,7 +17,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<ICategoryRepo, CategoryRepo>();
             services.AddScoped<IMenuItemRepo, MenuItemRepo>();
             services.AddScoped<ISessionsRepository, SessionsRepository>();
-
+            services.AddScoped<ITableRepo, TableRepo>();
 
             //Services
             services.AddScoped<ITokenService, TokenService>();

@@ -18,6 +18,7 @@ import MenuItemTranslationsPage from '@/pages/MenuItemTranslations';
 import EditMenuItemPage from '@/pages/EditMenuItem';
 import NFCTagsPage from '@/pages/NFCTags';
 import SettingsPage from '@/pages/Settings';
+import TablesPage from '@/pages/Tables';
 import NotFound from '@/pages/not-found';
 
 function ProtectedLayout() {
@@ -38,6 +39,7 @@ function ProtectedLayout() {
             <Route path="/menu-items/:menuId/edit" element={<EditMenuItemPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
+            <Route path="/tables" element={<TablesPage />} />
             <Route path="/nfc-tags" element={<NFCTagsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<NotFound />} />

@@ -87,6 +87,23 @@ export interface NFCTag {
   lastScannedAt?: string;
 }
 
+export interface TableItem {
+  id: string;
+  number: number;
+  name: string;
+  isAvailable: boolean;
+}
+
+export interface CreateTablePayload {
+  number: number;
+  name: string;
+  isAvailable: boolean;
+}
+
+export interface UpdateTablePayload extends CreateTablePayload {
+  id: string;
+}
+
 export interface LoginDTO {
   email: string;
   password: string;

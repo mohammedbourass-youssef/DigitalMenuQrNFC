@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { FolderTree, LayoutDashboard, Tags, UtensilsCrossed, Settings } from 'lucide-react';
+import { FolderTree, LayoutDashboard, Tags, UtensilsCrossed, Settings, LayoutGrid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const navItems = [
   { href: '/', labelKey: 'sidebar.dashboard', icon: LayoutDashboard },
   { href: '/menu-items', labelKey: 'sidebar.menuItems', icon: UtensilsCrossed },
   { href: '/categories', labelKey: 'sidebar.categories', icon: FolderTree },
+  { href: '/tables', labelKey: 'sidebar.tables', icon: LayoutGrid },
   { href: '/nfc-tags', labelKey: 'sidebar.nfcTags', icon: Tags },
   { href: '/settings', labelKey: 'sidebar.settings', icon: Settings },
 ];

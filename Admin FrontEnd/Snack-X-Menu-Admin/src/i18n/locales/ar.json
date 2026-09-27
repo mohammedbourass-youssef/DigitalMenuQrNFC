@@ -22,6 +22,7 @@
     "dashboard": "لوحة التحكم",
     "menuItems": "عناصر القائمة",
     "categories": "الفئات",
+    "tables": "الطاولات",
     "nfcTags": "وسوم NFC",
     "settings": "الإعدادات",
     "admin": "管理",
@@ -165,6 +166,56 @@
       "confirmButton": "نعم، تحديث",
       "updateSuccess": "تم تحديث الترجمات بنجاح.",
       "updateError": "فشل في تحديث الترجمات."
+    }
+  },
+  "tables": {
+    "title": "الطاولات",
+    "add": "إضافة طاولة",
+    "total_one": "{{count}} طاولة",
+    "total_other": "{{count}} طاولات",
+    "available": "متاحة",
+    "unavailable": "غير متاحة",
+    "loadError": "تعذر تحميل الطاولات.",
+    "retry": "إعادة المحاولة",
+    "empty_title": "لا توجد طاولات",
+    "empty_sub": "أضف أول طاولة وستظهر هنا.",
+    "columns": {
+      "number": "الرقم",
+      "name": "الاسم",
+      "status": "الحالة",
+      "actions": "الإجراءات"
+    },
+    "form": {
+      "title": "إضافة طاولة",
+      "editTitle": "تعديل الطاولة",
+      "description": "أنشئ طاولة جديدة لصالتك.",
+      "editDescription": "حدّث تفاصيل هذه الطاولة.",
+      "numberLabel": "رقم الطاولة",
+      "numberPlaceholder": "مثال: 1",
+      "numberRequired": "رقم الطاولة مطلوب.",
+      "numberInvalid": "يجب أن يكون رقم الطاولة عدداً صحيحاً موجباً.",
+      "nameLabel": "اسم الطاولة",
+      "namePlaceholder": "مثال: طاولة بجانب النافذة",
+      "nameRequired": "اسم الطاولة مطلوب.",
+      "nameTooLong": "يجب ألا يتجاوز اسم الطاولة 100 حرف.",
+      "availableLabel": "متاحة",
+      "availableHint": "هل يستطيع العملاء حجز هذه الطاولة",
+      "createButton": "إنشاء الطاولة",
+      "updateButton": "حفظ التغييرات"
+    },
+    "toast": {
+      "createSuccess": "تم إنشاء الطاولة بنجاح.",
+      "createError": "فشل إنشاء الطاولة.",
+      "updateSuccess": "تم تحديث الطاولة بنجاح.",
+      "updateError": "فشل تحديث الطاولة.",
+      "availabilitySuccess": "تم تحديث توفر الطاولة.",
+      "deleteSuccess": "تم حذف الطاولة بنجاح.",
+      "deleteError": "فشل حذف الطاولة."
+    },
+    "delete": {
+      "title": "حذف هذه الطاولة؟",
+      "description": "سيتم حذف الطاولة رقم {{number}} ({{name}}) نهائياً. لا يمكن التراجع عن هذا الإجراء.",
+      "confirm": "حذف"
     }
   },
   "menuItems": {
