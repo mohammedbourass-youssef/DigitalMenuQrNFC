@@ -2,9 +2,9 @@ import { UtensilsCrossed } from 'lucide-react';
 import { useTenant } from '@/contexts/TenantContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { CurrencySwitcher } from './CurrencySwitcher';
-import { TableBadge } from './TableBadge';
+import { TableSwitcher } from './TableSwitcher';
 
-export function Header({ onTableClick }: { onTableClick: () => void }) {
+export function Header() {
   const { tenant } = useTenant();
 
   return (
@@ -29,7 +29,7 @@ export function Header({ onTableClick }: { onTableClick: () => void }) {
           </span>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <TableBadge onClick={onTableClick} />
+          <TableSwitcher />
           <CurrencySwitcher />
           <LanguageSwitcher />
         </div>

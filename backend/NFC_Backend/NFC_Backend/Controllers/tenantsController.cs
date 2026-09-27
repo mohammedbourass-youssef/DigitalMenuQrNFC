@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Caching.Memory;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
@@ -9,6 +10,7 @@ using NFC_Backend.Extensions;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
+using System;
 
 namespace NFC_Backend.Controllers
 {
@@ -23,6 +25,8 @@ namespace NFC_Backend.Controllers
     ICategoryRepo category,
     IMemoryCache cache,
     IMenuItemRepo menuItem,
+    ITableRepo tablerep,
+    IExchangeRateRepo exchangeRateRepo,
     ILogger<TenantController> logger) : ControllerBase
     {
         [HttpGet("info")]
@@ -154,13 +158,33 @@ namespace NFC_Backend.Controllers
                    
                     request.getAll ? null : request.CategoryId, request.lang);
 
+                if (data.Count == 0)
+                    return NoContent();   // empty page, same shape as any other page
+                var rateList = await exchangeRateRepo.GetPrices(request.currency);
+                var rates = rateList.ToDictionary(e => e.BaseCurrency, e => e.Rate);
+                rates[request.currency] = 1m;
+
+                var missing = data
+                    .Select(m => m.CurrencyCode)
+                    .Distinct()
+                    .Where(c => !rates.ContainsKey(c))
+                    .ToList();
+
+                if (missing.Count > 0)
+                    throw new NotFoundException(
+                        $"Exchange rate not found for: {string.Join(", ", missing)} → {request.currency}");
+
                 foreach (var item in data)
                 {
+                    var rate = rates[item.CurrencyCode];
                     if (!string.IsNullOrEmpty(item.CoverImage))
                         item.CoverImage = await filestorage.GetFileUrlAsync(item.CoverImage, tenant.BucketName);
 
                     for (int i = 0; i < item.Images.Count; i++)
                         item.Images[i] = await filestorage.GetFileUrlAsync(item.Images[i], tenant.BucketName);
+                    item.CurrencyCode = request.currency;
+                    item.Price *= rate;
+                    item.OriginalPrice *= rate;
                 }
 
                 if (data.Count == 0)
@@ -180,5 +204,57 @@ namespace NFC_Backend.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
+
+        [HttpGet("Tables")]
+        [AllowAnonymous]
+        [NeedSession]
+        public async Task<ActionResult> GetTables()
+        {
+            try
+            {
+                logger.LogInformation("GetTables started");
+
+                var tenantId = tenantAccessor.Current.Id;
+                if (tenantId == null)
+                {
+                    logger.LogWarning("GetTables failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                Tenant? tenant = await tenantRepo.GetByID(tenantId);
+                if (tenant == null)
+                {
+                    logger.LogWarning("GetTables failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                var tables = await tablerep.GetAllByTenantAsync(tenant.Id);
+
+                var data = tables.Select(t => new TableResponseDTO
+                {
+                    Id = t.Id,
+                    Number = t.Number,
+                    Name = t.Name,
+                    IsAvailable = t.IsAvailable
+                }).ToList();
+
+                if (data.Count == 0)
+                {
+                    return NoContent();
+                }
+                return Ok(new { data });
+            }
+            catch (NotFoundException ex)
+            {
+                logger.LogWarning(ex.Message);
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "GetTables unexpected error");
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
     }
+
 }

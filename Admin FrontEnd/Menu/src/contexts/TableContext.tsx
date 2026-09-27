@@ -2,6 +2,8 @@ import { createContext, useContext, useState, useCallback, useEffect, type React
 import { TENANT, tenantScopedKey, parseTableToken } from '../lib/tenant';
 import { sessionStorageGet, sessionStorageSet } from '../lib/storage';
 import { getTableByToken } from '../lib/api';
+import type { TablePublicDTO } from '../types/table';
+import { tableLabel } from '../types/table';
 
 const TABLE_KEY = tenantScopedKey('table');
 
@@ -10,6 +12,8 @@ export type TableStatus = 'idle' | 'loading' | 'ready' | 'invalid';
 export interface StoredTable {
   tableId: string | null;
   number: number;
+  /** Display name from the tables endpoint; null for a manually entered number. */
+  name?: string | null;
   token: string | null;
   tenantSlug: string | null;
 }
@@ -17,8 +21,13 @@ export interface StoredTable {
 interface TableContextValue {
   tableId: string | null;
   tableNumber: number | null;
+  /** Selected table's display name, or null when entered manually. */
+  tableName: string | null;
   tableToken: string | null;
   tableStatus: TableStatus;
+  /** Select a table by id from GET /api/tenant/Tables. */
+  setTable: (table: TablePublicDTO) => void;
+  /** Manual entry, for when no table list is available. */
   setTableNumber: (n: number) => void;
   dismissInvalid: () => void;
 }
@@ -29,6 +38,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<{
     tableId: string | null;
     tableNumber: number | null;
+    tableName: string | null;
     tableToken: string | null;
     tableStatus: TableStatus;
   }>(() => {
@@ -37,14 +47,15 @@ export function TableProvider({ children }: { children: ReactNode }) {
       return {
         tableId: stored.tableId,
         tableNumber: stored.number,
+        tableName: stored.name ?? null,
         tableToken: stored.token,
         tableStatus: 'ready',
       };
     }
     if (parseTableToken(window.location.pathname)) {
-      return { tableId: null, tableNumber: null, tableToken: null, tableStatus: 'loading' };
+      return { tableId: null, tableNumber: null, tableName: null, tableToken: null, tableStatus: 'loading' };
     }
-    return { tableId: null, tableNumber: null, tableToken: null, tableStatus: 'idle' };
+    return { tableId: null, tableNumber: null, tableName: null, tableToken: null, tableStatus: 'idle' };
   });
 
   const token = useToken();
@@ -64,7 +75,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
         if (table.tenantSlug !== TENANT) throw new Error('Tenant mismatch');
         sessionStorageSet(TABLE_KEY, { tableId: table.tableId, number: table.number, token, tenantSlug: table.tenantSlug });
         window.history.replaceState({}, '', '/');
-        setState({ tableId: table.tableId, tableNumber: table.number, tableToken: token, tableStatus: 'ready' });
+        setState({ tableId: table.tableId, tableNumber: table.number, tableName: null, tableToken: token, tableStatus: 'ready' });
       } catch {
         if (cancelled) return;
         window.history.replaceState({}, '', '/');
@@ -76,9 +87,30 @@ export function TableProvider({ children }: { children: ReactNode }) {
     };
   }, [state.tableStatus, token]);
 
+  /**
+   * Select a table from the API list. Stores both the id and the number: the id
+   * is the value the order is keyed on, the number is what the UI shows.
+   */
+  const setTable = useCallback((table: TablePublicDTO) => {
+    sessionStorageSet(TABLE_KEY, {
+      tableId: table.id,
+      number: table.number,
+      name: tableLabel(table),
+      token: null,
+      tenantSlug: TENANT,
+    });
+    setState({
+      tableId: table.id,
+      tableNumber: table.number,
+      tableName: tableLabel(table),
+      tableToken: null,
+      tableStatus: 'ready',
+    });
+  }, []);
+
   const setTableNumber = useCallback((number: number) => {
-    sessionStorageSet(TABLE_KEY, { tableId: null, number, token: null, tenantSlug: TENANT });
-    setState({ tableId: null, tableNumber: number, tableToken: null, tableStatus: 'ready' });
+    sessionStorageSet(TABLE_KEY, { tableId: null, number, name: null, token: null, tenantSlug: TENANT });
+    setState({ tableId: null, tableNumber: number, tableName: null, tableToken: null, tableStatus: 'ready' });
   }, []);
 
   const dismissInvalid = useCallback(() => {
@@ -90,8 +122,10 @@ export function TableProvider({ children }: { children: ReactNode }) {
       value={{
         tableId: state.tableId,
         tableNumber: state.tableNumber,
+        tableName: state.tableName,
         tableToken: state.tableToken,
         tableStatus: state.tableStatus,
+        setTable,
         setTableNumber,
         dismissInvalid,
       }}

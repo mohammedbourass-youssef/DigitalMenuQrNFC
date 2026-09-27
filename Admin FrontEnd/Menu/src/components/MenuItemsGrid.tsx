@@ -1,5 +1,6 @@
 import { useMenuItems } from '@/hooks/useMenuItems';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { refreshMenuItems } from '@/lib/menuItemsStore';
 import { ALL_CATEGORY_ID } from '@/data/allCategory';
 import type { MenuItemPublicDTO } from '@/types/menuItem';
@@ -44,6 +45,7 @@ interface MenuItemsGridProps {
 
 export function MenuItemsGrid({ activeCategoryId, onItemClick }: MenuItemsGridProps) {
   const { t, lang } = useLanguage();
+  const { displayCurrency } = useCurrency();
   // "All" means no category scope, which the service sends as getAll=true. Any
   // other id is a real category filter.
   const categoryId = activeCategoryId === ALL_CATEGORY_ID ? null : activeCategoryId;
@@ -59,7 +61,7 @@ export function MenuItemsGrid({ activeCategoryId, onItemClick }: MenuItemsGridPr
         <button
           type="button"
           onClick={() => {
-            void refreshMenuItems(lang, categoryId);
+            void refreshMenuItems(lang, categoryId, displayCurrency);
           }}
           className="mt-1 flex h-11 items-center justify-center rounded-2xl bg-brand px-8 text-sm font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
         >

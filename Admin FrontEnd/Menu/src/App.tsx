@@ -5,6 +5,7 @@ import { CartProvider, useCart } from '@/contexts/CartContext';
 import { TableProvider, useTable } from '@/contexts/TableContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCategories, useSessionExpiryGuard } from '@/hooks/useCategories';
+import { useAutoSelectTableFromUrl } from '@/hooks/useAutoSelectTableFromUrl';
 import { createOrder } from '@/lib/api';
 import { ApiError } from '@/lib/errors';
 import { Header } from '@/components/Header';
@@ -19,7 +20,6 @@ import type { MenuItemPublicDTO } from '@/types/menuItem';
     import('@/components/MenuItemDetailSheet').then((m) => ({ default: m.MenuItemDetailSheet })),
   );
 const CartSheet = lazy(() => import('@/components/CartSheet').then((m) => ({ default: m.CartSheet })));
-const TableModal = lazy(() => import('@/components/TableModal').then((m) => ({ default: m.TableModal })));
 const OrderConfirmation = lazy(() =>
   import('@/components/OrderConfirmation').then((m) => ({ default: m.OrderConfirmation })),
 );
@@ -37,11 +37,11 @@ function MenuApp() {
   const { tableToken, tableStatus, dismissInvalid } = useTable();
   const { categories } = useCategories();
   useSessionExpiryGuard();
+useAutoSelectTableFromUrl();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<MenuItemPublicDTO | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [tableModalOpen, setTableModalOpen] = useState(false);
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
@@ -117,7 +117,7 @@ function MenuApp() {
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-gray-50">
-      <Header onTableClick={() => setTableModalOpen(true)} />
+      <Header />
 
       <CategoryTabs activeCategory={activeCategoryId} onSelect={handleCategorySelect} />
 
@@ -144,7 +144,6 @@ function MenuApp() {
           placing={placing}
           checkoutError={checkoutError}
         />
-        <TableModal open={tableModalOpen} onClose={() => setTableModalOpen(false)} />
         <OrderConfirmation
           open={orderConfirmed}
           orderNumber={orderNumber}

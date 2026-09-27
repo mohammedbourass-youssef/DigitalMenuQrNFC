@@ -2,6 +2,7 @@ import type { CreateOrderPayload, Language, OrderResult, TableInfo, Tenant } fro
 import type { TenantInfoResponse } from '../types/tenant';
 import type { PublicCategory } from '../types/category';
 import type { MenuItemPublicDTO } from '../types/menuItem';
+import type { TablePublicDTO } from '../types/table';
 import { categories as mockCategories, products as mockProducts } from '../data';
 import { ApiError, InvalidTableError, TenantNotFoundError } from './errors';
 import { TENANT } from './tenant';
@@ -108,6 +109,17 @@ export async function mockGetMenuItems(
       images: product.image ? [product.image] : [],
     };
   });
+}
+
+/** Mock counterpart of GET /api/tenant/Tables. */
+export async function mockGetTables(): Promise<TablePublicDTO[]> {
+  await delay(200);
+  return mockCategories.map((category, index) => ({
+    id: `mock-table-${index + 1}`,
+    number: index + 1,
+    name: category.name.en,
+    isAvailable: index !== mockCategories.length - 1,
+  }));
 }
 
 /** Stand-in accents for mock categories, which carry no colour of their own. */

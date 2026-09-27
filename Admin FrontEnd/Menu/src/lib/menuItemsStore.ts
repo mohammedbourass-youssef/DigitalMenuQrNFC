@@ -1,6 +1,7 @@
 import { fetchMenuItems } from '../services/menuItemService';
 import { getSessionId, hasSessionId } from './session';
 import type { Language } from '../types';
+import type { CurrencyCode } from './constants';
 import type { MenuItemPublicDTO } from '../types/menuItem';
 
 export type MenuItemsStatus = 'loading' | 'ready' | 'error';
@@ -15,9 +16,11 @@ export interface MenuItemsSnapshot {
 const LOADING: MenuItemsSnapshot = { status: 'loading', items: [], error: null };
 
 /**
- * Snapshots are cached per language *and* scope. The endpoint localises and
- * filters server-side, so switching either one is a different request, not a
- * re-filter of what we already hold.
+ * Snapshots are cached per language, scope *and* currency. The endpoint
+ * localises, filters and prices server-side, so switching any of the three is a
+ * different request, not a re-filter of what we already hold. Keying on the
+ * currency is what stops a visitor who switches currency from being shown the
+ * previous currency's prices out of the cache.
  *
  * Stable object references per key are required — `useSyncExternalStore`
  * compares with `Object.is` and would loop forever on a fresh object per call.
@@ -36,8 +39,8 @@ const attempted = new Set<string>();
  */
 const failedSession = new Map<string, string | null>();
 
-function cacheKey(lang: Language, categoryId: string | null): string {
-  return `${lang}|${categoryId ?? 'all'}`;
+function cacheKey(lang: Language, categoryId: string | null, currency: CurrencyCode): string {
+  return `${lang}|${categoryId ?? 'all'}|${currency}`;
 }
 
 function snapshotFor(key: string): MenuItemsSnapshot {
@@ -52,7 +55,12 @@ function commit(key: string, next: MenuItemsSnapshot): void {
   listeners.forEach((listener) => listener());
 }
 
-function load(key: string, lang: Language, categoryId: string | null): Promise<void> {
+function load(
+  key: string,
+  lang: Language,
+  categoryId: string | null,
+  currency: CurrencyCode,
+): Promise<void> {
   const existing = inFlight.get(key);
   if (existing) return existing;
 
@@ -68,7 +76,7 @@ function load(key: string, lang: Language, categoryId: string | null): Promise<v
 
   const promise = (async () => {
     try {
-      const items = await fetchMenuItems(lang, { categoryId });
+      const items = await fetchMenuItems(lang, { categoryId }, currency);
       if (isCurrent()) commit(key, { status: 'ready', items, error: null });
     } catch (error) {
       if (isCurrent()) {
@@ -92,8 +100,12 @@ function load(key: string, lang: Language, categoryId: string | null): Promise<v
  * decision: the caller just signals that a session is available, and comparing
  * it to the token that failed is enough to tell the two cases apart.
  */
-export function ensureMenuItems(lang: Language, categoryId: string | null): void {
-  const key = cacheKey(lang, categoryId);
+export function ensureMenuItems(
+  lang: Language,
+  categoryId: string | null,
+  currency: CurrencyCode,
+): void {
+  const key = cacheKey(lang, categoryId, currency);
   if (inFlight.has(key)) return;
 
   const snapshot = snapshotFor(key);
@@ -103,19 +115,27 @@ export function ensureMenuItems(lang: Language, categoryId: string | null): void
     if (failedSession.get(key) === getSessionId()) return;
   }
 
-  void load(key, lang, categoryId);
+  void load(key, lang, categoryId, currency);
 }
 
 /** Force a re-fetch of one key, e.g. after a failed request the user retries. */
-export function refreshMenuItems(lang: Language, categoryId: string | null): Promise<void> {
-  const key = cacheKey(lang, categoryId);
+export function refreshMenuItems(
+  lang: Language,
+  categoryId: string | null,
+  currency: CurrencyCode,
+): Promise<void> {
+  const key = cacheKey(lang, categoryId, currency);
   inFlight.delete(key);
   commit(key, LOADING);
-  return load(key, lang, categoryId);
+  return load(key, lang, categoryId, currency);
 }
 
-export function getMenuItemsSnapshot(lang: Language, categoryId: string | null): MenuItemsSnapshot {
-  return snapshotFor(cacheKey(lang, categoryId));
+export function getMenuItemsSnapshot(
+  lang: Language,
+  categoryId: string | null,
+  currency: CurrencyCode,
+): MenuItemsSnapshot {
+  return snapshotFor(cacheKey(lang, categoryId, currency));
 }
 
 export function subscribeMenuItems(listener: () => void): () => void {

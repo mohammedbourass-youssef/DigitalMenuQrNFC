@@ -2,6 +2,7 @@ import { apiFetch, isMockMode } from '../lib/api';
 import { ApiError, SessionExpiredError } from '../lib/errors';
 import { mockGetMenuItems } from '../lib/mock';
 import type { Language } from '../types';
+import type { CurrencyCode } from '../lib/constants';
 import type { MenuItemsResponse, MenuItemPublicDTO, MenuScope } from '../types/menuItem';
 
 const PATH = '/api/tenant/menu';
@@ -31,16 +32,21 @@ function isMalformedSessionHeader(error: ApiError): boolean {
  * `X-Session-Id` is attached by the shared wrapper in `lib/api.ts`, which reads
  * the stored token; callers must have a session before invoking this.
  *
- * The endpoint localises server-side, so a language change is a new request
- * rather than a re-render of cached data.
+ * The endpoint localises and prices server-side, so a language or currency
+ * change is a new request rather than a re-render of cached data.
+ *
+ * @param currency the visitor's currently selected display currency, sent as
+ *   `currency` so the backend prices the response in the same one.
  */
 export async function fetchMenuItems(
   lang: Language,
   { categoryId }: MenuScope,
+  currency: CurrencyCode,
 ): Promise<MenuItemPublicDTO[]> {
   if (isMockMode()) return mockGetMenuItems(lang, { categoryId });
 
   const params = new URLSearchParams({ lang });
+  params.set('currency', currency);
   if (categoryId) {
     params.set('getAll', 'false');
     params.set('categoryId', categoryId);

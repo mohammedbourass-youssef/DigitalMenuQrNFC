@@ -53,3 +53,18 @@ export function parseTableToken(pathname: string): string | null {
   if (!match) return null;
   return TABLE_TOKEN_RE.test(match[1]) ? match[1] : null;
 }
+
+/**
+ * The table number a customer was routed to by their NFC tag or QR code, as in
+ * `http://snackme.localhost/1` — the single path segment after the root.
+ *
+ * Distinct from `parseTableToken`, which reads the `/t/<token>` NFC-link form:
+ * `/t/abc` carries a token, `/1` carries a number. Returns null for `/`,
+ * non-numeric segments, `0`, and negatives.
+ */
+export function parseTableNumberPath(pathname: string): number | null {
+  const match = pathname.match(/^\/(\d+)(?:\/|$|[?#])/);
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isSafeInteger(value) && value > 0 ? value : null;
+}
