@@ -25,6 +25,11 @@ namespace NFC_Backend.Repos.Implementations
        == Id).FirstOrDefaultAsync();
         public Task<Tenant?> GetByID(Guid Id) => _dbContext.Tenants.AsNoTracking().Where(t => t.Id
         == Id).FirstOrDefaultAsync();
+        public Task<Tenant?> GetTenantInfosByID(Guid Id) => _dbContext
+            .Tenants.AsNoTracking()
+            .Where(t => t.Id== Id)
+            .Include(t=>t.Currency)
+            .FirstOrDefaultAsync();
         public  Task<Tenant?> GetByPhoneNumber(string phoneNumber) => _dbContext.Tenants.AsNoTracking().Where(t=>t.PhoneNumber
         ==  phoneNumber).FirstOrDefaultAsync ();
         public Task<bool> IsSubDomainExits(string SubDomaine) =>
@@ -41,7 +46,7 @@ namespace NFC_Backend.Repos.Implementations
         {
             var currentDomain = _configuration["AppSettings:BaseDomain"];
             int Days = int.Parse(_configuration["Variable:FreeTrialDays"]);
-            string SubDomaine = StringTool.SlugifyRestaurantName(createTenant.RestaurantName) + "." + currentDomain;
+            string SubDomaine = StringTool.SlugifyRestaurantName(createTenant.RestaurantName);
             bool IsExist = await IsSubDomainExits(SubDomaine);
             if (IsExist)
             {
@@ -67,11 +72,12 @@ namespace NFC_Backend.Repos.Implementations
             };
             await _dbContext.Tenants.AddAsync(tenant);
             await _dbContext.SaveChangesAsync();
-            return new TenantResponse(tenant.Id, tenant.Subdomain);
+            return new TenantResponse(tenant.Id, $"{tenant.Subdomain}.{currentDomain}" );
         }
 
         public async Task<MyRestaurantInfosResponse> GetMyRestaurantInfosAsync(Guid userId)
         {
+            var currentDomain = _configuration["AppSettings:BaseDomain"];
             // 1. Find the user
             var user = await _dbContext.Users
                 .FirstOrDefaultAsync(u => u.Id == userId);
@@ -103,7 +109,7 @@ namespace NFC_Backend.Repos.Implementations
             // 4. Return response
             return new MyRestaurantInfosResponse(
                 RestaurantName: tenant.RestaurantName,
-                Subdomain: tenant.Subdomain,
+                Subdomain: $"{tenant.Subdomain}.{currentDomain}" ,
                 LogoUrl:await _fileStorageService.GetFileUrlAsync(tenant.LogoUrl , tenant.BucketName ),
                 PrimaryColor: tenant.PrimaryColor,
                 PhoneNumber: tenant.PhoneNumber,
@@ -117,7 +123,6 @@ namespace NFC_Backend.Repos.Implementations
                 SubscriptionEndsAt: tenant.SubscriptionEndsAt
             );
         }
-
 
         public async Task SaveUpdate(Tenant tenant)
         {

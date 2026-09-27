@@ -8,7 +8,7 @@ export function TableBadge({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="group flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3.5 py-2 shadow-sm transition-all duration-200 hover:border-gray-300 hover:shadow-md active:scale-95"
+      className="flex h-11 shrink-0 items-center gap-2 rounded-full bg-white px-3 text-gray-900 shadow-sm transition-transform active:scale-95"
     >
       <span
         className="flex h-6 w-6 items-center justify-center rounded-full text-white"
@@ -19,11 +19,11 @@ export function TableBadge({ onClick }: { onClick: () => void }) {
           <path d="M3 9h18M9 3v18" />
         </svg>
       </span>
-      <span className="text-sm font-bold text-gray-900">
-        {t('table')} {tableNumber}
+      <span className="text-sm font-extrabold">
+        {tableNumber === null ? t('table') : `${t('table')} ${tableNumber}`}
       </span>
       <svg
-        className="h-3.5 w-3.5 text-gray-400 transition-transform group-hover:rotate-180"
+        className="h-3.5 w-3.5 text-gray-400"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"

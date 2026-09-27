@@ -1,4 +1,5 @@
-﻿using NFC_Backend.Domain.DTOS;
+﻿using Microsoft.EntityFrameworkCore;
+using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 
 namespace NFC_Backend.Repos.Interfaces
@@ -13,5 +14,6 @@ namespace NFC_Backend.Repos.Interfaces
         public Task<Tenant?> GetByID(Guid Id);
         public Task<Tenant?> GetByIDTracking(Guid Id);
         public  Task SaveUpdate(Tenant tenant);
+        public Task<Tenant?> GetTenantInfosByID(Guid Id);
     }
 }

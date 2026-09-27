@@ -27,7 +27,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -86,7 +86,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("Subdomain")
                         .IsUnique();
@@ -96,7 +96,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -143,7 +143,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("Email")
                         .IsUnique();

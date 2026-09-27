@@ -60,4 +60,12 @@ namespace NFC_Backend.Domain.DTOS
         [Required(ErrorMessage = "Language is required.")]
         public string Language { get; set; }
     }
+    public class CategorySimpleInfoPublicDTO
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Desc { get; set; }
+        public string Color { get; set; }
+        public string Image { get; set; }
+    }
 }

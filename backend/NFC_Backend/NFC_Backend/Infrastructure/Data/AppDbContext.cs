@@ -19,6 +19,9 @@ namespace NFC_Backend.Infrastructure.Data
         public DbSet<MenuItem> MenuItems { get; set; } = null!;
         public DbSet<MenuItemTranslation> MenuItemTranslations { get; set; } = null!;
         public DbSet<MenuImage> MenuImages { get; set; } = null!;
+        public DbSet<Session> Sessions { get; set; } = null!;
+        public DbSet<Table> Tables { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -153,7 +156,7 @@ namespace NFC_Backend.Infrastructure.Data
                 entity.HasIndex(v => v.Code);
 
                 entity.HasOne(v => v.User)
-                      .WithMany(u => u.VerificationCodes) 
+                      .WithMany(u => u.VerificationCodes)
                       .HasForeignKey(v => v.UserId)
                       .OnDelete(DeleteBehavior.Cascade);
                 entity.HasIndex(v => new { v.UserId, v.VerificationsStatus })
@@ -244,7 +247,7 @@ namespace NFC_Backend.Infrastructure.Data
                       .HasForeignKey(t => t.MenuId)
                       .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasIndex(t => new { t.MenuId, t.Lang }).IsUnique(); 
+                entity.HasIndex(t => new { t.MenuId, t.Lang }).IsUnique();
             });
 
             modelBuilder.Entity<MenuImage>(entity =>
@@ -255,6 +258,70 @@ namespace NFC_Backend.Infrastructure.Data
                 entity.HasOne(i => i.Menu)
                       .WithMany(m => m.Images)
                       .HasForeignKey(i => i.MenuId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Session>(entity =>
+            {
+                entity.ToTable("sessions");
+
+                entity.HasKey(s => s.Id);
+
+                entity.Property(s => s.TokenHash)
+                      .IsRequired();
+
+                entity.Property(s => s.CreatedAt)
+                      .HasDefaultValueSql("NOW()");
+
+                entity.Property(s => s.ExpiresAt)
+                      .IsRequired();
+
+                // Lookups happen by token on every request — this must be indexed.
+                entity.HasIndex(s => s.TokenHash).IsUnique();
+
+                // Cleanup job filters/deletes by expiry — index it too.
+                entity.HasIndex(s => s.ExpiresAt);
+
+                entity.HasIndex(s => s.TenantId);
+
+                entity.HasOne(s => s.Tenant)
+                      .WithMany()
+                      .HasForeignKey(s => s.TenantId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(s => s.TableId);
+
+                entity.HasOne(s => s.Table)
+                      .WithMany(t => t.Sessions)
+                      .HasForeignKey(s => s.TableId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+            modelBuilder.Entity<Table>(entity =>
+            {
+                entity.ToTable("tables"); // lowercase, consistent with your other tables
+
+                entity.HasKey(t => t.Id);
+
+                entity.Property(t => t.Number)
+                      .IsRequired();
+
+                entity.Property(t => t.Name)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(t => t.IsAvailable)
+                      .HasDefaultValue(true);
+
+                entity.HasIndex(t => t.TenantId);
+
+                // Unique per tenant, not globally
+                entity.HasIndex(t => new { t.TenantId, t.Number })
+                      .IsUnique()
+                      .HasDatabaseName("UQ_Table_Number_PerTenant");
+
+                entity.HasOne(t => t.Tenant)
+                      .WithMany() // add ICollection<Table> on Tenant if you want reverse nav
+                      .HasForeignKey(t => t.TenantId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
         }

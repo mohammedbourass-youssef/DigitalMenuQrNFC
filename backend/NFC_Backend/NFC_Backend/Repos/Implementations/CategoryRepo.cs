@@ -10,19 +10,17 @@ namespace NFC_Backend.Repos.Implementations
     public class CategoryRepo : ICategoryRepo
     {
         private readonly AppDbContext _db;
-
         public CategoryRepo(AppDbContext db)
         {
             _db = db;
         }
-
         public async Task<Guid> SaveCategoryWithTranslations(Category category, List<CategoryTranslation> translations)
         {
             await _db.Categories.AddAsync(category);
 
             foreach (var t in translations)
             {
-                t.CategoryId = category.Id; // works even before insert, since Category.Id is a client-generated Guid (not identity)
+                t.CategoryId = category.Id; // works even before insert, since Category.CategoryId is a client-generated Guid (not identity)
             }
             await _db.CategoryTranslations.AddRangeAsync(translations);
 
@@ -30,7 +28,6 @@ namespace NFC_Backend.Repos.Implementations
 
             return category.Id;
         }
-        // CategoryRepo.cs
         public async Task<int> UpdateChangedTranslations(
             Guid categoryId,
             IReadOnlyDictionary<string, LocalizedCategoryText> translations)
@@ -92,7 +89,6 @@ namespace NFC_Backend.Repos.Implementations
                 .ToListAsync();
             return categories;
         }
-
         public async Task<Category?> GetCategoryOfAdmin(Guid TenantId, Guid categoryId)
         {
             var categories = await _db.Categories
@@ -102,10 +98,8 @@ namespace NFC_Backend.Repos.Implementations
                 .FirstOrDefaultAsync();
             return categories;
         }
-
         public Task<Category?> GetCategoryByIDAsync(Guid id , Guid TenantID)
         => _db.Categories.Where(c => c.Id == id && c.IsActive == true && c.TenantId == TenantID).FirstOrDefaultAsync();
-
         public async Task DisactiveCategory(Guid id)
         {
             //First disactive All Menus Related 
@@ -132,7 +126,6 @@ namespace NFC_Backend.Repos.Implementations
         }
         public Task<Category?> GetCategoryByIDIncludingInactiveAsync(Guid id , Guid Tenant)
           => _db.Categories.Where(c => c.Id == id && c.TenantId == Tenant).FirstOrDefaultAsync();
-
         public async Task UpdateColorAndOrder(Guid categoryId, Guid tenantId, string color, int displayOrder)
         {
             var category = await _db.Categories
@@ -147,7 +140,6 @@ namespace NFC_Backend.Repos.Implementations
 
             await _db.SaveChangesAsync();
         }
-
         public async Task<List<SimpleCategoryInfoDto>> GetCategoriesSimple(Guid tenantId, SearchCategoryRequest search)
         {
             var translationsQuery = _db.CategoryTranslations
@@ -179,5 +171,35 @@ namespace NFC_Backend.Repos.Implementations
 
             return data;
         }
+        
+
+        public async Task<List<CategorySimpleInfoPublicDTO>> GetPublicCategories(Guid tenantId , string lang)
+        {
+            var translationsQuery = _db.CategoryTranslations
+              .Where(t => t.Lang == lang);
+
+            var data = await _db.Categories
+                .AsNoTracking()
+                .Where(c => c.TenantId == tenantId && c.IsActive)
+                .Join(
+                    translationsQuery,
+                    c => c.Id,
+                    t => t.CategoryId,
+                    (c, t) => new { c, t } // keep as anonymous type first
+                )
+                .OrderBy(x => x.t.Name) // order on the raw joined result — EF can translate this
+                .Select(x => new CategorySimpleInfoPublicDTO {
+                  Id =   x.c.Id,
+                   Name =  x.t.Name,
+                   Desc =  x.t.Descriptions,
+                   Color =  x.c.Color ,
+                  Image =   x.c.ImageUrl
+                })
+                .ToListAsync();
+
+            return data;
+        }
+    
+       
     }
 }

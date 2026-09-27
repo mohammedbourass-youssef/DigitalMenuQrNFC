@@ -58,6 +58,32 @@ namespace NFC_Backend.Services
             rng.GetBytes(randomBytes);
             return Convert.ToBase64String(randomBytes);
         }
+        public string GenerateSessionToken()
+        {
+            var randomBytes = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            // Base64Url avoids '+' '/' '=' so it's safe to drop straight into
+            // headers, cookies or query strings with no extra encoding.
+            return Base64UrlEncoder.Encode(randomBytes);
+        }
+        public string HashSessionToken(string token)
+        {
+            var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
+            return Convert.ToBase64String(bytes);
+        }
+        public bool VerifySessionToken(string plainToken, string hashedToken)
+        {
+            var computedHash = HashSessionToken(plainToken);
+
+            var computedBytes = Encoding.UTF8.GetBytes(computedHash);
+            var storedBytes = Encoding.UTF8.GetBytes(hashedToken);
+
+            if (computedBytes.Length != storedBytes.Length)
+                return false;
+
+            return CryptographicOperations.FixedTimeEquals(computedBytes, storedBytes);
+        }
         public string HashPassword(string plainPassword)
         {
             return BCrypt.Net.BCrypt.HashPassword(plainPassword, workFactor: 12);
@@ -66,13 +92,11 @@ namespace NFC_Backend.Services
         {
             return BCrypt.Net.BCrypt.Verify(plainPassword, hashedPassword);
         }
-
         public string HashRefreshToken(string token)
         {
             var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(token));
             return Convert.ToBase64String(bytes);
         }
-
         public bool VerifyRefreshToken(string plainToken, string hashedToken)
         {
             var computedHash = HashRefreshToken(plainToken);

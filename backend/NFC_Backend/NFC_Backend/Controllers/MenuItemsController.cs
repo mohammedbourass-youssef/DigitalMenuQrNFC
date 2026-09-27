@@ -31,7 +31,7 @@ namespace NFC_Backend.Controllers
             IFileStorageService fileStorageService,
             ICategoryRepo categoryRepo,
             IMenuItemRepo menuRepo,
-            ICategoryTranslationService translation , IExchangeRateRepo exchangeRateRepo)  // ✅ injected
+            ICategoryTranslationService translation , IExchangeRateRepo exchangeRateRepo)  
         {
             _tenantRepo = tenantRepo;
             _userRepo = userRepo;
@@ -127,7 +127,7 @@ namespace NFC_Backend.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                _logger.LogInformation("UploadImages started. MenuItemId: {Id}", id);
+                _logger.LogInformation("UploadImages started. MenuItemId: {CategoryId}", id);
 
                 var (tenant, error) = await ResolveTenantAsync();
                 if (error != null) return error;
@@ -135,7 +135,7 @@ namespace NFC_Backend.Controllers
                 MenuItem? menu = await _menuRepo.GetMenuItemByIdIncludingInactiveAsync(id, tenant!.Id);
                 if (menu == null)
                 {
-                    _logger.LogWarning("UploadImages failed - menu item not found. Id: {Id}", id);
+                    _logger.LogWarning("UploadImages failed - menu item not found. CategoryId: {CategoryId}", id);
                     return NotFound(new { error = "Menu item not found." });
                 }
 
@@ -143,7 +143,7 @@ namespace NFC_Backend.Controllers
                 string? coverImageUrl = menu.CoverImage;
                 if (request.CoverImage != null)
                 {
-                    _logger.LogInformation("Replacing cover image for MenuItemId: {Id}", id);
+                    _logger.LogInformation("Replacing cover image for MenuItemId: {CategoryId}", id);
                     if (!string.IsNullOrEmpty(menu.CoverImage))
                     {
                         await _fileStorageService.DeleteFileAsync(menu.CoverImage, tenant.BucketName!);
@@ -167,12 +167,12 @@ namespace NFC_Backend.Controllers
                     menuImages = (await Task.WhenAll(uploadTasks)).ToList();
 
                     _logger.LogInformation(
-                        "Uploaded {Count} additional images for MenuItemId: {Id}", menuImages.Count, id);
+                        "Uploaded {Count} additional images for MenuItemId: {CategoryId}", menuImages.Count, id);
                 }
 
                 await _menuRepo.UploadImages(id, menuImages, coverImageUrl);
 
-                _logger.LogInformation("UploadImages succeeded. MenuItemId: {Id}", id);
+                _logger.LogInformation("UploadImages succeeded. MenuItemId: {CategoryId}", id);
                 return Ok(new { message = "Images updated successfully." });
             }
             catch (NotFoundException ex)
@@ -187,7 +187,7 @@ namespace NFC_Backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error in UploadImages. MenuItemId: {Id}", id);
+                _logger.LogError(ex, "Unexpected error in UploadImages. MenuItemId: {CategoryId}", id);
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
@@ -354,9 +354,9 @@ namespace NFC_Backend.Controllers
         [HttpPatch("{menuId}/images/reorder")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
         public async Task<ActionResult> ReorderMenuImages(
-      Guid menuId,
-      [FromBody] List<ImageOrderDto> orders,
-      CancellationToken ct)
+        Guid menuId,
+        [FromBody] List<ImageOrderDto> orders,
+        CancellationToken ct)
         {
             try
             {
@@ -467,12 +467,12 @@ namespace NFC_Backend.Controllers
 
                 await _menuRepo.SaveUpdates(menu);
 
-                _logger.LogInformation("MenuItem {Id} moved to category {CategoryId}", id, request.CategoryId);
+                _logger.LogInformation("MenuItem {CategoryId} moved to category {CategoryId}", id, request.CategoryId);
                 return Ok(new { message = "Menu item moved to category successfully." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error moving menu item to category. MenuItemId: {Id}", id);
+                _logger.LogError(ex, "Unexpected error moving menu item to category. MenuItemId: {CategoryId}", id);
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }

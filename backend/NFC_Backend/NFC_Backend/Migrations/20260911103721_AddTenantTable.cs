@@ -60,7 +60,7 @@ namespace NFC_Backend.Migrations
                         name: "FK_users_tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "tenants",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

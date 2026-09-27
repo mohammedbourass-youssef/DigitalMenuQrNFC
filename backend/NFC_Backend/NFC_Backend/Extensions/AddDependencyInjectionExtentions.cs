@@ -16,6 +16,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IExchangeRateRepo, ExchangeRateRepo>();
             services.AddScoped<ICategoryRepo, CategoryRepo>();
             services.AddScoped<IMenuItemRepo, MenuItemRepo>();
+            services.AddScoped<ISessionsRepository, SessionsRepository>();
 
 
             //Services
@@ -25,6 +26,9 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IExchangeRateService, ExchangeRateService>();
             services.AddScoped<ICategoryTranslationService, CategoryTranslationService>();
 
+            //Accesseurs
+            services.AddScoped<ITenantAccessor, TenantAccessor>();
+            services.AddScoped<ISessionAccessor, SessionAccessor>();
 
             //Adapters : 
             services.AddHttpClient<IExchangeRateApiAdapter, ExchangeRateApiAdapter>();

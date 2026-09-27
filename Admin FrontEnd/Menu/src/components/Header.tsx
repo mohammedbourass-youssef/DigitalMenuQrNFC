@@ -1,41 +1,37 @@
 import { UtensilsCrossed } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { restaurant } from '@/data';
+import { useTenant } from '@/contexts/TenantContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { CurrencySwitcher } from './CurrencySwitcher';
 import { TableBadge } from './TableBadge';
 
 export function Header({ onTableClick }: { onTableClick: () => void }) {
-  const { tl } = useLanguage();
+  const { tenant } = useTenant();
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-lg border-b border-gray-100">
-      <div className="mx-auto max-w-2xl px-4 py-3">
-        <div className="flex items-center justify-between gap-3">
-          {/* Logo + Name */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-md"
-              style={{ backgroundColor: 'var(--brand-color)' }}
-            >
-              <UtensilsCrossed className="h-6 w-6" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="truncate text-base font-extrabold leading-tight text-gray-900">
-                {tl(restaurant.name)}
-              </h1>
-              <p className="truncate text-xs text-gray-400">
-                {tl(restaurant.tagline)}
-              </p>
-            </div>
-          </div>
-
-          {/* Language Switcher */}
-          <LanguageSwitcher />
+    <header className="relative z-30 shrink-0 bg-brand pt-safe shadow-md">
+      <div className="flex h-14 items-center justify-between gap-3 px-4">
+        <div className="flex min-w-0 items-center gap-2.5">
+          {tenant?.logoUrl ? (
+            <img
+              src={tenant.logoUrl}
+              alt={tenant.name}
+              className="h-9 w-9 shrink-0 rounded-xl object-cover shadow-sm"
+            />
+          ) : (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white">
+              <UtensilsCrossed className="h-5 w-5" />
+            </span>
+          )}
+          <span className="min-w-0">
+            <span className="block truncate text-base font-extrabold leading-tight text-white">
+              {tenant?.name ?? ''}
+            </span>
+          </span>
         </div>
-
-        {/* Table Badge */}
-        <div className="mt-3">
+        <div className="flex shrink-0 items-center gap-2">
           <TableBadge onClick={onTableClick} />
+          <CurrencySwitcher />
+          <LanguageSwitcher />
         </div>
       </div>
     </header>

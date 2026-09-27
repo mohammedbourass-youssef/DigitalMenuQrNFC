@@ -16,6 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("SmartMenuDb")
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddJWTBearerToken(builder.Configuration);
 builder.Services.AddDependencyInjection(builder.Configuration);
@@ -30,15 +31,25 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-    "http://localhost:5173",
-    "https://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://127.0.0.1:5173"
-)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (!Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                return false;
+
+            var host = uri.Host;
+
+            // Customer menu: snackme.localhost, any tenant subdomain, any port
+            var isTenantMenu = host == "localhost"
+                || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase);
+
+            // Admin frontend: adjust to match its actual host
+            var isAdmin = host == "admin.localhost";
+
+            return isTenantMenu || isAdmin;
+        })
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 builder.Services.AddControllers();
@@ -58,7 +69,16 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
-app.UseAuthentication();        
+app.UseAuthentication();
+
+app.UseWhen(
+    ctx => ctx.Request.Path.StartsWithSegments("/api/tenant"),  
+    branch => {
+        branch.UseMiddleware<TenantMiddleware>();
+        branch.UseMiddleware<SessionMiddleware>();
+    }
+    );
+
 app.UseAuthorization();
 
 app.MapControllers();

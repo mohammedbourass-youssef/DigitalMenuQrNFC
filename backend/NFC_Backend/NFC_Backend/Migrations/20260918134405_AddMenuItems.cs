@@ -38,13 +38,13 @@ namespace NFC_Backend.Migrations
                         name: "FK_MenuItems_categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "categories",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_MenuItems_tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "tenants",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -65,7 +65,7 @@ namespace NFC_Backend.Migrations
                         name: "FK_MenuImages_MenuItems_MenuId",
                         column: x => x.MenuId,
                         principalTable: "MenuItems",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -86,7 +86,7 @@ namespace NFC_Backend.Migrations
                         name: "FK_MenuItemTranslations_MenuItems_MenuId",
                         column: x => x.MenuId,
                         principalTable: "MenuItems",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

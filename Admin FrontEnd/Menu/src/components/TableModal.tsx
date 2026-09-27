@@ -1,12 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTable } from '@/contexts/TableContext';
-import { X } from 'lucide-react';
+import { hapticFeedback } from '@/lib/haptics';
+import { BottomSheet } from './BottomSheet';
 
 export function TableModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useLanguage();
   const { tableNumber, setTableNumber } = useTable();
-  const [value, setValue] = useState(String(tableNumber));
+  const [value, setValue] = useState(tableNumber === null ? '' : String(tableNumber));
+
+  useEffect(() => {
+    if (open) setValue(tableNumber === null ? '' : String(tableNumber));
+  }, [open, tableNumber]);
 
   if (!open) return null;
 
@@ -14,58 +19,45 @@ export function TableModal({ open, onClose }: { open: boolean; onClose: () => vo
     const n = parseInt(value, 10);
     if (!isNaN(n) && n > 0) {
       setTableNumber(n);
+      hapticFeedback(10);
       onClose();
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/40 animate-fade-in" />
-      <div
-        className="relative w-full max-w-md rounded-t-3xl bg-white p-6 shadow-2xl animate-slide-up sm:rounded-3xl safe-bottom"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-gray-200 sm:hidden" />
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-extrabold text-gray-900">{t('changeTable')}</h2>
-          <button
-            onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition hover:bg-gray-200 active:scale-90"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
-
-        <label className="mb-2 block text-sm font-semibold text-gray-600">
-          {t('enterTableNumber')}
-        </label>
+    <BottomSheet open={open} onDismiss={onClose} header={{ title: t('changeTable'), onClose }}>
+      <div className="sheet-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-5 pb-safe pt-1">
+        <label className="mb-2 block text-sm font-bold text-gray-600">{t('enterTableNumber')}</label>
         <input
           type="number"
-          min="1"
+          inputMode="numeric"
+          min={1}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           autoFocus
           onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-          className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3.5 text-lg font-bold text-gray-900 outline-none transition focus:border-[var(--brand-color)]"
-          style={{ caretColor: 'var(--brand-color)' }}
+          className="h-14 w-full rounded-2xl border-2 border-gray-200 px-4 text-xl font-extrabold text-gray-900 outline-none transition focus:border-brand"
+          style={{ caretColor: 'var(--color-primary)' }}
+          placeholder="12"
         />
 
         <div className="mt-6 flex gap-3">
           <button
+            type="button"
             onClick={onClose}
-            className="flex-1 rounded-2xl bg-gray-100 py-3.5 text-sm font-bold text-gray-600 transition hover:bg-gray-200 active:scale-95"
+            className="flex h-14 flex-1 items-center justify-center rounded-2xl bg-gray-100 text-sm font-extrabold text-gray-600 transition active:bg-gray-200"
           >
             {t('cancel')}
           </button>
           <button
+            type="button"
             onClick={handleSave}
-            className="flex-1 rounded-2xl py-3.5 text-sm font-bold text-white shadow-lg transition active:scale-95"
-            style={{ backgroundColor: 'var(--brand-color)' }}
+            className="flex h-14 flex-1 items-center justify-center rounded-2xl bg-brand text-sm font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
           >
             {t('save')}
           </button>
         </div>
       </div>
-    </div>
+    </BottomSheet>
   );
 }

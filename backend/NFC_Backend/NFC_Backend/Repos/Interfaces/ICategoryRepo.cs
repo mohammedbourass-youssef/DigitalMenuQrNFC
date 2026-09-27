@@ -16,7 +16,7 @@ namespace NFC_Backend.Repos.Interfaces
         public Task<Category?> GetCategoryOfAdmin(Guid TenantId, Guid categoryId);
         public  Task UpdateColorAndOrder(Guid categoryId, Guid tenantId, string color, int displayOrder);
         public Task<List<SimpleCategoryInfoDto>> GetCategoriesSimple(Guid tenantId, SearchCategoryRequest search);
-
+        public  Task<List<CategorySimpleInfoPublicDTO>> GetPublicCategories(Guid tenantId, string lang);
 
     }
 }

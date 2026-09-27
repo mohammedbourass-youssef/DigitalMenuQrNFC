@@ -29,5 +29,7 @@ namespace NFC_Backend.Repos.Interfaces
         Task<int> UpdateChangedTranslations(
             Guid menuId,
             IReadOnlyDictionary<string, LocalizedCategoryText> translations);
+        public Task<List<MenuItemPublicDTO>> GetPublicMenuItemsAsync(Guid tenantId, Guid? categoryId, string lang);
+
     }
 }

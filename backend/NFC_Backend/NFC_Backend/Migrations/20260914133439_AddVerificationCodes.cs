@@ -29,7 +29,7 @@ namespace NFC_Backend.Migrations
                         name: "FK_verification_codes_users_UserId",
                         column: x => x.UserId,
                         principalTable: "users",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

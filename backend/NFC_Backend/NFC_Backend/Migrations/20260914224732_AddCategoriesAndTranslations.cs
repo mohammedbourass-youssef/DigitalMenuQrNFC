@@ -31,7 +31,7 @@ namespace NFC_Backend.Migrations
                         name: "FK_categories_tenants_TenantId",
                         column: x => x.TenantId,
                         principalTable: "tenants",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -52,7 +52,7 @@ namespace NFC_Backend.Migrations
                         name: "FK_category_translations_categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "categories",
-                        principalColumn: "Id",
+                        principalColumn: "CategoryId",
                         onDelete: ReferentialAction.Cascade);
                 });
 

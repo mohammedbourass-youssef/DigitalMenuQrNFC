@@ -1,5 +1,14 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { Product, CartItem } from '../types';
+import { tenantScopedKey } from '../lib/tenant';
+import { storageGet, storageSet } from '../lib/storage';
+
+interface StoredCartItem {
+  product: Product;
+  quantity: number;
+}
+
+const CART_KEY = tenantScopedKey('cart');
 
 interface CartContextValue {
   items: CartItem[];
@@ -16,8 +25,23 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItem[]>(() => {
+    const stored = storageGet<StoredCartItem[]>(CART_KEY, []);
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(
+      (item): item is StoredCartItem =>
+        item !== null &&
+        typeof item === 'object' &&
+        typeof item.product?.id === 'string' &&
+        typeof item.quantity === 'number' &&
+        item.quantity > 0,
+    );
+  });
   const [lastAddedId, setLastAddedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    storageSet(CART_KEY, items);
+  }, [items]);
 
   const addToCart = useCallback((product: Product, quantity = 1) => {
     setItems((prev) => {

@@ -10,6 +10,7 @@ using NFC_Backend.Infrastructure.Tools;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace NFC_Backend.Controllers
@@ -22,13 +23,20 @@ namespace NFC_Backend.Controllers
         private readonly IUserRepo _userRepo;
         private readonly ILogger<RestaurantsController> _logger;
         private readonly IFileStorageService _fileStorageService;
+        private readonly ITenantAccessor _tenantAccessor;
+        private readonly ITokenService _tokenService;
+        private readonly ISessionsRepository _SessionRepo;
 
-        public RestaurantsController(ITenantRepo tenant , ILogger<RestaurantsController> logger , IUserRepo repo , IFileStorageService fileStorageService)
+        public RestaurantsController(ITenantRepo tenant , ILogger<RestaurantsController> logger ,
+            IUserRepo repo , IFileStorageService fileStorageService , ITenantAccessor tenant1 , ITokenService token , ISessionsRepository sessions)
         {
             _tenantRepo = tenant;
             _logger = logger;
             _userRepo = repo;
             _fileStorageService = fileStorageService;
+            _tenantAccessor = tenant1;
+                        _tokenService = token;
+            _SessionRepo = sessions;
         }
         [HttpGet("my-restaurant")]
         [Authorize]
@@ -136,6 +144,6 @@ namespace NFC_Backend.Controllers
                     new { error = "An unexpected error occurred. Please try again." });
             }
         }
-
+     
     }
 }

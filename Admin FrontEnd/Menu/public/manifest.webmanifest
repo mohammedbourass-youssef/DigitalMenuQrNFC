@@ -1,0 +1,19 @@
+{
+  "name": "Snack X — Digital Menu",
+  "short_name": "Snack X",
+  "description": "Browse the menu and order straight from your table.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFFFFF",
+  "theme_color": "#E85D04",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

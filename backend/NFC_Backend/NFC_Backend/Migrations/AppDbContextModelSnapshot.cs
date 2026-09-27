@@ -24,7 +24,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Category", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -57,7 +57,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("TenantId");
 
@@ -66,7 +66,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.CategoryTranslation", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -86,7 +86,7 @@ namespace NFC_Backend.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("CategoryId", "Lang")
                         .IsUnique()
@@ -187,11 +187,11 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.ExchangeRate", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
 
                     b.Property<string>("BaseCurrency")
                         .IsRequired()
@@ -216,7 +216,7 @@ namespace NFC_Backend.Migrations
                         .HasColumnType("character(3)")
                         .IsFixedLength();
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("TargetCurrency");
 
@@ -229,7 +229,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuImage", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -246,7 +246,7 @@ namespace NFC_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("MenuId");
 
@@ -255,7 +255,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -303,7 +303,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("CategoryId");
 
@@ -314,7 +314,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItemTranslation", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -333,7 +333,7 @@ namespace NFC_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("MenuId", "Lang")
                         .IsUnique();
@@ -341,9 +341,92 @@ namespace NFC_Backend.Migrations
                     b.ToTable("MenuItemTranslations");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("TableId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text");
+
+                    b.HasKey("CategoryId");
+
+                    b.HasIndex("ExpiresAt");
+
+                    b.HasIndex("TableId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("sessions", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Table", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAvailable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CategoryId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Table_Number_PerTenant");
+
+                    b.ToTable("tables", (string)null);
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -409,7 +492,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("CurrencyCode");
 
@@ -421,7 +504,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -474,7 +557,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -488,7 +571,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.VerificationCode", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("CategoryId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -511,7 +594,7 @@ namespace NFC_Backend.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CategoryId");
 
                     b.HasIndex("Code");
 
@@ -607,6 +690,33 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Table", "Table")
+                        .WithMany("Sessions")
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Table");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Table", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Currency", "Currency")
@@ -656,6 +766,11 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Table", b =>
+                {
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>

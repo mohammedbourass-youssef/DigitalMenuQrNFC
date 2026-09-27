@@ -24,7 +24,7 @@ namespace NFC_Backend.Repos.Implementations
             await _db.MenuItemTranslations.AddRangeAsync(translations);
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("MenuItem created. Id: {Id}", menu.Id);
+            _logger.LogInformation("MenuItem created. CategoryId: {CategoryId}", menu.Id);
             return menu.Id;
         }
         public Task<MenuItem?> GetMenuItemByIdAsync(Guid id, Guid tenantId)
@@ -62,7 +62,7 @@ namespace NFC_Backend.Repos.Implementations
 
             if (menu == null)  // ✅ null guard
             {
-                _logger.LogWarning("UploadImages failed - MenuItem not found. Id: {Id}", id);
+                _logger.LogWarning("UploadImages failed - MenuItem not found. CategoryId: {CategoryId}", id);
                 throw new NotFoundException($"Menu item {id} not found.");
             }
 
@@ -75,7 +75,7 @@ namespace NFC_Backend.Repos.Implementations
             await _db.SaveChangesAsync();
 
             _logger.LogInformation(
-                "Images uploaded for MenuItemId: {Id}. Count: {Count}", id, menuImages.Count);
+                "Images uploaded for MenuItemId: {CategoryId}. Count: {Count}", id, menuImages.Count);
         }
 
 
@@ -184,6 +184,41 @@ namespace NFC_Backend.Repos.Implementations
             }
 
             return changedCount;
+        }
+
+        public async Task<List<MenuItemPublicDTO>> GetPublicMenuItemsAsync(Guid tenantId,Guid? categoryId, string lang)
+        {
+            return await _db.MenuItems
+                .Where(m => m.TenantId == tenantId
+                         && (m.CategoryId == categoryId || categoryId == null)
+                         && m.IsActive
+                         && m.IsAvailable)
+                .OrderBy(m => m.DisplayOrder)
+                .Select(m => new MenuItemPublicDTO
+                {
+                    Id = m.Id,
+                    Name = m.Translations
+                        .Where(t => t.Lang == lang)
+                        .Select(t => t.Name)
+                        .FirstOrDefault() ?? m.Translations
+                            .Select(t => t.Name)
+                            .FirstOrDefault() ?? "Untitled",   
+                    Description = m.Translations
+                        .Where(t => t.Lang == lang)
+                        .Select(t => t.Descriptions)
+                        .FirstOrDefault(),
+                    Price = m.DiscountedPrice ?? m.PriceInDefaultCurrency,
+                    OriginalPrice = m.DiscountedPrice != null ? m.PriceInDefaultCurrency : (decimal?)null,
+                    CurrencyCode = m.DefaultCurrencyCode,
+                    CoverImage = m.CoverImage,
+                    IsFeatured = m.IsFeatured,
+                    PreparationTimeMinutes = m.PreparationTimeMinutes,
+                    Images = m.Images
+                        .OrderBy(img => img.DisplayOrder)
+                        .Select(img => img.Url)
+                        .ToList()
+                })
+                .ToListAsync();
         }
     }
 }

@@ -1,6 +1,14 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import type { Language, Direction, LocalizedString } from '../types';
 import { uiStrings } from '../translations';
+import { tenantScopedKey } from '../lib/tenant';
+import { storageGet, storageSet } from '../lib/storage';
+import { detectDeviceLanguage } from '../lib/detectLanguage';
+import { RTL_LANGUAGES, SUPPORTED_LANGUAGES } from '../lib/constants';
+
+const LANG_KEY = tenantScopedKey('lang');
+
+const SUPPORTED: readonly Language[] = SUPPORTED_LANGUAGES;
 
 interface LanguageContextValue {
   lang: Language;
@@ -13,12 +21,22 @@ interface LanguageContextValue {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Language>('en');
+  const hasPref = useRef(false);
+  const [lang, setLangState] = useState<Language>(() => {
+    const stored = storageGet<Language | null>(LANG_KEY, null);
+    if (stored && SUPPORTED.includes(stored)) {
+      hasPref.current = true;
+      return stored;
+    }
+    return detectDeviceLanguage();
+  });
 
-  const dir: Direction = lang === 'ar' ? 'rtl' : 'ltr';
+  const dir: Direction = RTL_LANGUAGES.includes(lang) ? 'rtl' : 'ltr';
 
   const setLang = useCallback((newLang: Language) => {
+    hasPref.current = true;
     setLangState(newLang);
+    storageSet(LANG_KEY, newLang);
   }, []);
 
   useEffect(() => {
