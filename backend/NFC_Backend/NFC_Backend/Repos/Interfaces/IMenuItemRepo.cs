@@ -30,6 +30,6 @@ namespace NFC_Backend.Repos.Interfaces
             Guid menuId,
             IReadOnlyDictionary<string, LocalizedCategoryText> translations);
         public Task<List<MenuItemPublicDTO>> GetPublicMenuItemsAsync(Guid tenantId, Guid? categoryId, string lang);
-
+        public Task<List<MenuItem>> GetMenuItemsByIdsAsync(IEnumerable<Guid> ids, Guid tenantId);
     }
 }

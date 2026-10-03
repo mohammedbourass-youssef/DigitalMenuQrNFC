@@ -1,17 +1,28 @@
 /**
- * Shape of GET /api/tenant/info.
+ * Shape of `GET /api/tenant/info?oldSession=`.
  *
- * The backend returns PascalCase JSON (SessionId, RestaurantName, ...).
- * src/services/tenantService.ts maps those PascalCase fields to this
- * camelCase shape right after JSON parsing (a small mapping step), matching
- * the existing fetch wrapper's behavior of parsing the body as-is.
+ * The response is camelCase (ASP.NET Core MVC default), matching these field
+ * names exactly, so no mapping step is needed after parsing.
  */
 export interface TenantInfoResponse {
+  /**
+   * The session token to use from now on.
+   *
+   * Always authoritative: the server returns the existing token when the
+   * `oldSession` it was given is still valid for this restaurant, and a brand
+   * new one otherwise (no token, unknown, expired, revoked, or belonging to a
+   * different tenant). Callers must overwrite the stored token with this value
+   * unconditionally rather than assuming it matches what they sent.
+   */
   sessionId: string;
   restaurantName: string;
-  logoUrl: string | null;
-  primaryColor: string | null;
+  logoUrl: string;
+  primaryColor: string;
+  /**
+   * The restaurant's configured currency. The server sends a display value
+   * (for example `MAD`), which `normalizeCurrency` maps to an ISO code.
+   */
   defaultCurrency: string;
-  phoneNumber: string | null;
-  address: string | null;
+  phoneNumber: string;
+  address: string;
 }

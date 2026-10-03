@@ -24,7 +24,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Category", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -57,7 +57,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("TenantId");
 
@@ -66,7 +66,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.CategoryTranslation", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -86,7 +86,7 @@ namespace NFC_Backend.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("character varying(150)");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CategoryId", "Lang")
                         .IsUnique()
@@ -187,11 +187,11 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.ExchangeRate", b =>
                 {
-                    b.Property<int>("CategoryId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BaseCurrency")
                         .IsRequired()
@@ -216,7 +216,7 @@ namespace NFC_Backend.Migrations
                         .HasColumnType("character(3)")
                         .IsFixedLength();
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("TargetCurrency");
 
@@ -229,7 +229,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuImage", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -246,7 +246,7 @@ namespace NFC_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MenuId");
 
@@ -255,7 +255,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItem", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -303,7 +303,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
@@ -314,7 +314,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItemTranslation", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -333,7 +333,7 @@ namespace NFC_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("MenuId", "Lang")
                         .IsUnique();
@@ -341,9 +341,876 @@ namespace NFC_Backend.Migrations
                     b.ToTable("MenuItemTranslations");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Order", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .IsFixedLength();
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("PaidAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PaymentStatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("SessionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("TableId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrencyCode");
+
+                    b.HasIndex("PaymentStatusId");
+
+                    b.HasIndex("SessionId");
+
+                    b.HasIndex("StatusId");
+
+                    b.HasIndex("TableId");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "CreatedAt");
+
+                    b.HasIndex("TenantId", "OrderNumber")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Order_Number_PerTenant");
+
+                    b.HasIndex("TenantId", "PaymentStatusId");
+
+                    b.HasIndex("TenantId", "StatusId");
+
+                    b.ToTable("orders", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("LineTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid?>("MenuItemId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NameSnapshot")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MenuItemId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("order_items", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsFinal")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("order_statuses", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "NEW",
+                            Color = "#3B82F6",
+                            DisplayOrder = 1,
+                            IsActive = true,
+                            IsFinal = false
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "PREPARING",
+                            Color = "#F59E0B",
+                            DisplayOrder = 2,
+                            IsActive = true,
+                            IsFinal = false
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "COMPLETED",
+                            Color = "#10B981",
+                            DisplayOrder = 3,
+                            IsActive = true,
+                            IsFinal = true
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "CANCELLED",
+                            Color = "#EF4444",
+                            DisplayOrder = 4,
+                            IsActive = true,
+                            IsFinal = true
+                        });
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatusHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ChangedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<Guid?>("ChangedByUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("StatusId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChangedByUserId");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("StatusId");
+
+                    b.ToTable("order_status_history", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatusTranslation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("OrderStatusId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderStatusId", "Lang")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_OrderStatusTranslation_Lang");
+
+                    b.ToTable("order_status_translations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 100,
+                            Lang = "fr",
+                            Name = "Nouvelle",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 101,
+                            Lang = "ar",
+                            Name = "جديد",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 102,
+                            Lang = "en",
+                            Name = "New",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 103,
+                            Lang = "es",
+                            Name = "Nueva",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 104,
+                            Lang = "it",
+                            Name = "Nuovo",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 105,
+                            Lang = "ja",
+                            Name = "新規",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 106,
+                            Lang = "zh",
+                            Name = "新订单",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 107,
+                            Lang = "ko",
+                            Name = "신규",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 108,
+                            Lang = "de",
+                            Name = "Neu",
+                            OrderStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 200,
+                            Lang = "fr",
+                            Name = "En préparation",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 201,
+                            Lang = "ar",
+                            Name = "قيد التحضير",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 202,
+                            Lang = "en",
+                            Name = "Preparing",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 203,
+                            Lang = "es",
+                            Name = "En preparación",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 204,
+                            Lang = "it",
+                            Name = "In preparazione",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 205,
+                            Lang = "ja",
+                            Name = "準備中",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 206,
+                            Lang = "zh",
+                            Name = "准备中",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 207,
+                            Lang = "ko",
+                            Name = "준비 중",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 208,
+                            Lang = "de",
+                            Name = "In Zubereitung",
+                            OrderStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 300,
+                            Lang = "fr",
+                            Name = "Terminée",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 301,
+                            Lang = "ar",
+                            Name = "مكتمل",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 302,
+                            Lang = "en",
+                            Name = "Completed",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 303,
+                            Lang = "es",
+                            Name = "Completada",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 304,
+                            Lang = "it",
+                            Name = "Completato",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 305,
+                            Lang = "ja",
+                            Name = "完了",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 306,
+                            Lang = "zh",
+                            Name = "已完成",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 307,
+                            Lang = "ko",
+                            Name = "완료",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 308,
+                            Lang = "de",
+                            Name = "Abgeschlossen",
+                            OrderStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 400,
+                            Lang = "fr",
+                            Name = "Annulée",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 401,
+                            Lang = "ar",
+                            Name = "ملغي",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 402,
+                            Lang = "en",
+                            Name = "Cancelled",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 403,
+                            Lang = "es",
+                            Name = "Cancelada",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 404,
+                            Lang = "it",
+                            Name = "Annullato",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 405,
+                            Lang = "ja",
+                            Name = "キャンセル",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 406,
+                            Lang = "zh",
+                            Name = "已取消",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 407,
+                            Lang = "ko",
+                            Name = "취소됨",
+                            OrderStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 408,
+                            Lang = "de",
+                            Name = "Storniert",
+                            OrderStatusId = 4
+                        });
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("payment_statuses", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "unpaid",
+                            Color = "#EF4444",
+                            DisplayOrder = 1,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "partial",
+                            Color = "#F59E0B",
+                            DisplayOrder = 2,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "paid",
+                            Color = "#10B981",
+                            DisplayOrder = 3,
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "refunded",
+                            Color = "#6B7280",
+                            DisplayOrder = 4,
+                            IsActive = true
+                        });
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatusTranslation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("PaymentStatusId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentStatusId", "Lang")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PaymentStatusTranslation_Lang");
+
+                    b.ToTable("payment_status_translations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 100,
+                            Lang = "fr",
+                            Name = "Non payée",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 101,
+                            Lang = "ar",
+                            Name = "غير مدفوع",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 102,
+                            Lang = "en",
+                            Name = "Unpaid",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 103,
+                            Lang = "es",
+                            Name = "Sin pagar",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 104,
+                            Lang = "it",
+                            Name = "Non pagato",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 105,
+                            Lang = "ja",
+                            Name = "未払い",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 106,
+                            Lang = "zh",
+                            Name = "未支付",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 107,
+                            Lang = "ko",
+                            Name = "미결제",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 108,
+                            Lang = "de",
+                            Name = "Unbezahlt",
+                            PaymentStatusId = 1
+                        },
+                        new
+                        {
+                            Id = 200,
+                            Lang = "fr",
+                            Name = "Partiellement payée",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 201,
+                            Lang = "ar",
+                            Name = "مدفوع جزئياً",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 202,
+                            Lang = "en",
+                            Name = "Partially paid",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 203,
+                            Lang = "es",
+                            Name = "Pago parcial",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 204,
+                            Lang = "it",
+                            Name = "Pagato parzialmente",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 205,
+                            Lang = "ja",
+                            Name = "一部支払済み",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 206,
+                            Lang = "zh",
+                            Name = "部分支付",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 207,
+                            Lang = "ko",
+                            Name = "부분 결제",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 208,
+                            Lang = "de",
+                            Name = "Teilweise bezahlt",
+                            PaymentStatusId = 2
+                        },
+                        new
+                        {
+                            Id = 300,
+                            Lang = "fr",
+                            Name = "Payée",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 301,
+                            Lang = "ar",
+                            Name = "مدفوع",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 302,
+                            Lang = "en",
+                            Name = "Paid",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 303,
+                            Lang = "es",
+                            Name = "Pagado",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 304,
+                            Lang = "it",
+                            Name = "Pagato",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 305,
+                            Lang = "ja",
+                            Name = "支払済み",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 306,
+                            Lang = "zh",
+                            Name = "已支付",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 307,
+                            Lang = "ko",
+                            Name = "결제 완료",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 308,
+                            Lang = "de",
+                            Name = "Bezahlt",
+                            PaymentStatusId = 3
+                        },
+                        new
+                        {
+                            Id = 400,
+                            Lang = "fr",
+                            Name = "Remboursée",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 401,
+                            Lang = "ar",
+                            Name = "مسترجع",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 402,
+                            Lang = "en",
+                            Name = "Refunded",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 403,
+                            Lang = "es",
+                            Name = "Reembolsado",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 404,
+                            Lang = "it",
+                            Name = "Rimborsato",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 405,
+                            Lang = "ja",
+                            Name = "返金済み",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 406,
+                            Lang = "zh",
+                            Name = "已退款",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 407,
+                            Lang = "ko",
+                            Name = "환불됨",
+                            PaymentStatusId = 4
+                        },
+                        new
+                        {
+                            Id = 408,
+                            Lang = "de",
+                            Name = "Erstattet",
+                            PaymentStatusId = 4
+                        });
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -377,7 +1244,7 @@ namespace NFC_Backend.Migrations
                     b.Property<string>("UserAgent")
                         .HasColumnType("text");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ExpiresAt");
 
@@ -393,7 +1260,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Table", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -413,7 +1280,7 @@ namespace NFC_Backend.Migrations
                     b.Property<Guid?>("TenantId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("TenantId");
 
@@ -426,7 +1293,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Tenant", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -492,7 +1359,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CurrencyCode");
 
@@ -504,7 +1371,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -557,7 +1424,7 @@ namespace NFC_Backend.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
@@ -571,7 +1438,7 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.VerificationCode", b =>
                 {
-                    b.Property<Guid>("CategoryId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
@@ -594,7 +1461,7 @@ namespace NFC_Backend.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.HasKey("CategoryId");
+                    b.HasKey("Id");
 
                     b.HasIndex("Code");
 
@@ -690,6 +1557,130 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Menu");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Order", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.PaymentStatus", "PaymentStatus")
+                        .WithMany()
+                        .HasForeignKey("PaymentStatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Session", "Session")
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NFC_Backend.Domain.Entities.OrderStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Table", "Table")
+                        .WithMany()
+                        .HasForeignKey("TableId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Currency");
+
+                    b.Navigation("PaymentStatus");
+
+                    b.Navigation("Session");
+
+                    b.Navigation("Status");
+
+                    b.Navigation("Table");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderItem", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.MenuItem", "MenuItem")
+                        .WithMany()
+                        .HasForeignKey("MenuItemId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Order", "Order")
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MenuItem");
+
+                    b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatus", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatusHistory", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.User", "ChangedByUser")
+                        .WithMany()
+                        .HasForeignKey("ChangedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Order", "Order")
+                        .WithMany("StatusHistory")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.OrderStatus", "Status")
+                        .WithMany()
+                        .HasForeignKey("StatusId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChangedByUser");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Status");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatusTranslation", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.OrderStatus", "OrderStatus")
+                        .WithMany("Translations")
+                        .HasForeignKey("OrderStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("OrderStatus");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatusTranslation", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.PaymentStatus", "PaymentStatus")
+                        .WithMany("Translations")
+                        .HasForeignKey("PaymentStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PaymentStatus");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Table", "Table")
@@ -765,6 +1756,23 @@ namespace NFC_Backend.Migrations
                 {
                     b.Navigation("Images");
 
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Order", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("StatusHistory");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatus", b =>
+                {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatus", b =>
+                {
                     b.Navigation("Translations");
                 });
 

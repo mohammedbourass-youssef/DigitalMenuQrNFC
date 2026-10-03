@@ -6,6 +6,7 @@ namespace NFC_Backend.Repos.Interfaces
     {
         Task<List<Table>> GetAllByTenantAsync(Guid tenantId);
         Task<Table?> GetByIdAsync(Guid id, Guid tenantId);
+        Task<Table?> GetByTableNumberAsync(int TableNumber, Guid tenantId);
         Task<Table> CreateAsync(Table table);
         Task<Table> UpdateAsync(Table table);
         Task DeleteAsync(Table table);

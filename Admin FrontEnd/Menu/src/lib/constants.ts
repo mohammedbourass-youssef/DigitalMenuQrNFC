@@ -54,3 +54,43 @@ export function isSupportedLanguage(value: string): value is LanguageCode {
 export function isSupportedCurrency(value: string): value is CurrencyCode {
   return (SUPPORTED_CURRENCIES as readonly string[]).includes(value);
 }
+
+/**
+ * Symbols and aliases that tenant records use in place of an ISO 4217 code.
+ * Tenants store values like "€" or "MAD" interchangeably, so a strict code
+ * check would reject them and silently fall back to device detection.
+ */
+const CURRENCY_ALIASES: Record<string, CurrencyCode> = {
+  '€': 'EUR',
+  EUR: 'EUR',
+  $: 'USD',
+  'US$': 'USD',
+  USD: 'USD',
+  '£': 'GBP',
+  '£UK': 'GBP',
+  GBP: 'GBP',
+  '¥': 'JPY',
+  '￥': 'JPY',
+  JPY: 'JPY',
+  '₩': 'KRW',
+  KRW: 'KRW',
+  '元': 'CNY',
+  CNY: 'CNY',
+  'د.م.': 'MAD',
+  'DH': 'MAD',
+  MAD: 'MAD',
+};
+
+/**
+ * Resolve a stored currency value to a supported ISO code. Accepts ISO codes,
+ * display symbols and common aliases; returns null when nothing matches so
+ * callers can decide on a fallback.
+ */
+export function normalizeCurrency(value: string | null | undefined): CurrencyCode | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  const upper = trimmed.toUpperCase();
+  if (isSupportedCurrency(upper)) return upper;
+  return CURRENCY_ALIASES[trimmed] ?? CURRENCY_ALIASES[upper] ?? null;
+}

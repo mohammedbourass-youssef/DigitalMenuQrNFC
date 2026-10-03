@@ -220,5 +220,13 @@ namespace NFC_Backend.Repos.Implementations
                 })
                 .ToListAsync();
         }
+
+        public async Task<List<MenuItem>> GetMenuItemsByIdsAsync(IEnumerable<Guid> ids, Guid tenantId)
+        {
+            return await _db.MenuItems
+                .AsNoTracking()
+                .Where(m => ids.Contains(m.Id) && m.TenantId == tenantId  && m.IsAvailable )
+                .ToListAsync();
+        }
     }
 }

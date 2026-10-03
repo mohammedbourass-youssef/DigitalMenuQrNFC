@@ -2,6 +2,24 @@ import axios from 'axios';
 
 import i18n from '@/i18n';
 
+interface AxiosLikeError {
+  response?: {
+    status?: number;
+    data?: { error?: string; message?: string };
+  };
+}
+
+export function readApiError(error: unknown, fallback: string): string {
+  const err = error as AxiosLikeError | null;
+  const message = err?.response?.data?.error || err?.response?.data?.message;
+  return message?.trim() ? message : fallback;
+}
+
+export function readErrorStatus(error: unknown): number | null {
+  const err = error as AxiosLikeError | null;
+  return err?.response?.status ?? null;
+}
+
 export function friendlyErrorMessage(error: unknown, fallback?: string): string {
   const t = (key: string): string =>
     i18n.isInitialized ? i18n.t(key) : key;

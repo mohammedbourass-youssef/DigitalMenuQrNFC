@@ -104,6 +104,65 @@ export interface UpdateTablePayload extends CreateTablePayload {
   id: string;
 }
 
+export interface OrderStatusItem {
+  id: number;
+  code: string;
+  name: string;
+  color: string | null;
+  displayOrder: number;
+  isFinal: boolean;
+  isSystem: boolean;
+}
+
+export interface CreateOrderStatusPayload {
+  code: string;
+  color: string;
+  displayOrder: number;
+}
+
+export interface UpdateOrderStatusPayload {
+  name: string;
+  color: string;
+  displayOrder: number;
+  isFinal: boolean;
+}
+
+export interface BoardOrderLine {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface BoardOrderItem {
+  id: string;
+  orderNumber: number;
+  tableId: string | null;
+  tableName: string | null;
+  statusId: number;
+  total: number;
+  currencyCode: string;
+  createdAt: string;
+  items: BoardOrderLine[];
+}
+
+export interface BoardTableOption {
+  id: string | null;
+  name: string;
+}
+
+export interface OrderStatusTranslationEntry {
+  lang: string;
+  name: string;
+}
+
+export interface OrderStatusTranslations {
+  statusId: number;
+  code: string;
+  isSystem: boolean;
+  translations: OrderStatusTranslationEntry[];
+}
+
 export interface LoginDTO {
   email: string;
   password: string;

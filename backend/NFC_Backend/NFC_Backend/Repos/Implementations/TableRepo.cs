@@ -13,7 +13,11 @@ namespace NFC_Backend.Repos.Implementations
         {
             _context = context;
         }
-
+        public async Task<Table?> GetByTableNumberAsync(int TableNumber, Guid tenantId)
+        {
+            return await _context.Tables
+               .FirstOrDefaultAsync(t => t.Number == TableNumber && t.TenantId == tenantId);
+        }
         public async Task<List<Table>> GetAllByTenantAsync(Guid tenantId)
         {
             return await _context.Tables

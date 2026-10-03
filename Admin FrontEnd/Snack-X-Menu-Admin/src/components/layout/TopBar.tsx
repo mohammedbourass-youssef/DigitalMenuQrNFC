@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Bell, LogOut, User, Mail, Building2, Shield, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { SidebarToggleButton } from "@/components/layout/SidebarToggleButton";
+import { isFullscreenBoardRoute } from "@/lib/sidebarFullscreen";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +27,8 @@ import {
 export default function TopBar() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const showSidebarToggle = !isFullscreenBoardRoute(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   const initials = user?.fullName
@@ -40,6 +45,7 @@ export default function TopBar() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600 lg:hidden">
             S
           </div>
+          {showSidebarToggle && <SidebarToggleButton />}
           <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 lg:flex">
             <Search className="h-4 w-4" />
             {t('topBar.searchPlaceholder')}

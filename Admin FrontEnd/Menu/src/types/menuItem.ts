@@ -1,4 +1,5 @@
 import type { PublicCategory } from './category';
+import { isSupportedCurrency } from '../lib/constants';
 
 /**
  * A menu item as returned by GET /api/tenant/menu.
@@ -48,6 +49,29 @@ export type { PublicCategory };
 import type { LocalizedString, Product } from '../types';
 
 /**
+ * The ordered, de-duplicated image list for an item: the cover first, then the
+ * gallery, with blanks and repeats dropped.
+ *
+ * The backend's `images` list may or may not already contain `coverImage`, so
+ * unioning without deduping can show the same photo twice. Exported so the
+ * detail view and any future thumbnail strip share one definition instead of
+ * each re-deriving it.
+ */
+export function buildGallery(item: Pick<MenuItemPublicDTO, 'coverImage' | 'images'>): string[] {
+  const source = [item.coverImage, ...(Array.isArray(item.images) ? item.images : [])];
+  const seen = new Set<string>();
+  const gallery: string[] = [];
+  for (const url of source) {
+    if (typeof url !== 'string') continue;
+    const trimmed = url.trim();
+    if (!trimmed || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    gallery.push(trimmed);
+  }
+  return gallery;
+}
+
+/**
  * A `LocalizedString` carrying the server's already-localised text.
  *
  * `Product` predates this endpoint and stores names per language, but the DTO
@@ -69,13 +93,23 @@ function asLocalized(value: string): LocalizedString {
  */
 export function toCartProduct(item: MenuItemPublicDTO): Product {
   const discounted = item.originalPrice !== null && item.originalPrice > item.price;
+  const gallery = buildGallery(item);
 
   return {
     id: item.id,
     name: asLocalized(item.name),
     description: asLocalized(item.description ?? ''),
     price: item.price,
-    image: item.coverImage ?? '',
+    // The card's thumbnail stays the cover; `gallery` holds the full set.
+    image: item.coverImage ?? gallery[0] ?? '',
+    gallery,
+    ...(item.preparationTimeMinutes !== null
+      ? { preparationTimeMinutes: item.preparationTimeMinutes }
+      : {}),
+    ...(item.isFeatured ? { isFeatured: true } : {}),
+    // Carry the currency the API actually priced this item in, so the cart
+    // renders the same currency the menu grid showed.
+    ...(isSupportedCurrency(item.currencyCode) ? { currencyCode: item.currencyCode } : {}),
     // The DTO has no categoryId, so this is a non-matching sentinel: the cart
     // never filters by it, and a "See all" view should not be able to match.
     categoryId: '',

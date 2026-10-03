@@ -17,6 +17,21 @@ export interface Product {
   price: number;
   image: string;
   categoryId: string;
+  /**
+   * Currency `price` (and `promo.oldPrice`) are denominated in. The menu API
+   * converts prices to the requested currency, so this is not necessarily the
+   * tenant's billing currency.
+   */
+  currencyCode?: CurrencyCode;
+  /**
+   * Cover image followed by the gallery, de-duplicated. See `buildGallery` for
+   * why this is derived rather than copied from the DTO. Always an array.
+   */
+  gallery: string[];
+  /** Kitchen prep time; absent when the item does not declare one. */
+  preparationTimeMinutes?: number;
+  /** Whether the item is promoted as a featured / chef's pick. */
+  isFeatured?: boolean;
   promo?: {
     discountPercent: number;
     oldPrice: number;
@@ -73,7 +88,14 @@ export interface OrderLineItem {
 }
 
 export interface CreateOrderPayload {
-  tableToken: string;
+  /**
+   * Guid of the selected table, from `GET /api/tenant/Tables`. This is the only
+   * table identifier that endpoint returns, so it is what a list selection can
+   * supply.
+   */
+  tableId?: string;
+  /** NFC token, present only when the table came from a scanned table URL. */
+  tableToken?: string;
   items: OrderLineItem[];
   note?: string;
   idempotencyKey: string;

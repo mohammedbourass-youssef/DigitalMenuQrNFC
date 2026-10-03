@@ -23,7 +23,7 @@ builder.Services.AddDependencyInjection(builder.Configuration);
 builder.Services.AddRateLimiter(builder.Configuration);
 builder.Services.AddQuartzWithConfigurations();
 
-
+builder.Services.AddSignalR();
 
 
 
@@ -78,7 +78,7 @@ app.UseWhen(
         branch.UseMiddleware<SessionMiddleware>();
     }
     );
-
+app.UseMiddleware<SessionMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

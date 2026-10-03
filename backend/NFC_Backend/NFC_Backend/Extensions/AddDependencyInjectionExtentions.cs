@@ -1,5 +1,6 @@
 ﻿using NFC_Backend.Adapters;
 using NFC_Backend.Infrastructure.Configs;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
@@ -18,6 +19,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IMenuItemRepo, MenuItemRepo>();
             services.AddScoped<ISessionsRepository, SessionsRepository>();
             services.AddScoped<ITableRepo, TableRepo>();
+            services.AddScoped<IOrderRepo, OrderRepo>();
 
             //Services
             services.AddScoped<ITokenService, TokenService>();
@@ -29,6 +31,7 @@ namespace NFC_Backend.Extensions
             //Accesseurs
             services.AddScoped<ITenantAccessor, TenantAccessor>();
             services.AddScoped<ISessionAccessor, SessionAccessor>();
+            services.AddScoped<ILanguageAccessor, LanguageAccessor>();
 
             //Adapters : 
             services.AddHttpClient<IExchangeRateApiAdapter, ExchangeRateApiAdapter>();

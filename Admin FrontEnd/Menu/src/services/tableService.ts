@@ -11,7 +11,7 @@ const PATH = '/api/tenant/Tables';
  * returns 400 for its own problems, and retrying a re-minted session cannot fix
  * those, so treating it as a session issue would spend the recovery budget.
  */
-const SESSION_STATUSES = new Set([401, 404, 410]);
+const SESSION_STATUSES = new Set([401, 403, 404, 410]);
 
 /**
  * A 400 complaining about the session header itself is a client/server contract

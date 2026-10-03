@@ -61,6 +61,30 @@ export const uiStrings: UIStrings = {
     ko: '취소',
     zh: '取消',
   },
+  close: {
+    ar: 'إغلاق',
+    fr: 'Fermer',
+    en: 'Close',
+    // TODO: review native translation
+    es: 'Cerrar',
+    it: 'Chiudi',
+    de: 'Schließen',
+    ja: '閉じる',
+    ko: '닫기',
+    zh: '关闭',
+  },
+  remove: {
+    ar: 'إزالة',
+    fr: 'Supprimer',
+    en: 'Remove',
+    // TODO: review native translation
+    es: 'Eliminar',
+    it: 'Rimuovi',
+    de: 'Entfernen',
+    ja: '削除',
+    ko: '삭제',
+    zh: '移除',
+  },
   addToOrder: {
     ar: 'أضف للطلب',
     fr: 'Ajouter',
@@ -289,6 +313,42 @@ export const uiStrings: UIStrings = {
     ko: '분',
     zh: '分钟',
   },
+  nextImage: {
+    ar: 'الصورة التالية',
+    fr: 'Image suivante',
+    en: 'Next image',
+    // TODO: review native translation
+    es: 'Imagen siguiente',
+    it: 'Immagine successiva',
+    de: 'Nächstes Bild',
+    ja: '次の画像',
+    ko: '다음 이미지',
+    zh: '下一张图片',
+  },
+  previousImage: {
+    ar: 'الصورة السابقة',
+    fr: 'Image précédente',
+    en: 'Previous image',
+    // TODO: review native translation
+    es: 'Imagen anterior',
+    it: 'Immagine precedente',
+    de: 'Vorheriges Bild',
+    ja: '前の画像',
+    ko: '이전 이미지',
+    zh: '上一张图片',
+  },
+  productImages: {
+    ar: 'صور المنتج',
+    fr: 'Images du produit',
+    en: 'Product images',
+    // TODO: review native translation
+    es: 'Imágenes del producto',
+    it: 'Immagini del prodotto',
+    de: 'Produktbilder',
+    ja: '商品画像',
+    ko: '상품 이미지',
+    zh: '商品图片',
+  },
   noResults: {
     ar: 'لا توجد نتائج',
     fr: 'Aucun résultat',
@@ -460,11 +520,11 @@ export const uiStrings: UIStrings = {
   orderNumber: {
     ar: 'رقم الطلب',
     fr: 'N° de commande',
-    en: 'Order #',
+    en: 'Order',
     // TODO: review native translation
-    es: 'Pedido #',
-    it: 'Ordine #',
-    de: 'Bestellung #',
+    es: 'Pedido',
+    it: 'Ordine',
+    de: 'Bestellung',
     ja: '注文番号',
     ko: '주문 번호',
     zh: '订单号',
@@ -492,5 +552,320 @@ export const uiStrings: UIStrings = {
     ja: '表示価格',
     ko: '표시 가격',
     zh: '价格以',
+  },
+
+  /* --- One order per session: cart confirm ------------------------------- */
+
+  confirmOrder: {
+    ar: 'تأكيد الطلب',
+    fr: 'Confirmer la commande',
+    en: 'Confirm order',
+    // TODO: review native translation
+    es: 'Confirmar pedido',
+    it: 'Conferma ordine',
+    de: 'Bestellung bestätigen',
+    ja: '注文を確定する',
+    ko: '주문 확정',
+    zh: '确认订单',
+  },
+  addToMyOrder: {
+    ar: 'إضافة إلى طلبي',
+    fr: 'Ajouter à ma commande',
+    en: 'Add to my order',
+    // TODO: review native translation
+    es: 'Añadir a mi pedido',
+    it: 'Aggiungi al mio ordine',
+    de: 'Zu meiner Bestellung hinzufügen',
+    ja: '注文に追加',
+    ko: '내 주문에 추가',
+    zh: '加入我的订单',
+  },
+  addingToOrder: {
+    ar: 'جارٍ الإضافة إلى الطلب',
+    fr: 'Ajout à la commande',
+    en: 'Adding to order',
+    // TODO: review native translation
+    es: 'Añadiendo al pedido',
+    it: 'Aggiunta all’ordine',
+    de: 'Hinzufügen zur Bestellung',
+    ja: '注文に追加中',
+    ko: '주문에 추가 중',
+    zh: '正在加入订单',
+  },
+  sendingToKitchen: {
+    ar: 'جارٍ إرسال طلبك',
+    fr: 'Envoi de votre commande',
+    en: 'Sending your order',
+    // TODO: review native translation
+    es: 'Enviando tu pedido',
+    it: 'Invio del tuo ordine',
+    de: 'Bestellung wird gesendet',
+    ja: '注文を送信しています',
+    ko: '주문을 전송하는 중',
+    zh: '正在发送订单',
+  },
+  pleaseWaitKitchen: {
+    ar: 'يرجى الانتظار، نرسل طلبك إلى المطبخ...',
+    fr: 'Veuillez patienter, nous envoyons votre commande en cuisine...',
+    en: 'Please wait, we are sending your order to the kitchen...',
+    // TODO: review native translation
+    es: 'Espera, estamos enviando tu pedido a la cocina...',
+    it: 'Attendi, stiamo inviando il tuo ordine in cucina...',
+    de: 'Bitte warten, wir senden deine Bestellung an die Küche...',
+    ja: '少々お待ちください、注文を厨房に送信しています...',
+    ko: '잠시만 기다려 주세요, 주문을 주방으로 전송 중입니다...',
+    zh: '请稍等，正在将您的订单发送到厨房...',
+  },
+  orderClosedCannotAdd: {
+    ar: 'انتهى هذا الطلب ولا يمكن إضافة أصناف إليه',
+    fr: 'Cette commande est clôturée, impossible d’y ajouter des articles',
+    // TODO: review native translation
+    en: 'This order is closed and cannot be changed',
+    es: 'Este pedido está cerrado y no se puede modificar',
+    it: 'Questo ordine è chiuso e non può essere modificato',
+    de: 'Diese Bestellung ist geschlossen und kann nicht geändert werden',
+    ja: 'この注文は締め切られているため、変更できません',
+    ko: '이 주문은 마감되어 변경할 수 없습니다',
+    zh: '该订单已结束，无法修改',
+  },
+
+  /* --- Persistent tracking bar ------------------------------------------- */
+
+  trackMyOrder: {
+    ar: 'تتبّع طلبي',
+    fr: 'Suivre ma commande',
+    en: 'Track my order',
+    // TODO: review native translation
+    es: 'Seguir mi pedido',
+    it: 'Segui il mio ordine',
+    de: 'Meine Bestellung verfolgen',
+    ja: '注文を追跡',
+    ko: '내 주문 추적',
+    zh: '追踪我的订单',
+  },
+  currentStatus: {
+    ar: 'الحالة الحالية',
+    fr: 'Statut actuel',
+    en: 'Current status',
+    // TODO: review native translation
+    es: 'Estado actual',
+    it: 'Stato attuale',
+    de: 'Aktueller Status',
+    ja: '現在のステータス',
+    ko: '현재 상태',
+    zh: '当前状态',
+  },
+
+  /* --- Tracking page ----------------------------------------------------- */
+
+  orderProgress: {
+    ar: 'تطوّر الطلب',
+    fr: 'Progression de la commande',
+    en: 'Order progress',
+    // TODO: review native translation
+    es: 'Progreso del pedido',
+    it: 'Avanzamento ordine',
+    de: 'Bestellfortschritt',
+    ja: '注文の進行状況',
+    ko: '주문 진행 상황',
+    zh: '订单进度',
+  },
+  orderSummary: {
+    ar: 'ملخّص الطلب',
+    fr: 'Récapitulatif',
+    en: 'Order summary',
+    // TODO: review native translation
+    es: 'Resumen del pedido',
+    it: 'Riepilogo ordine',
+    de: 'Bestellübersicht',
+    ja: '注文内容',
+    ko: '주문 요약',
+    zh: '订单摘要',
+  },
+  addItemsToOrder: {
+    ar: 'إضافة أصناف إلى طلبي',
+    fr: 'Ajouter des articles à ma commande',
+    en: 'Add items to my order',
+    // TODO: review native translation
+    es: 'Añadir artículos a mi pedido',
+    it: 'Aggiungi articoli al mio ordine',
+    de: 'Artikel zu meiner Bestellung hinzufügen',
+    ja: '注文に商品を追加',
+    ko: '내 주문에 상품 추가',
+    zh: '向我的订单添加商品',
+  },
+  backToMenu: {
+    ar: 'العودة إلى القائمة',
+    fr: 'Retour au menu',
+    en: 'Back to menu',
+    // TODO: review native translation
+    es: 'Volver al menú',
+    it: 'Torna al menu',
+    de: 'Zurück zur Speisekarte',
+    ja: 'メニューに戻る',
+    ko: '메뉴로 돌아가기',
+    zh: '返回菜单',
+  },
+  refresh: {
+    ar: 'تحديث',
+    fr: 'Actualiser',
+    en: 'Refresh',
+    // TODO: review native translation
+    es: 'Actualizar',
+    it: 'Aggiorna',
+    de: 'Aktualisieren',
+    ja: '更新',
+    ko: '새로고침',
+    zh: '刷新',
+  },
+  noActiveOrder: {
+    ar: 'لا يوجد طلب نشط',
+    fr: 'Aucune commande en cours',
+    en: 'No active order',
+    // TODO: review native translation
+    es: 'No hay pedido activo',
+    it: 'Nessun ordine attivo',
+    de: 'Keine aktive Bestellung',
+    ja: '有効な注文はありません',
+    ko: '활성 주문이 없습니다',
+    zh: '没有进行中的订单',
+  },
+  orderLoadFailed: {
+    ar: 'تعذّر تحميل الطلب',
+    fr: 'Impossible de charger la commande',
+    en: 'Could not load your order',
+    // TODO: review native translation
+    es: 'No se pudo cargar tu pedido',
+    it: 'Impossibile caricare l’ordine',
+    de: 'Bestellung konnte nicht geladen werden',
+    ja: '注文を読み込めませんでした',
+    ko: '주문을 불러올 수 없습니다',
+    zh: '无法加载订单',
+  },
+  orderLoadFailedHint: {
+    ar: 'تحقّق من الاتصال وحاول مجددًا',
+    fr: 'Vérifiez votre connexion et réessayez',
+    en: 'Check your connection and try again',
+    // TODO: review native translation
+    es: 'Comprueba tu conexión e inténtalo de nuevo',
+    it: 'Controlla la connessione e riprova',
+    de: 'Verbindung prüfen und erneut versuchen',
+    ja: '接続を確認してもう一度お試しください',
+    ko: '연결을 확인하고 다시 시도하세요',
+    zh: '请检查网络后重试',
+  },
+  orderStaleWarning: {
+    ar: 'قد تكون المعلومات قديمة',
+    fr: 'Les informations peuvent être obsolètes',
+    en: 'Information may be out of date',
+    // TODO: review native translation
+    es: 'La información puede estar desactualizada',
+    it: 'Le informazioni potrebbero non essere aggiornate',
+    de: 'Informationen möglicherweise veraltet',
+    ja: '情報が古い可能性があります',
+    ko: '정보가 최신이 아닐 수 있습니다',
+    zh: '信息可能不是最新的',
+  },
+  statusNow: {
+    ar: 'الآن',
+    fr: 'Maintenant',
+    en: 'Now',
+    // TODO: review native translation
+    es: 'Ahora',
+    it: 'Ora',
+    de: 'Jetzt',
+    ja: '現在',
+    ko: '지금',
+    zh: '现在',
+  },
+  tableNumber: {
+    ar: 'الطاولة',
+    fr: 'Table',
+    en: 'Table',
+    // TODO: review native translation
+    es: 'Mesa',
+    it: 'Tavolo',
+    de: 'Tisch',
+    ja: 'テーブル',
+    ko: '테이블',
+    zh: '餐桌',
+  },
+  loading: {
+    ar: 'جارٍ التحميل',
+    fr: 'Chargement',
+    en: 'Loading',
+    // TODO: review native translation
+    es: 'Cargando',
+    it: 'Caricamento',
+    de: 'Wird geladen',
+    ja: '読み込み中',
+    ko: '불러오는 중',
+    zh: '加载中',
+  },
+
+  /* --- Status labels used by the processing animation -------------------- */
+
+  statusNew: {
+    ar: 'جديد',
+    fr: 'Nouveau',
+    en: 'New',
+    // TODO: review native translation
+    es: 'Nuevo',
+    it: 'Nuovo',
+    de: 'Neu',
+    ja: '新規',
+    ko: '신규',
+    zh: '新建',
+  },
+  statusPreparing: {
+    ar: 'قيد التحضير',
+    fr: 'En préparation',
+    en: 'Preparing',
+    // TODO: review native translation
+    es: 'En preparación',
+    it: 'In preparazione',
+    de: 'In Vorbereitung',
+    ja: '準備中',
+    ko: '준비 중',
+    zh: '准备中',
+  },
+  /** Banner shown when the kitchen moves the order to a new status. */
+  orderStatusUpdated: {
+    ar: 'تم تحديث حالة طلبك',
+    fr: 'Le statut de votre commande a été mis à jour',
+    en: 'Your order status was updated',
+    // TODO: review native translation
+    es: 'Se ha actualizado el estado de tu pedido',
+    it: 'Lo stato del tuo ordine è stato aggiornato',
+    de: 'Der Status Ihrer Bestellung wurde aktualisiert',
+    ja: '注文ステータスが更新されました',
+    ko: '주문 상태가 업데이트되었습니다',
+    zh: '您的订单状态已更新',
+  },
+  /** Pull-to-refresh affordance on the tracking screen. */
+  orderPullToRefresh: {
+    ar: 'اسحب للتحديث',
+    fr: 'Tirez pour actualiser',
+    en: 'Pull to refresh',
+    // TODO: review native translation
+    es: 'Desliza para actualizar',
+    it: 'Tira per aggiornare',
+    de: 'Zum Aktualisieren ziehen',
+    ja: '引いて更新',
+    ko: '당겨서 새로고침',
+    zh: '下拉刷新',
+  },
+  /** Quiet indicator while a background refresh is in flight. */
+  liveUpdating: {
+    ar: 'جارٍ التحديث',
+    fr: 'Actualisation',
+    en: 'Updating',
+    // TODO: review native translation
+    es: 'Actualizando',
+    it: 'Aggiornamento',
+    de: 'Wird aktualisiert',
+    ja: '更新中',
+    ko: '업데이트 중',
+    zh: '更新中',
   },
 };

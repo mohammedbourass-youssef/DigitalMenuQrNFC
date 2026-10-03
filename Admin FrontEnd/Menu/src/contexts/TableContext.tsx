@@ -25,6 +25,12 @@ interface TableContextValue {
   tableName: string | null;
   tableToken: string | null;
   tableStatus: TableStatus;
+  /**
+   * Whether a table has actually been chosen. A table picked from the list has
+   * an `id` but no NFC token — `GET /api/tenant/Tables` does not return one —
+   * so gating on the token alone would report "no table" while the UI shows one.
+   */
+  hasTable: boolean;
   /** Select a table by id from GET /api/tenant/Tables. */
   setTable: (table: TablePublicDTO) => void;
   /** Manual entry, for when no table list is available. */
@@ -125,6 +131,7 @@ export function TableProvider({ children }: { children: ReactNode }) {
         tableName: state.tableName,
         tableToken: state.tableToken,
         tableStatus: state.tableStatus,
+        hasTable: state.tableId !== null || state.tableToken !== null,
         setTable,
         setTableNumber,
         dismissInvalid,

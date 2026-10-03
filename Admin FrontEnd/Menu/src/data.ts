@@ -49,7 +49,17 @@ export const categories: Category[] = [
   },
 ];
 
-export const products: Product[] = [
+/**
+ * Mock products. `gallery` is optional in the literals here — each entry has a
+ * single `image` — and is filled in below, mirroring how the real mapper derives
+ * a cover-first, de-duplicated gallery from the API payload.
+ */
+interface MockProduct extends Omit<Product, 'gallery'> {
+  /** Extra gallery images beyond the cover; the cover is added below. */
+  gallery?: string[];
+}
+
+export const products: MockProduct[] = [
   // === BURGERS ===
   {
     id: 'b1',
@@ -415,4 +425,14 @@ export const products: Product[] = [
     image: 'https://images.pexels.com/photos/33312981/pexels-photo-33312981.jpeg?auto=compress&cs=tinysrgb&h=650&w=940',
     categoryId: 'desserts',
   },
-];
+]
+  // Cover-first, de-duplicated, blanks dropped — the same shape `buildGallery`
+  // produces for a real API response.
+  .map((product: MockProduct): Product => ({
+    ...product,
+    gallery: Array.from(
+      new Set(
+        [product.image, ...(product.gallery ?? [])].filter((url) => Boolean(url && url.trim())),
+      ),
+    ),
+  }));

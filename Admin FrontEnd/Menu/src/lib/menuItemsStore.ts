@@ -130,6 +130,38 @@ export function refreshMenuItems(
   return load(key, lang, categoryId, currency);
 }
 
+/**
+ * The full menu across every category for one language + currency, used to
+ * re-price a cart that may hold items from several categories. Served from the
+ * same per-key cache as the scoped fetches, so browsing a category first means
+ * no extra request.
+ *
+ * Resolves to an empty array when the request cannot be made, which callers
+ * treat as "leave the cart alone" rather than "empty the cart".
+ */
+export function loadAllMenuItems(
+  lang: Language,
+  currency: CurrencyCode,
+): Promise<MenuItemPublicDTO[]> {
+  const key = cacheKey(lang, null, currency);
+  const snapshot = snapshots.get(key);
+  if (snapshot?.status === 'ready') return Promise.resolve(snapshot.items);
+  if (
+    snapshot?.status === 'error' &&
+    failedSession.get(key) === getSessionId()
+  ) {
+    return Promise.resolve([]);
+  }
+  if (!inFlight.has(key)) {
+    if (!hasSessionId()) return Promise.resolve([]);
+    void load(key, lang, null, currency);
+  }
+  return inFlight.get(key)!.then(() => {
+    const done = snapshots.get(key);
+    return done?.status === 'ready' ? done.items : [];
+  });
+}
+
 export function getMenuItemsSnapshot(
   lang: Language,
   categoryId: string | null,

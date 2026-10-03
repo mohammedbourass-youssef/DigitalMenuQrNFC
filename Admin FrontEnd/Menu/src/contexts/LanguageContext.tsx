@@ -1,14 +1,9 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import type { Language, Direction, LocalizedString } from '../types';
 import { uiStrings } from '../translations';
-import { tenantScopedKey } from '../lib/tenant';
-import { storageGet, storageSet } from '../lib/storage';
-import { detectDeviceLanguage } from '../lib/detectLanguage';
-import { RTL_LANGUAGES, SUPPORTED_LANGUAGES } from '../lib/constants';
-
-const LANG_KEY = tenantScopedKey('lang');
-
-const SUPPORTED: readonly Language[] = SUPPORTED_LANGUAGES;
+import { LANG_KEY, resolveInitialLang, setActiveLang } from '../lib/lang';
+import { storageSet } from '../lib/storage';
+import { RTL_LANGUAGES } from '../lib/constants';
 
 interface LanguageContextValue {
   lang: Language;
@@ -23,12 +18,11 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const hasPref = useRef(false);
   const [lang, setLangState] = useState<Language>(() => {
-    const stored = storageGet<Language | null>(LANG_KEY, null);
-    if (stored && SUPPORTED.includes(stored)) {
-      hasPref.current = true;
-      return stored;
-    }
-    return detectDeviceLanguage();
+    const initial = resolveInitialLang();
+    // Seed the module mirror during the first render so any request fired by a
+    // child effect already carries the right X-Lang.
+    setActiveLang(initial);
+    return initial;
   });
 
   const dir: Direction = RTL_LANGUAGES.includes(lang) ? 'rtl' : 'ltr';
@@ -38,6 +32,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setLangState(newLang);
     storageSet(LANG_KEY, newLang);
   }, []);
+
+  // Keep the request-time mirror in step with every switch, so the next request
+  // uses the new language without a reload.
+  useEffect(() => {
+    setActiveLang(lang);
+  }, [lang]);
 
   useEffect(() => {
     document.documentElement.lang = lang;

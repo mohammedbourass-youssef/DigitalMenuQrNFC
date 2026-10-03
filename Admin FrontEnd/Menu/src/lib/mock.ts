@@ -7,6 +7,7 @@ import { categories as mockCategories, products as mockProducts } from '../data'
 import { ApiError, InvalidTableError, TenantNotFoundError } from './errors';
 import { TENANT } from './tenant';
 import { DEFAULT_CURRENCY } from './constants';
+import { getSessionId } from './session';
 
 const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -53,18 +54,29 @@ export async function mockGetTenant(slug: string): Promise<Tenant> {
   return tenant;
 }
 
+/**
+ * Mirrors the real endpoint's session semantics: an `oldSession` that is still
+ * valid is handed straight back, anything else mints a new one. Minting once per
+ * page load keeps the mock from behaving like the bug this replaced — a token
+ * that changed on every call would break every session-guarded request.
+ */
+let mockSessionId: string | null = null;
+
 export async function mockGetTenantInfo(): Promise<TenantInfoResponse> {
   await delay(300);
   const tenant = TENANT ? mockTenants[TENANT] : undefined;
   if (!tenant) throw new TenantNotFoundError();
+  const existing = getSessionId();
+  if (existing) mockSessionId = existing;
+  else if (!mockSessionId) mockSessionId = createSessionId() ?? `${tenant.slug}_local`;
   return {
-    sessionId: createSessionId() ?? `${tenant.slug}_local`,
+    sessionId: mockSessionId,
     restaurantName: tenant.name,
-    logoUrl: null,
-    primaryColor: tenant.primaryColor ?? null,
+    logoUrl: '',
+    primaryColor: tenant.primaryColor ?? '',
     defaultCurrency: tenant.currency ?? DEFAULT_CURRENCY,
-    phoneNumber: null,
-    address: null,
+    phoneNumber: '',
+    address: '',
   };
 }
 

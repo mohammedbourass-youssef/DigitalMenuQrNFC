@@ -1,5 +1,6 @@
 ﻿using NFC_Backend.Adapters;
 using NFC_Backend.Adapters.DTOS_shpes;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 
 namespace NFC_Backend.Services
@@ -10,8 +11,7 @@ namespace NFC_Backend.Services
         private readonly IGeminiLmTranslatorAdapter _nameTransliterator;  // Gemini — Name
         private readonly ILogger<CategoryTranslationService> _logger;
 
-        private static readonly string[] TargetLanguages =
-            ["fr", "ar", "en", "es", "it", "ja", "zh", "ko", "de"];
+        private static readonly string[] TargetLanguages = TranslationLanguages.All;
 
         public CategoryTranslationService(
             ITranslatorAdapter translator,
@@ -22,7 +22,36 @@ namespace NFC_Backend.Services
             _nameTransliterator = nameTransliterator;
             _logger = logger;
         }
+        public async Task<IReadOnlyDictionary<string, string>> TranslateStatusNameAsync(
+    string statusName,
+    string? fromLang = null,
+    CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(statusName))
+                throw new ArgumentException("Status name cannot be null or empty.", nameof(statusName));
 
+            _logger.LogInformation(
+                "Translating status name. Name: {Name} | FromLang: {FromLang}",
+                statusName, fromLang ?? "auto-detect");
+
+            var result = await _translator.TranslateAsync(statusName, TargetLanguages, fromLang, ct);
+
+            var translations = result.Translations;
+
+            // Fall back to the original text for any language Azure didn't return
+            var merged = TargetLanguages.ToDictionary(
+                lang => lang,
+                lang => translations != null
+                        && translations.TryGetValue(lang, out var translated)
+                        && !string.IsNullOrWhiteSpace(translated)
+                    ? translated
+                    : statusName);
+
+            _logger.LogInformation(
+                "Status name translation completed. Languages: {Count}", merged.Count);
+
+            return merged;
+        }
         public async Task<CategoryTranslationResult> TranslateCategoryAsync(
             string name,
             string? description,

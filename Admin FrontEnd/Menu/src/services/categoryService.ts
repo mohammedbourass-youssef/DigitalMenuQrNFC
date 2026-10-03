@@ -1,5 +1,6 @@
 import { apiFetch, isMockMode } from '../lib/api';
 import { ApiError, SessionExpiredError } from '../lib/errors';
+import { getLangCode } from '../lib/lang';
 import { mockGetCategories } from '../lib/mock';
 import type { Language } from '../types';
 import type { CategoriesResponse, PublicCategory } from '../types/category';
@@ -13,7 +14,7 @@ const PATH = '/api/tenant/Categories';
  * uses 400/404 for its own problems, and both layers return a `{ error }`
  * body, so they are handled uniformly here.
  */
-const SESSION_STATUSES = new Set([400, 404, 410]);
+const SESSION_STATUSES = new Set([400, 401, 403, 404, 410]);
 
 /**
  * A 400 complaining about the X-Session-Id header itself is a client/server
@@ -37,11 +38,13 @@ function isMalformedSessionHeader(error: ApiError): boolean {
  * categories" with an empty body rather than an empty `data` array.
  */
 export async function fetchCategories(lang: Language): Promise<PublicCategory[]> {
-  if (isMockMode()) return mockGetCategories(lang);
+  const code = getLangCode(lang);
+  if (isMockMode()) return mockGetCategories(code);
 
   try {
     const response = await apiFetch<CategoriesResponse | null>(
-      `${PATH}?lang=${encodeURIComponent(lang)}`,
+      // Legacy query parameter; the request also carries X-Lang.
+      `${PATH}?lang=${encodeURIComponent(code)}`,
     );
     // 204 No Content arrives as null; also tolerate a missing/!Array `data`.
     return Array.isArray(response?.data) ? response.data : [];

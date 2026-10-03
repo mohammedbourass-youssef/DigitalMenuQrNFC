@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import type { Tenant } from '../types';
 import type { CurrencyCode } from '../lib/constants';
-import { SUPPORTED_LANGUAGES, isSupportedCurrency } from '../lib/constants';
+import { SUPPORTED_LANGUAGES, normalizeCurrency } from '../lib/constants';
 import { fetchTenantInfo } from '../services/tenantService';
 import { TenantNotFoundError } from '../lib/errors';
 import { saveSessionId } from '../lib/session';
@@ -29,8 +29,9 @@ const TenantContext = createContext<TenantContextValue | null>(null);
 function buildTenant(info: TenantInfoResponse): Tenant {
   const configured = (info.defaultCurrency ?? '').trim().toUpperCase();
   let currency: CurrencyCode = detectDeviceCurrency();
-  if (isSupportedCurrency(configured)) {
-    currency = configured as CurrencyCode;
+  const resolved = normalizeCurrency(configured);
+  if (resolved) {
+    currency = resolved;
   } else if (import.meta.env.DEV && configured) {
     console.warn(
       `[tenant] defaultCurrency "${configured}" (from tenant info) is not supported — using detected currency "${currency}".`,
@@ -80,8 +81,13 @@ export function TenantProvider({ children }: { children: ReactNode }) {
         if (!mountedRef.current) return;
         try {
           const resolved = buildTenant(info);
-          setTenant(resolved);
+          // Persist before committing the tenant: children only mount once
+          // status is 'ready', and their effects read the stored token. Writing
+          // it first guarantees they see this session and never the previous
+          // one. Unconditional — the server may have issued a *different*
+          // token, since `oldSession` is reused only while it stays valid.
           saveSessionId(info.sessionId);
+          setTenant(resolved);
           applyTheme(resolved);
           document.title = info.restaurantName || resolved.name;
           setStatus('ready');

@@ -39,6 +39,38 @@ export class NetworkError extends Error {
 }
 
 /**
+ * A request was cancelled on purpose by its caller.
+ *
+ * This is control flow, not a failure: callers discard it silently instead of
+ * showing an error or treating it as a network problem. Polling aborts an
+ * in-flight refresh whenever the order id changes or the provider unmounts.
+ */
+export class AbortError extends Error {
+  readonly type = 'aborted' as const;
+
+  constructor(message = 'Request aborted') {
+    super(message);
+    this.name = 'AbortError';
+  }
+}
+
+/**
+ * True for a deliberate cancellation from any source.
+ *
+ * `fetch` rejects with a `DOMException` when *its own* timeout aborts, but a
+ * caller-supplied signal is surfaced through our own {@link AbortError}, so both
+ * shapes are checked here rather than at each call site.
+ */
+export function isAbortError(error: unknown): boolean {
+  if (error instanceof AbortError) return true;
+  return (
+    typeof DOMException !== 'undefined' &&
+    error instanceof DOMException &&
+    error.name === 'AbortError'
+  );
+}
+
+/**
  * The stored session is missing, unknown or expired, so a `[NeedSession]`
  * endpoint rejected the request. Raised for 400/404/410, which the session
  * middleware uses for session problems and the controller uses for

@@ -18,7 +18,7 @@ function MenuItemCardBase({
   onClick: (item: MenuItemPublicDTO) => void;
 }) {
   const { t, lang } = useLanguage();
-  const { tenantCurrency, displayCurrency } = useCurrency();
+  const { tenantCurrency } = useCurrency();
   const { addToCart, getProductQuantity, lastAddedId } = useCart();
   const qty = getProductQuantity(item.id);
   const justAdded = lastAddedId === item.id;
@@ -35,6 +35,8 @@ function MenuItemCardBase({
   const discounted = item.originalPrice !== null && item.originalPrice > item.price;
 
   const handleQuickAdd = (e: React.MouseEvent) => {
+    // Keeps the card's own add button from also opening the detail sheet: the
+    // card is a click target for the whole tile.
     e.stopPropagation();
     addToCart(toCartProduct(item), 1);
     hapticFeedback(10);
@@ -51,6 +53,7 @@ function MenuItemCardBase({
           onClick(item);
         }
       }}
+      aria-label={item.name}
       className="flex w-full cursor-pointer flex-col overflow-hidden rounded-2xl bg-white text-start shadow-sm ring-1 ring-gray-100 transition-transform duration-200 active:scale-[0.97]"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
@@ -119,11 +122,11 @@ function MenuItemCardBase({
         <div className="mt-auto flex items-baseline gap-1.5 pt-1.5">
           {discounted && (
             <span className="text-[11px] font-semibold text-gray-500 line-through">
-              {formatPrice(Math.round(item.originalPrice as number), currency, displayCurrency, lang)}
+              {formatPrice(Math.round(item.originalPrice as number), currency, lang)}
             </span>
           )}
           <span className="text-base font-extrabold text-gray-900">
-            {formatPrice(Math.round(item.price), currency, displayCurrency, lang)}
+            {formatPrice(Math.round(item.price), currency, lang)}
           </span>
         </div>
       </div>

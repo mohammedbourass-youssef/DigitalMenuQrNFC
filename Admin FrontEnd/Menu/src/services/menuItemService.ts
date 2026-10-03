@@ -1,5 +1,6 @@
 import { apiFetch, isMockMode } from '../lib/api';
 import { ApiError, SessionExpiredError } from '../lib/errors';
+import { getLangCode } from '../lib/lang';
 import { mockGetMenuItems } from '../lib/mock';
 import type { Language } from '../types';
 import type { CurrencyCode } from '../lib/constants';
@@ -14,7 +15,7 @@ const PATH = '/api/tenant/menu';
  * session cannot fix a bad category, so treating it as a session problem would
  * spend the recovery budget on a user error.
  */
-const SESSION_STATUSES = new Set([401, 404, 410]);
+const SESSION_STATUSES = new Set([401, 403, 404, 410]);
 
 /**
  * A 400 complaining about the session header itself is a client/server contract
@@ -43,9 +44,11 @@ export async function fetchMenuItems(
   { categoryId }: MenuScope,
   currency: CurrencyCode,
 ): Promise<MenuItemPublicDTO[]> {
-  if (isMockMode()) return mockGetMenuItems(lang, { categoryId });
+  const code = getLangCode(lang);
+  if (isMockMode()) return mockGetMenuItems(code, { categoryId });
 
-  const params = new URLSearchParams({ lang });
+  // Legacy query parameter; the request also carries X-Lang.
+  const params = new URLSearchParams({ lang: code });
   params.set('currency', currency);
   if (categoryId) {
     params.set('getAll', 'false');

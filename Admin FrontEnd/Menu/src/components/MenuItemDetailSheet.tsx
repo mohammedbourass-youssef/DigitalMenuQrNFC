@@ -6,17 +6,19 @@ import { formatPrice } from '@/lib/formatPrice';
 import { hapticFeedback } from '@/lib/haptics';
 import { isSupportedCurrency } from '@/lib/constants';
 import type { CurrencyCode } from '@/lib/constants';
-import { toCartProduct } from '@/types/menuItem';
+import { toCartProduct, buildGallery } from '@/types/menuItem';
 import type { MenuItemPublicDTO } from '@/types/menuItem';
-import { X, Plus, Minus, Clock, Award, Utensils } from 'lucide-react';
+import { X, Plus, Minus, Clock, Award } from 'lucide-react';
 import { BottomSheet } from './BottomSheet';
+import { ImageGallery } from './ImageGallery';
 
 /**
  * Item detail: full image gallery, untruncated description, price with the
  * struck-through original while a discount is running, and quantity controls.
  *
- * The gallery falls back to `coverImage` when `images` is empty, so an item with
- * only a cover still renders a photo rather than a placeholder.
+ * Rendered inside the shared `BottomSheet`, so backdrop tap, swipe-down and the
+ * back button all dismiss it, and the sheet's focus trap keeps the menu behind
+ * inert while it is open.
  */
 export function MenuItemDetailSheet({
   item,
@@ -28,17 +30,19 @@ export function MenuItemDetailSheet({
   onClose: () => void;
 }) {
   const { t, lang } = useLanguage();
-  const { tenantCurrency, displayCurrency } = useCurrency();
+  const { tenantCurrency } = useCurrency();
   const { addToCart, getProductQuantity } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [slide, setSlide] = useState(0);
 
+  const itemId = item?.id ?? null;
+
+  // Seed the stepper from what is already in the cart. Keyed on the id rather
+  // than the object so a refetch that replaces the item object does not reset
+  // the quantity the customer had chosen.
   useEffect(() => {
-    if (open && item) {
-      setQuantity(getProductQuantity(item.id) || 1);
-      setSlide(0);
-    }
-  }, [open, item, getProductQuantity]);
+    if (!open || !itemId) return;
+    setQuantity(getProductQuantity(itemId) || 1);
+  }, [open, itemId, getProductQuantity]);
 
   if (!open || !item) return null;
 
@@ -48,10 +52,9 @@ export function MenuItemDetailSheet({
 
   const discounted = item.originalPrice !== null && item.originalPrice > item.price;
 
-  // `images` may omit the cover, so union the two and drop duplicates/empties.
-  const gallery = Array.from(
-    new Set([...(item.images ?? []), ...(item.coverImage ? [item.coverImage] : [])]),
-  ).filter(Boolean);
+  // Cover first, then the gallery, de-duplicated — the backend's `images` may
+  // already contain the cover.
+  const gallery = buildGallery(item);
 
   const totalPrice = item.price * quantity;
   const currentQty = getProductQuantity(item.id);
@@ -65,44 +68,14 @@ export function MenuItemDetailSheet({
 
   return (
     <BottomSheet open={open} onDismiss={onClose}>
-      <div className="relative aspect-[16/10] w-full shrink-0 bg-gray-100">
-        {gallery.length > 0 ? (
-          <>
-            <div
-              className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto"
-              onScroll={(e) => {
-                const el = e.currentTarget;
-                setSlide(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)));
-              }}
-            >
-              {gallery.map((src) => (
-                <img
-                  key={src}
-                  src={src}
-                  alt={item.name}
-                  decoding="async"
-                  className="h-full w-full shrink-0 snap-center object-cover"
-                />
-              ))}
-            </div>
-            {gallery.length > 1 && (
-              <div className="pointer-events-none absolute inset-x-0 bottom-3 flex justify-center gap-1.5">
-                {gallery.map((src, i) => (
-                  <span
-                    key={src}
-                    className={`h-1.5 rounded-full transition-all duration-200 ${
-                      i === slide ? 'w-5 bg-white' : 'w-1.5 bg-white/60'
-                    }`}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="flex h-full items-center justify-center bg-gray-100">
-            <Utensils className="h-10 w-10 text-gray-300" />
-          </div>
-        )}
+      {/* Fixed height, not an aspect ratio: every wrapper below this uses
+          `h-full`, and against an `auto`/`aspect-ratio` parent that percentage
+          resolves to `auto`, letting the image's intrinsic height resize the
+          frame (measured 480x361 instead of 480x300). An explicit height makes
+          the frame identical for every item and every slide. `overflow-hidden`
+          keeps the photo inside the panel's rounded top corners. */}
+      <div className="relative h-[300px] w-full shrink-0 overflow-hidden bg-gray-100">
+        <ImageGallery images={gallery} alt={item.name} className="h-full w-full" />
 
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
 
@@ -122,7 +95,7 @@ export function MenuItemDetailSheet({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t('close')}
           className="absolute end-4 top-12 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-lg backdrop-blur transition active:scale-90"
         >
           <X className="h-6 w-6" />
@@ -149,11 +122,11 @@ export function MenuItemDetailSheet({
         <div className="mb-5 flex items-baseline gap-2">
           {discounted && (
             <span className="text-sm font-semibold text-gray-500 line-through">
-              {formatPrice(Math.round(item.originalPrice as number), currency, displayCurrency, lang)}
+              {formatPrice(Math.round(item.originalPrice as number), currency, lang)}
             </span>
           )}
           <span className="text-2xl font-extrabold text-gray-900">
-            {formatPrice(Math.round(item.price), currency, displayCurrency, lang)}
+            {formatPrice(Math.round(item.price), currency, lang)}
           </span>
         </div>
 
@@ -193,7 +166,7 @@ export function MenuItemDetailSheet({
             {t('addToOrder')} · {quantity} {quantity > 1 ? t('items') : t('item')}
           </span>
           <span className="text-lg font-extrabold">
-            {formatPrice(Math.round(totalPrice), currency, displayCurrency, lang)}
+            {formatPrice(Math.round(totalPrice), currency, lang)}
           </span>
         </button>
       </div>

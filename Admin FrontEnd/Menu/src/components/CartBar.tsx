@@ -6,10 +6,19 @@ import { formatPrice } from '@/lib/formatPrice';
 import { hapticFeedback } from '@/lib/haptics';
 import { ShoppingBag } from 'lucide-react';
 
-export function CartBar({ onClick }: { onClick: () => void }) {
+export function CartBar({
+  hasOrder,
+  onClick,
+}: {
+  /** Whether the session already has an order — changes the label only. */
+  hasOrder: boolean;
+  onClick: () => void;
+}) {
   const { t, lang } = useLanguage();
-  const { tenantCurrency, displayCurrency } = useCurrency();
-  const { totalItems, totalPrice } = useCart();
+  const { displayCurrency } = useCurrency();
+  const { totalItems, totalPrice, cartCurrency } = useCart();
+  // Totals must be labelled with the currency the prices are actually in.
+  const currency = cartCurrency ?? displayCurrency;
   const [bump, setBump] = useState(false);
   const prevCount = useRef(totalItems);
 
@@ -46,10 +55,14 @@ export function CartBar({ onClick }: { onClick: () => void }) {
               {totalItems}
             </span>
           </span>
-          <span className="text-sm font-extrabold">{t('viewCart')}</span>
+          <span className="text-sm font-extrabold">
+            {hasOrder
+              ? `${totalItems} ${t('items')} · ${t('addToMyOrder')}`
+              : t('viewCart')}
+          </span>
         </span>
         <span className="text-lg font-extrabold">
-          {formatPrice(Math.round(totalPrice), tenantCurrency, displayCurrency, lang)}
+          {formatPrice(Math.round(totalPrice), currency, lang)}
         </span>
       </button>
     </div>
