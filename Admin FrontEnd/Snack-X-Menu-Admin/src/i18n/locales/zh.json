@@ -1,0 +1,51 @@
+{
+  "orderPayment": {
+    "button": "支付信息",
+    "title": "支付信息",
+    "description": "订单详情与应付金额",
+    "copyId": "复制订单 ID",
+    "copied": "已复制",
+    "close": "关闭",
+    "discard": "关闭",
+    "generateInvoice": "生成发票",
+    "orderId": "订单 ID",
+    "orderNumber": "订单号",
+    "tableNumber": "桌号",
+    "status": {
+      "unpaid": "未支付",
+      "partial": "部分支付",
+      "paid": "已支付",
+      "refunded": "已退款"
+    },
+    "items": {
+      "title": "明细",
+      "column": {
+        "item": "项目",
+        "quantity": "数量",
+        "unitPrice": "单价",
+        "lineTotal": "小计"
+      }
+    },
+    "totals": {
+      "total": "合计",
+      "paid": "已付金额",
+      "due": "应付金额"
+    },
+    "payment": {
+      "section": "支付",
+      "method": "支付方式",
+      "methodPlaceholder": "请选择支付方式",
+      "methodsLoading": "正在加载支付方式…",
+      "methodsError": "无法加载支付方式",
+      "retry": "重试",
+      "methodsEmpty": "尚未启用任何支付方式。",
+      "methodsEmptyLink": "前往支付方式设置",
+      "amount": "待付金额",
+      "amountDueHint": "这是该订单还需支付的金额。",
+      "amountRequired": "请输入大于 0 的金额。",
+      "amountTooHigh": "金额不能超过应付金额（{{due}}）。",
+      "confirm": "支付",
+      "pendingEndpoint": "登记支付和生成发票尚不可用：后端接口尚不存在，因此这里不会记录任何数据。"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "orderPayment": {
+    "button": "결제 정보",
+    "title": "결제 정보",
+    "description": "주문 상세 및 미결제 금액",
+    "copyId": "주문 ID 복사",
+    "copied": "복사됨",
+    "close": "닫기",
+    "discard": "닫기",
+    "generateInvoice": "영수증 생성",
+    "orderId": "주문 ID",
+    "orderNumber": "주문 번호",
+    "tableNumber": "테이블",
+    "status": {
+      "unpaid": "미결제",
+      "partial": "부분 결제",
+      "paid": "결제 완료",
+      "refunded": "환불됨"
+    },
+    "items": {
+      "title": "항목",
+      "column": {
+        "item": "항목",
+        "quantity": "수량",
+        "unitPrice": "단가",
+        "lineTotal": "합계"
+      }
+    },
+    "totals": {
+      "total": "합계",
+      "paid": "결제 금액",
+      "due": "미결제 금액"
+    },
+    "payment": {
+      "section": "결제",
+      "method": "결제 수단",
+      "methodPlaceholder": "결제 수단을 선택하세요",
+      "methodsLoading": "결제 수단을 불러오는 중…",
+      "methodsError": "결제 수단을 불러오지 못했습니다",
+      "retry": "다시 시도",
+      "methodsEmpty": "활성화된 결제 수단이 아직 없습니다.",
+      "methodsEmptyLink": "결제 수단 설정으로 이동",
+      "amount": "결제할 금액",
+      "amountDueHint": "이 주문에서 남은 결제 금액입니다.",
+      "amountRequired": "0보다 큰 금액을 입력하세요.",
+      "amountTooHigh": "금액은 미결제 금액({{due}})을 초과할 수 없습니다.",
+      "confirm": "결제",
+      "pendingEndpoint": "결제 등록과 영수증 발급은 아직 사용할 수 없습니다. 백엔드 엔드포인트가 존재하지 않아 여기에는 아무것도 기록되지 않습니다."
+    }
+  }
+}

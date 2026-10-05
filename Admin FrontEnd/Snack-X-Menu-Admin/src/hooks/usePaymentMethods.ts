@@ -44,10 +44,16 @@ export function usePaymentMethods(enabled = true) {
   });
 }
 
-/** Enabled methods only - the shape a cashier / payment screen needs. */
-export function useEnabledPaymentMethods(enabled = true) {
+/**
+ * Enabled methods only - the shape a cashier / payment screen needs.
+ *
+ * `language` belongs in the query key: the backend translates `label` from the
+ * `X-Lang` header, so the cached response is only valid for the language it was
+ * fetched in.
+ */
+export function useEnabledPaymentMethods(enabled = true, language?: string) {
   return useQuery({
-    queryKey: [...PAYMENT_METHODS_QUERY_KEY, "enabled"],
+    queryKey: [...PAYMENT_METHODS_QUERY_KEY, "enabled", language],
     queryFn: getEnabledPaymentMethods,
     enabled,
     staleTime: 15_000,

@@ -4,9 +4,11 @@ import { useTranslation } from "react-i18next";
 
 import { SidebarToggleButton } from "@/components/layout/SidebarToggleButton";
 import { OrderBoard } from "@/components/orders/board/OrderBoard";
+import { OrderPaymentModal } from "@/components/orders/payment/OrderPaymentModal";
 import { Button } from "@/components/ui/button";
 import { useCurrentOrders, type UseCurrentOrdersReturn } from "@/hooks/useCurrentOrders";
 import { useOrderLiveChanges, type OrderLiveState } from "@/hooks/useOrderLiveChanges";
+import { useOrderPaymentModal } from "@/hooks/useOrderPaymentModal";
 import { formatClock } from "@/lib/orderBoardUtils";
 import type { OrderSummaryDto } from "@/types/orders";
 
@@ -41,6 +43,10 @@ export default function OrdersPage() {
   });
 
   const board = useCurrentOrders({ subscriptionGate });
+
+  // One instance, shared by the cards (badges) and the dialog, so a payment
+  // registered in the dialog is reflected on the card behind it.
+  const paymentModal = useOrderPaymentModal();
 
   useEffect(() => {
     boardRef.current = board;
@@ -96,7 +102,10 @@ export default function OrdersPage() {
         </div>
       </div>
 
-      <OrderBoard board={board} />
+      <OrderBoard board={board} onOpenPayment={paymentModal.open} />
+
+      {/* Outside the board so a drag can never start from inside the dialog. */}
+      <OrderPaymentModal controller={paymentModal} />
     </div>
   );
 }

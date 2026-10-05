@@ -35,11 +35,15 @@ for (const file of walk(SRC)) {
 }
 
 const localeFiles = readdirSync(LOCALES).filter((name) => name.endsWith(".json"));
+const parsedByLocale = new Map(
+  localeFiles.map((name) => [name, JSON.parse(readFileSync(join(LOCALES, name), "utf8"))])
+);
+/** `null` when the locale file is partial and does not carry this namespace. */
 const defined = new Map(
-  localeFiles.map((name) => {
-    const parsed = JSON.parse(readFileSync(join(LOCALES, name), "utf8"));
-    return [name, new Set(flatten(parsed[NAMESPACE] ?? {}))];
-  })
+  [...parsedByLocale].map(([name, parsed]) => [
+    name,
+    parsed[NAMESPACE] === undefined ? null : new Set(flatten(parsed[NAMESPACE])),
+  ])
 );
 
 test("the feature actually uses keys, otherwise this test is vacuous", () => {
@@ -47,25 +51,28 @@ test("the feature actually uses keys, otherwise this test is vacuous", () => {
 });
 
 for (const [name, keys] of defined) {
-  test(`${name} defines every key the payment-methods UI uses`, () => {
-    const missing = [...usedKeys].filter((key) => !keys.has(key)).sort();
-    assert.deepEqual(missing, [], `${name} is missing: ${missing.join(", ")}`);
-  });
+  // A locale that ships this namespace must ship all of it; a partial locale
+  // is free to omit it entirely.
+  if (keys) {
+    test(`${name} defines every key the payment-methods UI uses`, () => {
+      const missing = [...usedKeys].filter((key) => !keys.has(key)).sort();
+      assert.deepEqual(missing, [], `${name} is missing: ${missing.join(", ")}`);
+    });
 
-  test(`${name} has no unused payment-methods keys`, () => {
-    const unused = [...keys].filter((key) => !usedKeys.has(key)).sort();
-    assert.deepEqual(unused, [], `${name} defines unused keys: ${unused.join(", ")}`);
-  });
+    test(`${name} has no unused payment-methods keys`, () => {
+      const unused = [...keys].filter((key) => !usedKeys.has(key)).sort();
+      assert.deepEqual(unused, [], `${name} defines unused keys: ${unused.join(", ")}`);
+    });
+  }
 }
 
 test("interpolation placeholders match across locales", () => {
   const placeholdersOf = (text) =>
     [...String(text).matchAll(/\{\{\s*([A-Za-z0-9_]+)\s*\}\}/g)].map((match) => match[1]).sort();
 
-  const parsed = localeFiles.map((name) => [
-    name,
-    JSON.parse(readFileSync(join(LOCALES, name), "utf8"))[NAMESPACE],
-  ]);
+  const parsed = [...parsedByLocale]
+    .filter(([, value]) => value[NAMESPACE] !== undefined)
+    .map(([name, value]) => [name, value[NAMESPACE]]);
   const [referenceName, reference] = parsed[0];
 
   const walkValues = (object, prefix = "", visit) => {

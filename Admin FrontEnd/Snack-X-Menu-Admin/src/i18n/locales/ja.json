@@ -1,0 +1,51 @@
+{
+  "orderPayment": {
+    "button": "支払い情報",
+    "title": "支払い情報",
+    "description": "注文の詳細と未払金額",
+    "copyId": "注文IDをコピー",
+    "copied": "コピーしました",
+    "close": "閉じる",
+    "discard": "閉じる",
+    "generateInvoice": "請求書を作成",
+    "orderId": "注文ID",
+    "orderNumber": "注文番号",
+    "tableNumber": "テーブル",
+    "status": {
+      "unpaid": "未払い",
+      "partial": "一部支払い",
+      "paid": "支払い済み",
+      "refunded": "返金済み"
+    },
+    "items": {
+      "title": "明細",
+      "column": {
+        "item": "品目",
+        "quantity": "数量",
+        "unitPrice": "単価",
+        "lineTotal": "合計"
+      }
+    },
+    "totals": {
+      "total": "合計",
+      "paid": "支払額",
+      "due": "未払金額"
+    },
+    "payment": {
+      "section": "支払い",
+      "method": "支払い方法",
+      "methodPlaceholder": "支払い方法を選択してください",
+      "methodsLoading": "支払い方法を読み込み中…",
+      "methodsError": "支払い方法を読み込めませんでした",
+      "retry": "再試行",
+      "methodsEmpty": "有効な支払い方法がまだありません。",
+      "methodsEmptyLink": "支払い方法へ移動",
+      "amount": "支払金額",
+      "amountDueHint": "この注文の残り支払金額です。",
+      "amountRequired": "0より大きい金額を入力してください。",
+      "amountTooHigh": "金額は未払金額（{{due}}）を超えることはできません。",
+      "confirm": "支払う",
+      "pendingEndpoint": "支払いの登録と請求書の作成はまだ利用できません。バックエンドのエンドポイントが存在しないため、ここでは何も記録されません。"
+    }
+  }
+}

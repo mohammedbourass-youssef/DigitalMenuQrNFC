@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { OrderCard } from "@/components/orders/board/OrderCard";
 import { columnIdOf } from "@/lib/orderBoardUtils";
-import type { OrderStatusColumnDto } from "@/types/orders";
+import type { OrderStatusColumnDto, OrderSummaryDto } from "@/types/orders";
 
 const FALLBACK_COLOR = "#94A3B8";
 const COLUMN_WIDTH = "w-[320px]";
@@ -18,6 +18,7 @@ export interface OrderColumnProps {
   activeOrderId: string | null;
   pendingOrderIds: ReadonlySet<string>;
   newOrderIds: ReadonlySet<string>;
+  onOpenPayment: (order: OrderSummaryDto) => void;
 }
 
 export const OrderColumn = memo(function OrderColumn({
@@ -28,6 +29,7 @@ export const OrderColumn = memo(function OrderColumn({
   activeOrderId,
   pendingOrderIds,
   newOrderIds,
+  onOpenPayment,
 }: OrderColumnProps) {
   const { t } = useTranslation();
   const { setNodeRef, isOver } = useDroppable({ id: columnIdOf(column.statusId) });
@@ -74,6 +76,7 @@ export const OrderColumn = memo(function OrderColumn({
               isDragging={activeOrderId === order.orderId}
               disabled={pendingOrderIds.has(order.orderId)}
               isNew={newOrderIds.has(order.orderId)}
+              onOpenPayment={onOpenPayment}
             />
           ))}
         </SortableContext>

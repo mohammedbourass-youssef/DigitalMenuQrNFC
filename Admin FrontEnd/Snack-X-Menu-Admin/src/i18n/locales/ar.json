@@ -818,5 +818,54 @@
       "unableToLogin": "تعذر تسجيل الدخول.",
       "enterBothFields": "يرجى إدخال البريد الإلكتروني وكلمة المرور."
     }
+  },
+  "orderPayment": {
+    "button": "معلومات الدفع",
+    "title": "معلومات الدفع",
+    "description": "تفاصيل الطلب والمبلغ المستحق",
+    "copyId": "نسخ معرّف الطلب",
+    "copied": "تم النسخ",
+    "close": "إغلاق",
+    "discard": "إغلاق",
+    "generateInvoice": "إنشاء فاتورة",
+    "orderId": "معرّف الطلب",
+    "orderNumber": "رقم الطلب",
+    "tableNumber": "الطاولة",
+    "status": {
+      "unpaid": "غير مدفوع",
+      "partial": "مدفوع جزئيًا",
+      "paid": "مدفوع",
+      "refunded": "مسترَد"
+    },
+    "items": {
+      "title": "الأصناف",
+      "column": {
+        "item": "الصنف",
+        "quantity": "الكمية",
+        "unitPrice": "سعر الوحدة",
+        "lineTotal": "المجموع"
+      }
+    },
+    "totals": {
+      "total": "المجموع",
+      "paid": "المبلغ المدفوع",
+      "due": "المبلغ المستحق"
+    },
+    "payment": {
+      "section": "الدفع",
+      "method": "طريقة الدفع",
+      "methodPlaceholder": "اختر طريقة الدفع",
+      "methodsLoading": "جارٍ تحميل طرق الدفع…",
+      "methodsError": "تعذّر تحميل طرق الدفع",
+      "retry": "إعادة المحاولة",
+      "methodsEmpty": "لم يتم تفعيل أي طريقة دفع بعد.",
+      "methodsEmptyLink": "الذهاب إلى طرق الدفع",
+      "amount": "المبلغ الواجب دفعه",
+      "amountDueHint": "هذا هو المبلغ المتبقي على هذا الطلب.",
+      "amountRequired": "أدخل مبلغًا أكبر من ٠.",
+      "amountTooHigh": "لا يمكن أن يتجاوز المبلغ المبلغ المستحق ({{due}}).",
+      "confirm": "دفع",
+      "pendingEndpoint": "تسجيل الدفع وإنشاء الفاتورة غير متاحين بعد: نقطة النهاية في الخادم غير موجودة، لذلك لا يتم تسجيل أي شيء هنا."
+    }
   }
 }

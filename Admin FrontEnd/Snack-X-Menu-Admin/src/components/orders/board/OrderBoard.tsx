@@ -29,10 +29,16 @@ import {
   resolveDropTarget,
 } from "@/lib/orderBoardUtils";
 import { getCurrency } from "@/lib/preferences";
+import type { OrderSummaryDto } from "@/types/orders";
 
 const SKELETON_COLUMNS = 4;
 
-export function OrderBoard({ board }: { board: UseCurrentOrdersReturn }) {
+interface OrderBoardProps {
+  board: UseCurrentOrdersReturn;
+  onOpenPayment: (order: OrderSummaryDto) => void;
+}
+
+export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
   const { t, i18n } = useTranslation();
   const language = i18n.language;
   const currency = getCurrency();
@@ -240,6 +246,7 @@ export function OrderBoard({ board }: { board: UseCurrentOrdersReturn }) {
               activeOrderId={activeOrderId}
               pendingOrderIds={pendingOrderIds}
               newOrderIds={newOrderIds}
+              onOpenPayment={onOpenPayment}
             />
           ))}
           <div className="w-4 shrink-0" aria-hidden />

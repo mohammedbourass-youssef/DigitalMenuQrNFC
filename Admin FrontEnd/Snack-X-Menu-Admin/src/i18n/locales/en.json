@@ -814,5 +814,54 @@
       "unableToLogin": "Unable to login.",
       "enterBothFields": "Please enter both email and password."
     }
+  },
+  "orderPayment": {
+    "button": "Payment informations",
+    "title": "Payment informations",
+    "description": "Order details and amount due",
+    "copyId": "Copy the order id",
+    "copied": "Copied",
+    "close": "Close",
+    "discard": "Discard",
+    "generateInvoice": "Generate Invoice",
+    "orderId": "Order Id",
+    "orderNumber": "Order Number",
+    "tableNumber": "Table",
+    "status": {
+      "unpaid": "Unpaid",
+      "partial": "Partial",
+      "paid": "Paid",
+      "refunded": "Refunded"
+    },
+    "items": {
+      "title": "Items",
+      "column": {
+        "item": "Item",
+        "quantity": "Qty",
+        "unitPrice": "Unit price",
+        "lineTotal": "Total"
+      }
+    },
+    "totals": {
+      "total": "Total",
+      "paid": "Paid amount",
+      "due": "Amount due"
+    },
+    "payment": {
+      "section": "Payment",
+      "method": "Payment method",
+      "methodPlaceholder": "Select a payment method",
+      "methodsLoading": "Loading payment methods…",
+      "methodsError": "Could not load the payment methods",
+      "retry": "Retry",
+      "methodsEmpty": "No payment method is enabled yet.",
+      "methodsEmptyLink": "Go to payment methods",
+      "amount": "Amount to pay",
+      "amountDueHint": "This is what is left to pay for this order.",
+      "amountRequired": "Enter an amount greater than 0.",
+      "amountTooHigh": "The amount cannot be higher than the amount due ({{due}}).",
+      "confirm": "Paid",
+      "pendingEndpoint": "Registering a payment and generating an invoice are not available yet: the backend endpoints do not exist, so nothing is recorded here."
+    }
   }
 }

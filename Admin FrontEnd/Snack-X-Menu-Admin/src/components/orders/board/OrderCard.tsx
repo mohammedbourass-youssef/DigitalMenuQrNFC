@@ -2,18 +2,15 @@ import { memo, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
-import { Check, Clock } from "lucide-react";
+import { CreditCard } from "lucide-react";
 
+import { OrderPaymentStatusBadge } from "@/components/orders/payment/OrderPaymentStatusBadge";
+import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/orderBoardUtils";
+import type { OrderPaymentStatus } from "@/types/orderPayment";
 import type { OrderSummaryDto } from "@/types/orders";
 
 const MAX_VISIBLE_LINES = 3;
-
-const CHIP_BASE =
-  "inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide";
-/** Paid is the loud state; unpaid stays muted so paid cards draw the eye. */
-const PAID_CHIP_CLASS = `${CHIP_BASE} bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400`;
-const UNPAID_CHIP_CLASS = `${CHIP_BASE} bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400`;
 
 export interface OrderCardViewProps {
   order: OrderSummaryDto;
@@ -22,6 +19,8 @@ export interface OrderCardViewProps {
   dimmed?: boolean;
   /** Briefly highlight a card that just arrived from the hub. */
   highlight?: boolean;
+  /** Omitted in the drag overlay, which must stay inert. */
+  onOpenPayment?: () => void;
 }
 
 /** Presentational card, also reused inside the drag overlay. */
@@ -31,6 +30,7 @@ export const OrderCardView = memo(function OrderCardView({
   currency,
   dimmed = false,
   highlight = false,
+  onOpenPayment,
 }: OrderCardViewProps) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
@@ -48,6 +48,11 @@ export const OrderCardView = memo(function OrderCardView({
       ? ""
       : "opacity-80 hover:opacity-100";
 
+  // `isPaid` is the only payment signal the board gives us today; the badge
+  // stays quiet when the field is absent rather than guessing.
+  const status: OrderPaymentStatus | null =
+    order.isPaid === undefined ? null : order.isPaid ? "Paid" : "Unpaid";
+
   return (
     <div
       className={`rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-opacity dark:border-slate-700 dark:bg-slate-900 ${opacityState} ${
@@ -59,18 +64,7 @@ export const OrderCardView = memo(function OrderCardView({
           <span className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
             #{order.orderNumber}
           </span>
-          {order.isPaid === true && (
-            <span className={PAID_CHIP_CLASS}>
-              <Check className="h-2.5 w-2.5" aria-hidden />
-              {t("orders.board.paid")}
-            </span>
-          )}
-          {order.isPaid === false && (
-            <span className={UNPAID_CHIP_CLASS}>
-              <Clock className="h-2.5 w-2.5" aria-hidden />
-              {t("orders.board.unpaid")}
-            </span>
-          )}
+          {status && <OrderPaymentStatusBadge status={status} />}
         </div>
         <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">
           {t("orders.board.table", { number: order.tableNumber })}
@@ -114,6 +108,29 @@ export const OrderCardView = memo(function OrderCardView({
           {formatPrice(order.totalPrice, language, currency)}
         </span>
       </div>
+
+      {onOpenPayment && (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpenPayment();
+          }}
+          // The whole card is the dnd-kit drag handle. Without these the
+          // PointerSensor (distance), TouchSensor (delay) and KeyboardSensor
+          // would all treat this button as the start of a drag.
+          onPointerDown={(event) => event.stopPropagation()}
+          onTouchStart={(event) => event.stopPropagation()}
+          onKeyDown={(event) => event.stopPropagation()}
+          aria-label={t("orderPayment.button")}
+          className="mt-2 h-7 w-full justify-center text-[11px] font-medium"
+        >
+          <CreditCard className="h-3.5 w-3.5" aria-hidden />
+          {t("orderPayment.button")}
+        </Button>
+      )}
     </div>
   );
 });
@@ -128,6 +145,7 @@ interface OrderCardProps {
   disabled?: boolean;
   /** True right after the order arrived over the hub. */
   isNew?: boolean;
+  onOpenPayment?: (order: OrderSummaryDto) => void;
 }
 
 export const OrderCard = memo(function OrderCard({
@@ -138,6 +156,7 @@ export const OrderCard = memo(function OrderCard({
   isDragging,
   disabled = false,
   isNew = false,
+  onOpenPayment,
 }: OrderCardProps) {
   const {
     attributes,
@@ -177,6 +196,7 @@ export const OrderCard = memo(function OrderCard({
         currency={currency}
         dimmed={dimmed}
         highlight={isNew}
+        onOpenPayment={onOpenPayment ? () => onOpenPayment(order) : undefined}
       />
     </div>
   );

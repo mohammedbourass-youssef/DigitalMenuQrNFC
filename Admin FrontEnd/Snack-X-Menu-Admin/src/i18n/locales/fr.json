@@ -814,5 +814,54 @@
       "unableToLogin": "Impossible de se connecter.",
       "enterBothFields": "Veuillez entrer votre e-mail et votre mot de passe."
     }
+  },
+  "orderPayment": {
+    "button": "Informations de paiement",
+    "title": "Informations de paiement",
+    "description": "Détails de la commande et montant dû",
+    "copyId": "Copier l'identifiant de la commande",
+    "copied": "Copié",
+    "close": "Fermer",
+    "discard": "Fermer",
+    "generateInvoice": "Générer la facture",
+    "orderId": "Identifiant",
+    "orderNumber": "Numéro de commande",
+    "tableNumber": "Table",
+    "status": {
+      "unpaid": "Impayée",
+      "partial": "Partielle",
+      "paid": "Payée",
+      "refunded": "Remboursée"
+    },
+    "items": {
+      "title": "Articles",
+      "column": {
+        "item": "Article",
+        "quantity": "Qté",
+        "unitPrice": "Prix unitaire",
+        "lineTotal": "Total"
+      }
+    },
+    "totals": {
+      "total": "Total",
+      "paid": "Montant payé",
+      "due": "Montant dû"
+    },
+    "payment": {
+      "section": "Paiement",
+      "method": "Mode de paiement",
+      "methodPlaceholder": "Sélectionnez un mode de paiement",
+      "methodsLoading": "Chargement des modes de paiement…",
+      "methodsError": "Impossible de charger les modes de paiement",
+      "retry": "Réessayer",
+      "methodsEmpty": "Aucun mode de paiement n'est activé pour le moment.",
+      "methodsEmptyLink": "Aller aux modes de paiement",
+      "amount": "Montant à payer",
+      "amountDueHint": "C'est le reste à payer pour cette commande.",
+      "amountRequired": "Saisissez un montant supérieur à 0.",
+      "amountTooHigh": "Le montant ne peut pas dépasser le montant dû ({{due}}).",
+      "confirm": "Payer",
+      "pendingEndpoint": "L'enregistrement d'un paiement et la génération d'une facture ne sont pas encore disponibles : les endpoints du backend n'existent pas, rien n'est donc enregistré ici."
+    }
   }
 }
