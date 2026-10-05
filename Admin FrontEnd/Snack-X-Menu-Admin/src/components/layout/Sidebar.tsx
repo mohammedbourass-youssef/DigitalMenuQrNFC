@@ -3,6 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import {
   ChevronDown,
   ClipboardList,
+  CreditCard,
+  FileText,
   FolderTree,
   History,
   LayoutDashboard,
@@ -11,12 +13,14 @@ import {
   Settings,
   Tags,
   UtensilsCrossed,
+  Wallet,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 import { useSidebar } from '@/contexts/SidebarContext';
 import { DESKTOP_SIDEBAR_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
+import { PAYMENTS_COMING_SOON_ENTRY } from '@/components/layout/paymentsNav';
 
 type SidebarLink = {
   type: 'link';
@@ -48,6 +52,20 @@ const navItems: SidebarEntry[] = [
       { href: '/orders/status-settings', labelKey: 'sidebar.orderStatusSettings', icon: Settings },
       { href: '/orders', labelKey: 'sidebar.orders', icon: ListOrdered, end: true },
       { href: '/orders/history', labelKey: 'sidebar.ordersHistory', icon: History },
+    ],
+  },
+  {
+    type: 'group',
+    labelKey: 'sidebar.paymentsAndTransactions',
+    icon: Wallet,
+    children: [
+      { href: '/payments/invoices', labelKey: 'sidebar.paymentsInvoices', icon: FileText },
+      { href: '/payments/methods', labelKey: 'sidebar.paymentMethods', icon: CreditCard },
+      {
+        href: PAYMENTS_COMING_SOON_ENTRY.href,
+        labelKey: PAYMENTS_COMING_SOON_ENTRY.labelKey,
+        icon: PAYMENTS_COMING_SOON_ENTRY.icon,
+      },
     ],
   },
   { type: 'link', href: '/nfc-tags', labelKey: 'sidebar.nfcTags', icon: Tags },

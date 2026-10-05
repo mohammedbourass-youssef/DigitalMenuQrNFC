@@ -27,6 +27,10 @@
     "orders": "Commandes",
     "orderStatusSettings": "Paramètres des statuts de commande",
     "ordersHistory": "Historique des commandes",
+    "paymentsAndTransactions": "Paiements & transactions",
+    "paymentsInvoices": "Paiements & factures",
+    "paymentMethods": "Modes de paiement",
+    "paymentsComingSoon": "Bientôt disponible",
     "nfcTags": "Tags NFC",
     "settings": "Paramètres",
     "admin": "Admin",
@@ -485,6 +489,115 @@
       "serverError": "Erreur du serveur, veuillez réessayer.",
       "requestCancelled": "Requête annulée",
       "generic": "Une erreur s'est produite"
+    }
+  },
+  "payments": {
+    "invoicesTitle": "Paiements & factures",
+    "invoicesDescription": "Consultez les factures et réglez ce que chaque table doit.",
+    "methodsTitle": "Modes de paiement",
+    "methodsDescription": "Configurez les modes de paiement acceptés par votre restaurant.",
+    "comingSoonTitle": "Bientôt disponible",
+    "comingSoonDescription": "Cette section n'est pas encore prête.",
+    "emptyState": "Rien à afficher pour le moment."
+  },
+  "paymentsMethods":   {
+    "title": "Modes de paiement",
+    "subtitle": "Choisissez ce que vos clients peuvent utiliser pour payer, et réorganisez l'ordre affiché à la commande.",
+    "add": "Ajouter un mode de paiement",
+    "loading": "Chargement des modes de paiement...",
+    "retry": "Réessayer",
+    "orderSaved": "Ordre enregistré",
+    "savingOrder": "Enregistrement de l'ordre...",
+    "enabled": "Activé",
+    "disabled": "Désactivé",
+    "defaultBadge": "Par défaut",
+    "setDefault": "Définir par défaut",
+    "setDefaultNamed": "Définir {{name}} comme mode de paiement par défaut",
+    "enableNamed": "Activer {{name}}",
+    "disableNamed": "Désactiver {{name}}",
+    "moveUpNamed": "Monter {{name}}",
+    "moveDownNamed": "Descendre {{name}}",
+    "editNamed": "Modifier {{name}}",
+    "deleteNamed": "Supprimer {{name}}",
+    "dragNamed": "Réorganiser {{name}}",
+    "summary": {
+      "enabledOverTotal": "{{enabled}} sur {{total}} activés",
+      "defaultIs": "Par défaut : {{name}}"
+    },
+    "column": {
+      "method": "Mode",
+      "code": "Code",
+      "default": "Par défaut",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "Aucun mode de paiement",
+      "sub": "Ajoutez les modes acceptés par votre restaurant, ou commencez par Espèces et Carte.",
+      "cta": "Ajouter un mode de paiement"
+    },
+    "noAccess": {
+      "title": "Réservé au propriétaire",
+      "sub": "Seul le propriétaire du restaurant peut gérer les modes de paiement."
+    },
+    "quickSetup": {
+      "label": "Commencer par Espèces et Carte",
+      "hint": "Ajoute les deux modes les plus courants. Vous pourrez les renommer ou les réorganiser ensuite.",
+      "done": "Espèces et Carte ont été ajoutés",
+      "unavailable": "Espèces et Carte ne sont pas disponibles dans le catalogue."
+    },
+    "delete": {
+      "title": "Supprimer {{label}} ?",
+      "description": "Vos clients ne pourront plus payer avec ce mode. Cette action est irréversible.",
+      "defaultNote": "C'est le mode par défaut : un autre mode activé prendra le relais.",
+      "confirm": "Supprimer le mode"
+    },
+    "toast": {
+      "added": "Mode de paiement ajouté",
+      "updated": "Mode de paiement mis à jour",
+      "deleted": "Mode de paiement supprimé",
+      "enabled": "Mode de paiement activé",
+      "disabled": "Mode de paiement désactivé",
+      "defaultSet": "Mode de paiement par défaut mis à jour",
+      "reordered": "Ordre des modes de paiement enregistré",
+      "saveError": "Impossible d'enregistrer la modification",
+      "deleteError": "Impossible de supprimer le mode de paiement"
+    },
+    "error": {
+      "load": "Impossible de charger vos modes de paiement"
+    },
+    "errors": {
+      "duplicate": "Ce mode de paiement est déjà ajouté.",
+      "lastEnabled": "Au moins un mode de paiement doit rester activé.",
+      "invalidSystemMethod": "Ce mode de paiement n'est pas disponible.",
+      "invalidOrder": "Le nouvel ordre ne correspondait pas à vos modes de paiement, la liste a été actualisée.",
+      "notFound": "Ce mode de paiement n'existe plus."
+    },
+    "form": {
+      "addTitle": "Ajouter un mode de paiement",
+      "addDescription": "Choisissez un mode dans le catalogue et donnez-lui si vous le souhaitez un nom personnalisé.",
+      "editTitle": "Modifier le mode de paiement",
+      "editDescription": "Renommez-le ou désactivez-le sans le supprimer.",
+      "methodLabel": "Mode de paiement",
+      "methodPlaceholder": "Sélectionnez un mode de paiement",
+      "methodRequired": "Sélectionnez un mode de paiement.",
+      "loadingMethods": "Chargement des modes...",
+      "allAdded": "Tous les modes du catalogue ont déjà été ajoutés.",
+      "alreadyAddedHint": "Les modes déjà ajoutés restent visibles mais ne peuvent pas être sélectionnés à nouveau.",
+      "customLabelLabel": "Nom personnalisé",
+      "customLabelPlaceholder": "Laissez vide pour garder le nom du catalogue",
+      "customLabelHint": "Laissez vide pour conserver le nom du catalogue. C'est ce que voient vos clients à la commande.",
+      "customLabelTooLong": "Utilisez {{max}} caractères maximum.",
+      "resetLabel": "Utiliser le nom du catalogue",
+      "enabledLabel": "Activé",
+      "enabledHint": "Vos clients ne peuvent payer qu'avec les modes activés.",
+      "defaultLabel": "Définir par défaut",
+      "defaultHint": "Recommandé comme choix pré-sélectionné pour votre équipe.",
+      "defaultHintFirst": "Le premier mode ajouté est toujours le mode par défaut.",
+      "previewLabel": "Aperçu",
+      "addButton": "Ajouter le mode",
+      "saveButton": "Enregistrer les modifications",
+      "genericError": "Impossible d'enregistrer le mode de paiement"
     }
   },
   "nfcTags": {

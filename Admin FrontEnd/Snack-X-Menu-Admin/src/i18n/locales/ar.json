@@ -27,6 +27,10 @@
     "orders": "الطلبات",
     "orderStatusSettings": "إعدادات حالات الطلبات",
     "ordersHistory": "سجل الطلبات",
+    "paymentsAndTransactions": "المدفوعات والمعاملات",
+    "paymentsInvoices": "المدفوعات والفواتير",
+    "paymentMethods": "طرق الدفع",
+    "paymentsComingSoon": "قريباً",
     "nfcTags": "وسوم NFC",
     "settings": "الإعدادات",
     "admin": "管理",
@@ -485,6 +489,115 @@
       "serverError": "خطأ في الخادم، يرجى المحاولة مرة أخرى.",
       "requestCancelled": "تم إلغاء الطلب",
       "generic": "حدث خطأ ما"
+    }
+  },
+  "payments": {
+    "invoicesTitle": "المدفوعات والفواتير",
+    "invoicesDescription": "راجع الفواتير وسوِّ ما على كل طاولة.",
+    "methodsTitle": "طرق الدفع",
+    "methodsDescription": "اضبط طرق الدفع التي يقبلها مطعمك.",
+    "comingSoonTitle": "قريباً",
+    "comingSoonDescription": "هذا القسم غير جاهز بعد.",
+    "emptyState": "لا يوجد شيء لعرضه بعد."
+  },
+  "paymentsMethods":   {
+    "title": "طرق الدفع",
+    "subtitle": "اختر الطرق التي يمكن لعملائك الدفع بها، واسحب الصفوف لتحديد الترتيب الذي يظهر عند الطلب.",
+    "add": "إضافة طريقة دفع",
+    "loading": "جارٍ تحميل طرق الدفع...",
+    "retry": "إعادة المحاولة",
+    "orderSaved": "تم حفظ الترتيب",
+    "savingOrder": "جارٍ حفظ الترتيب...",
+    "enabled": "مفعّلة",
+    "disabled": "معطّلة",
+    "defaultBadge": "افتراضية",
+    "setDefault": "تعيين كافتراضية",
+    "setDefaultNamed": "تعيين {{name}} كطريقة الدفع الافتراضية",
+    "enableNamed": "تفعيل {{name}}",
+    "disableNamed": "تعطيل {{name}}",
+    "moveUpNamed": "تحريك {{name}} للأعلى",
+    "moveDownNamed": "تحريك {{name}} للأسفل",
+    "editNamed": "تعديل {{name}}",
+    "deleteNamed": "حذف {{name}}",
+    "dragNamed": "إعادة ترتيب {{name}}",
+    "summary": {
+      "enabledOverTotal": "{{enabled}} مفعّلة من {{total}}",
+      "defaultIs": "الافتراضية: {{name}}"
+    },
+    "column": {
+      "method": "الطريقة",
+      "code": "الرمز",
+      "default": "الافتراضية",
+      "status": "الحالة",
+      "actions": "إجراءات"
+    },
+    "empty": {
+      "title": "لا توجد طرق دفع بعد",
+      "sub": "أضف الطرق التي يقبلها مطعمك، أو ابدأ بالنقد والبطاقة.",
+      "cta": "إضافة طريقة دفع"
+    },
+    "noAccess": {
+      "title": "للمالك فقط",
+      "sub": "يمكن لمالك المطعم وحده إدارة طرق الدفع."
+    },
+    "quickSetup": {
+      "label": "البدء بالنقد والبطاقة",
+      "hint": "يضيف الطريقتين الأكثر استخدامًا، ويمكنك إعادة التسمية أو الترتيب لاحقًا.",
+      "done": "تمت إضافة النقد والبطاقة",
+      "unavailable": "النقد والبطاقة غير متاحتين في الكتالوج."
+    },
+    "delete": {
+      "title": "حذف {{label}}؟",
+      "description": "لن يتمكن العملاء من الدفع بهذه الطريقة بعد الآن، ولا يمكن التراجع عن ذلك.",
+      "defaultNote": "هذه هي الطريقة الافتراضية، لذلك أصبحت طريقة أخرى مفعّلة هي الافتراضية.",
+      "confirm": "حذف الطريقة"
+    },
+    "toast": {
+      "added": "تمت إضافة طريقة الدفع",
+      "updated": "تم تحديث طريقة الدفع",
+      "deleted": "تم حذف طريقة الدفع",
+      "enabled": "تم تفعيل طريقة الدفع",
+      "disabled": "تم تعطيل طريقة الدفع",
+      "defaultSet": "تم تحديث طريقة الدفع الافتراضية",
+      "reordered": "تم حفظ ترتيب طرق الدفع",
+      "saveError": "تعذّر حفظ التغيير",
+      "deleteError": "تعذّر حذف طريقة الدفع"
+    },
+    "error": {
+      "load": "تعذّر تحميل طرق الدفع"
+    },
+    "errors": {
+      "duplicate": "طريقة الدفع هذه مضافة بالفعل.",
+      "lastEnabled": "يجب أن تبقى طريقة دفع واحدة مفعّلة على الأقل.",
+      "invalidSystemMethod": "طريقة الدفع هذه غير متاحة.",
+      "invalidOrder": "الترتيب الجديد لا يطابق طرق الدفع لديك، لذلك تم تحديث القائمة.",
+      "notFound": "طريقة الدفع هذه لم تعد موجودة."
+    },
+    "form": {
+      "addTitle": "إضافة طريقة دفع",
+      "addDescription": "اختر طريقة من الكتالوج، ويمكنك منحها اسمًا خاصًا بك.",
+      "editTitle": "تعديل طريقة الدفع",
+      "editDescription": "غيّر الاسم أو عطّلها دون حذفها.",
+      "methodLabel": "طريقة الدفع",
+      "methodPlaceholder": "اختر طريقة دفع",
+      "methodRequired": "اختر طريقة دفع.",
+      "loadingMethods": "جارٍ تحميل الطرق...",
+      "allAdded": "كل طرق الكتالوج مضافة بالفعل.",
+      "alreadyAddedHint": "الطرق المضافة سابقًا تبقى ظاهرة لكنها لا يمكن اختيارها مرة أخرى.",
+      "customLabelLabel": "اسم مخصص",
+      "customLabelPlaceholder": "اتركه فارغًا لاستخدام اسم الكتالوج",
+      "customLabelHint": "اتركه فارغًا للاحتفاظ باسم الكتالوج، وهو ما يراه العملاء عند الطلب.",
+      "customLabelTooLong": "استخدم {{max}} حرفًا أو أقل.",
+      "resetLabel": "استخدام اسم الكتالوج",
+      "enabledLabel": "مفعّلة",
+      "enabledHint": "يمكن للعملاء الدفع بالطرق المفعّلة فقط.",
+      "defaultLabel": "تعيين كافتراضية",
+      "defaultHint": "موصى بها كخيار محدد مسبقًا لفريقك.",
+      "defaultHintFirst": "أول طريقة تضيفها تكون دائمًا هي الافتراضية.",
+      "previewLabel": "معاينة",
+      "addButton": "إضافة الطريقة",
+      "saveButton": "حفظ التغييرات",
+      "genericError": "تعذّر حفظ طريقة الدفع"
     }
   },
   "nfcTags": {

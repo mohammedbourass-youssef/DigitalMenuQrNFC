@@ -27,6 +27,10 @@
     "orders": "Orders",
     "orderStatusSettings": "Order Status Settings",
     "ordersHistory": "Orders History",
+    "paymentsAndTransactions": "Payments & Transactions",
+    "paymentsInvoices": "Payments & Invoices",
+    "paymentMethods": "Payment Methods",
+    "paymentsComingSoon": "Coming Soon",
     "nfcTags": "NFC Tags",
     "settings": "Settings",
     "admin": "Admin",
@@ -485,6 +489,115 @@
       "serverError": "Server error, please try again",
       "requestCancelled": "Request cancelled",
       "generic": "Something went wrong"
+    }
+  },
+  "payments": {
+    "invoicesTitle": "Payments & Invoices",
+    "invoicesDescription": "Review invoices and settle what each table owes.",
+    "methodsTitle": "Payment Methods",
+    "methodsDescription": "Configure the payment methods your restaurant accepts.",
+    "comingSoonTitle": "Coming Soon",
+    "comingSoonDescription": "This section is not ready yet.",
+    "emptyState": "Nothing to show here yet."
+  },
+  "paymentsMethods":   {
+    "title": "Payment Methods",
+    "subtitle": "Choose what customers can pay with, and drag the rows to set the order shown at checkout.",
+    "add": "Add payment method",
+    "loading": "Loading payment methods...",
+    "retry": "Try again",
+    "orderSaved": "Order saved",
+    "savingOrder": "Saving order...",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "defaultBadge": "Default",
+    "setDefault": "Set as default",
+    "setDefaultNamed": "Set {{name}} as the default payment method",
+    "enableNamed": "Enable {{name}}",
+    "disableNamed": "Disable {{name}}",
+    "moveUpNamed": "Move {{name}} up",
+    "moveDownNamed": "Move {{name}} down",
+    "editNamed": "Edit {{name}}",
+    "deleteNamed": "Delete {{name}}",
+    "dragNamed": "Reorder {{name}}",
+    "summary": {
+      "enabledOverTotal": "{{enabled}} of {{total}} enabled",
+      "defaultIs": "Default: {{name}}"
+    },
+    "column": {
+      "method": "Method",
+      "code": "Code",
+      "default": "Default",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No payment methods yet",
+      "sub": "Add the methods your restaurant accepts, or start from Cash and Card.",
+      "cta": "Add payment method"
+    },
+    "noAccess": {
+      "title": "Owner access only",
+      "sub": "Only the restaurant owner can manage payment methods."
+    },
+    "quickSetup": {
+      "label": "Start with Cash & Card",
+      "hint": "Adds the two most common methods. You can rename or reorder them later.",
+      "done": "Cash and Card were added",
+      "unavailable": "Cash and Card are not available in the catalog."
+    },
+    "delete": {
+      "title": "Delete {{label}}?",
+      "description": "Customers will no longer be able to pay with it. This cannot be undone.",
+      "defaultNote": "This is the default method, so another enabled method becomes the default instead.",
+      "confirm": "Delete method"
+    },
+    "toast": {
+      "added": "Payment method added",
+      "updated": "Payment method updated",
+      "deleted": "Payment method deleted",
+      "enabled": "Payment method enabled",
+      "disabled": "Payment method disabled",
+      "defaultSet": "Default payment method updated",
+      "reordered": "Payment method order saved",
+      "saveError": "Could not save the change",
+      "deleteError": "Could not delete the payment method"
+    },
+    "error": {
+      "load": "Could not load your payment methods"
+    },
+    "errors": {
+      "duplicate": "This payment method is already added.",
+      "lastEnabled": "At least one payment method must stay enabled.",
+      "invalidSystemMethod": "That payment method is not available.",
+      "invalidOrder": "The new order did not match your payment methods, so the list was refreshed.",
+      "notFound": "That payment method no longer exists."
+    },
+    "form": {
+      "addTitle": "Add payment method",
+      "addDescription": "Pick a method from the catalog and optionally give it your own name.",
+      "editTitle": "Edit payment method",
+      "editDescription": "Rename it, or turn it off without removing it.",
+      "methodLabel": "Payment method",
+      "methodPlaceholder": "Select a payment method",
+      "methodRequired": "Select a payment method.",
+      "loadingMethods": "Loading methods...",
+      "allAdded": "Every method in the catalog has already been added.",
+      "alreadyAddedHint": "Methods already added stay visible but cannot be selected again.",
+      "customLabelLabel": "Custom name",
+      "customLabelPlaceholder": "Leave empty to use the catalog name",
+      "customLabelHint": "Leave empty to keep the catalog name. This is what customers see at checkout.",
+      "customLabelTooLong": "Use {{max}} characters or fewer.",
+      "resetLabel": "Use the catalog name",
+      "enabledLabel": "Enabled",
+      "enabledHint": "Customers can only pay with enabled methods.",
+      "defaultLabel": "Set as default",
+      "defaultHint": "Recommended as the pre-selected choice for your team.",
+      "defaultHintFirst": "The first method you add is always the default.",
+      "previewLabel": "Preview",
+      "addButton": "Add method",
+      "saveButton": "Save changes",
+      "genericError": "Could not save the payment method"
     }
   },
   "nfcTags": {
