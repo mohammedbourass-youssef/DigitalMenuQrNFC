@@ -91,6 +91,15 @@ export interface SessionOrderValue {
   /** The most recent status transition, for the banner. `null` once dismissed. */
   statusUpdate: StatusUpdate | null;
   dismissStatusUpdate: () => void;
+  /**
+   * Forgets the current order and returns to an empty session.
+   *
+   * Offered only once the server says the order can no longer be extended
+   * (`canAddItems: false`). It erases the stored order so the next action places
+   * a genuinely new order instead of silently extending a closed one, which the
+   * backend would reject with a 409.
+   */
+  startNewOrder: () => void;
   /** Locally records a newly created order so the next refresh finds it. */
   registerOrder: (snapshot: {
     orderId: string;
@@ -154,6 +163,8 @@ export function SessionOrderProvider({ children }: { children: React.ReactNode }
   const forgetOrder = useCallback(() => {
     clearActiveOrder();
     applied.current = null;
+    // A new session must not inherit the previous order's error backoff.
+    failures.current = 0;
     setOrderId(null);
     setTracking(null);
     setIsLoading(false);
@@ -408,6 +419,7 @@ export function SessionOrderProvider({ children }: { children: React.ReactNode }
       canAddItems: orderId !== null && (tracking?.canAddItems ?? true),
       statusUpdate,
       dismissStatusUpdate,
+      startNewOrder: forgetOrder,
       registerOrder,
     }),
     [
@@ -423,6 +435,7 @@ export function SessionOrderProvider({ children }: { children: React.ReactNode }
       isFinal,
       statusUpdate,
       dismissStatusUpdate,
+      forgetOrder,
       registerOrder,
     ],
   );

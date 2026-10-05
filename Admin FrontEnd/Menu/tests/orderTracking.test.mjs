@@ -111,6 +111,8 @@ test('tolerates PascalCase keys', () => {
   assert.equal(view.orderNumber, 9);
   assert.equal(view.isFinal, true);
   assert.equal(view.canAddItems, false);
+  // `CurrentStatus` says the order is sitting on status 1, so that row is the
+  // live one even though the step reports Completed.
   assert.equal(view.steps[0].state, 'Completed');
 });
 
@@ -277,15 +279,15 @@ const CREATE_RESPONSE = {
     state: 1,
     statusColor: '#F59E0B',
     statusId: 2,
-    statusName: 'En préparation',
+    statusName: 'En prï¿½paration',
   },
   isFinal: false,
   orderId: '9f1c2d3e-4a5b-6c7d-8e9f-0a1b2c3d4e5f',
   orderNumber: 4242,
   steps: [
     { statusId: 1, statusName: 'Nouvelle commande', statusColor: '#3B82F6', state: 1, changedAtUtc: '2026-09-29T15:04:00+00:00' },
-    { statusId: 2, statusName: 'En préparation', statusColor: '#F59E0B', state: 1, changedAtUtc: '2026-09-29T15:04:05+00:00' },
-    { statusId: 3, statusName: 'Prêt', statusColor: '#10B981', state: 2, changedAtUtc: null },
+    { statusId: 2, statusName: 'En prï¿½paration', statusColor: '#F59E0B', state: 1, changedAtUtc: '2026-09-29T15:04:05+00:00' },
+    { statusId: 3, statusName: 'Prï¿½t', statusColor: '#10B981', state: 2, changedAtUtc: null },
     { statusId: 4, statusName: 'Servi', statusColor: '#9CA3AF', state: 2, changedAtUtc: null },
   ],
   tableNumber: 7,
@@ -305,7 +307,7 @@ test('create response currentStatus is an OrderStatusStepDto', () => {
   const view = mapOrderTracking(CREATE_RESPONSE);
   assert.equal(view.currentStatus.id, 2);
   // Rendered verbatim: the server already translated it for the request lang.
-  assert.equal(view.currentStatus.name, 'En préparation');
+  assert.equal(view.currentStatus.name, 'En prï¿½paration');
   assert.equal(view.currentStatus.color, '#F59E0B');
 });
 

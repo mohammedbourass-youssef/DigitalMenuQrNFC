@@ -27,11 +27,15 @@ namespace NFC_Backend.Extensions
             services.AddScoped<ICookieService, CookieService>();
             services.AddScoped<IExchangeRateService, ExchangeRateService>();
             services.AddScoped<ICategoryTranslationService, CategoryTranslationService>();
+            services.AddScoped<INotifcationService, NotifcationService>();
+            services.AddScoped<IOrderLiveChangesService, OrderLiveChangesService>();
+
 
             //Accesseurs
             services.AddScoped<ITenantAccessor, TenantAccessor>();
             services.AddScoped<ISessionAccessor, SessionAccessor>();
             services.AddScoped<ILanguageAccessor, LanguageAccessor>();
+            services.AddScoped<ICurrencyAccessor, CurrencyAccessor>();
 
             //Adapters : 
             services.AddHttpClient<IExchangeRateApiAdapter, ExchangeRateApiAdapter>();

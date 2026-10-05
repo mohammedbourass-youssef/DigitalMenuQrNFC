@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using Microsoft.EntityFrameworkCore.Query.Internal;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -101,4 +102,39 @@ namespace NFC_Backend.Domain.DTOS
         public bool IsFinal { get; set; }                 // finished or cancelled
         public bool CanAddItems { get; set; }
     }
+
+    public sealed class OrderLineItemDto
+    {
+        [Required]
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        [Required]
+        public int Quantity { get; set; }
+        [Required]
+        public decimal UnitPrice { get; set; }
+        [Required]
+        public decimal TotalPrice { get; set; }
+    }
+
+    public sealed class OrderSummaryStatusDto
+    {
+        public Guid OrderId { get; set; }
+        public int OrderNumber { get; set; }
+        public int TableNumber { get; set; }
+        public decimal TotalPrice { get; set; }
+        public IEnumerable<OrderLineItemDto> Lines { get; set; } = [];
+    }
+
+    public sealed class OrderStatusColumnDto
+    {
+        public int StatusId { get; set; }
+        public string StatusName { get; set; } = string.Empty;
+        public string StatusColor { get; set; } = "#9CA3AF";
+        public int TotalOrders { get; set; }
+        public bool IsSystem { get; set; }
+
+        public IEnumerable<OrderSummaryStatusDto> Orders { get; set; } = [];
+    }
+
+
 }

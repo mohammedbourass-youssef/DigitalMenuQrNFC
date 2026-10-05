@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
@@ -23,14 +25,19 @@ namespace NFC_Backend.Controllers
         private readonly ILogger<OrdersController> _logger;
         private readonly IOrderRepo _orderRepo;
         private readonly ICategoryTranslationService _translation;
+        private readonly ILanguageAccessor _languageAccessor;
+        private readonly ICurrencyAccessor _CurrencyAccessor;
 
-        public OrdersController(ITenantRepo tenantRepo, IUserRepo userRepo, ILogger<OrdersController> logger, IOrderRepo orderRepo, ICategoryTranslationService translation)
+        public OrdersController(ITenantRepo tenantRepo, IUserRepo userRepo, 
+            ILogger<OrdersController> logger, IOrderRepo orderRepo, ICategoryTranslationService translation , ILanguageAccessor languageAccessor , ICurrencyAccessor currencyAccessor)
         {
             _tenantRepo = tenantRepo;
             _userRepo = userRepo;
             _logger = logger;
             _orderRepo = orderRepo;
             _translation = translation;
+            _languageAccessor = languageAccessor;
+            _CurrencyAccessor = currencyAccessor;
         }
         [HttpPost("NewStatus")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
@@ -527,5 +534,78 @@ namespace NFC_Backend.Controllers
             }
         }
 
+        [HttpGet("current-orders")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult<IEnumerable<OrderStatusColumnDto>>> GetCurrentOrders(
+       CancellationToken ct)
+        {
+            var tenantId = User.GetTenantId();
+            if (tenantId == null)
+            {
+                _logger.LogWarning("GetCurrentOrders failed - TenantId claim missing from token");
+                return Unauthorized(new { error = "Invalid token." });
+            }
+
+            try
+            {
+                var lan = _languageAccessor.Current;
+                var currency = _CurrencyAccessor.Current;
+
+                var result = await _orderRepo.GetOrderStatusColumnDto(
+                    tenantId.Value, lan, currency, ct);
+
+                return Ok(result);
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(499);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in GetCurrentOrders. TenantId: {TenantId}", tenantId);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
+
+        [HttpPatch("{id:guid}/move-to/{statusId:int}")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult> ChangeStatus(Guid id, int statusId, CancellationToken ct)
+        {
+            var tenantId = User.GetTenantId();
+            if (tenantId == null)
+            {
+                _logger.LogWarning("ChangeStatus failed - TenantId claim missing from token");
+                return Unauthorized(new { error = "Invalid token." });
+            }
+
+            var userId = User.GetUserId(); // Guid?, from ClaimTypes.NameIdentifier
+
+            try
+            {
+                var result = await _orderRepo.ChangeStatusAsync(tenantId.Value, id, statusId, userId, ct);
+
+                return result switch
+                {
+                    ChangeStatusResult.Success => NoContent(),
+                    _ => NotFound()
+                };
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return Conflict(new { error = "The order was modified by someone else. Refresh and try again." });
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(499);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,
+                    "Unexpected error in ChangeStatus. OrderId: {OrderId} | StatusId: {StatusId} | TenantId: {TenantId}",
+                    id, statusId, tenantId);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
     }
 }

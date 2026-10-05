@@ -31,6 +31,7 @@ namespace NFC_Backend.Infrastructure.Data
         public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; } = null!;
         public DbSet<PaymentStatus> PaymentStatuses { get; set; } = null!;
         public DbSet<PaymentStatusTranslation> PaymentStatusTranslations { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -521,6 +522,14 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(h => h.ChangedByUserId)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            modelBuilder.Entity<Notification>(e =>
+            {
+                e.Property(n => n.Title).HasMaxLength(200).IsRequired();
+                e.Property(n => n.Message).HasMaxLength(1000).IsRequired();
+                e.Property(n => n.Type).HasConversion<string>().HasMaxLength(50);
+                e.HasIndex(n => n.CreatedAt);
             });
         }
     }

@@ -127,30 +127,6 @@ export interface UpdateOrderStatusPayload {
   isFinal: boolean;
 }
 
-export interface BoardOrderLine {
-  name: string;
-  quantity: number;
-  unitPrice: number;
-  lineTotal: number;
-}
-
-export interface BoardOrderItem {
-  id: string;
-  orderNumber: number;
-  tableId: string | null;
-  tableName: string | null;
-  statusId: number;
-  total: number;
-  currencyCode: string;
-  createdAt: string;
-  items: BoardOrderLine[];
-}
-
-export interface BoardTableOption {
-  id: string | null;
-  name: string;
-}
-
 export interface OrderStatusTranslationEntry {
   lang: string;
   name: string;

@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import { getPreferenceHeaders } from '@/lib/preferences';
+
 export const getAuthHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -11,6 +13,25 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+// Read on every request (not in create defaults) so a language/currency change
+// is picked up immediately, including for the /auth/refresh retry.
+axiosInstance.interceptors.request.use((config) => {
+  // Never leak these to a third-party host if an absolute URL is ever passed.
+  if (config.url && /^https?:\/\//i.test(config.url)) {
+    try {
+      const base = new URL(axiosInstance.defaults.baseURL ?? '', window.location.origin);
+      if (new URL(config.url).origin !== base.origin) return config;
+    } catch {
+      return config;
+    }
+  }
+
+  const prefs = getPreferenceHeaders();
+  config.headers.set('X-Lang', prefs['X-Lang']);
+  config.headers.set('X-Currency', prefs['X-Currency']);
+  return config;
 });
 
 let isRefreshing = false;

@@ -228,7 +228,7 @@ export function mapOrderTracking(
 ): OrderTrackingView | null {
   if (!raw || typeof raw !== 'object') return null;
 
-  const source = raw as Record<string, unknown>;
+const source = raw as Record<string, unknown>;
   const isFinal = pick(source, ['isFinal', 'IsFinal']) === true;
   const current = toCurrentStatus(
     (pick(source, ['currentStatus', 'CurrentStatus']) as RawStatusStep | undefined) ?? undefined,
@@ -243,7 +243,7 @@ export function mapOrderTracking(
 
   const steps = buildSteps(
     (pick(source, ['steps', 'Steps']) as RawStatusStep[] | null | undefined) ?? null,
-    {
+{
       statusId: current.id,
       statusName: current.name,
       color: current.color,

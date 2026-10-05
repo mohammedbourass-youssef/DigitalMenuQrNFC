@@ -301,54 +301,30 @@
       "deleteSuccess": "Statut supprimé avec succès.",
       "deleteError": "Échec de la suppression du statut."
     },
+    "live": {
+      "connecting": "Connexion…",
+      "connected": "En direct",
+      "reconnecting": "Reconnexion…",
+      "disconnected": "Hors ligne"
+    },
     "board": {
       "searchPlaceholder": "Rechercher des commandes\u2026",
       "dragHint": "Faites glisser les cartes pour changer de statut",
       "noOrders": "Aucune commande",
-      "addOrder": "Ajouter une commande",
-      "addStatus": "Ajouter un statut",
       "total": "Total",
-      "takeaway": "À emporter",
-      "moreItems_one": "+{{count}} article de plus",
-      "moreItems_other": "+{{count}} articles de plus",
-      "statusesFallback": "Les statuts de commande sont indisponibles pour l'instant \u2014 colonnes par défaut affichées. Les changements ne sont conservés que dans ce navigateur.",
+      "table": "Table {{number}}",
+      "moreLines_one": "+{{count}} article de plus",
+      "moreLines_other": "+{{count}} articles de plus",
+      "showLess": "Réduire",
       "moveFailed": "Impossible d'enregistrer le changement. Le tableau a été annulé.",
-      "filterEmpty": "Aucune commande ne correspond à votre recherche.",
-      "loadingStatuses": "Chargement des statuts\u2026",
-      "columnActions": "Actions pour {{name}}",
-      "columnRename": "Renommer",
-      "columnRemove": "Supprimer le statut",
-      "statusNamePlaceholder": "Nom du statut",
-      "statusExists": "Ce statut existe déjà.",
-      "createStatusError": "Impossible d'ajouter le statut. Réessayez."
-    },
-    "addOrder": {
-      "title": "Ajouter une commande",
-      "description": "Créer une nouvelle commande dans {{status}}.",
-      "tableLabel": "Table",
-      "takeaway": "À emporter",
-      "itemsLabel": "Articles",
-      "addItem": "Ajouter un article",
-      "removeItem": "Retirer l'article",
-      "itemName": "Nom de l'article",
-      "itemNamePlaceholder": "p. ex. Sandwich club",
-      "quantity": "Qté",
-      "price": "Prix unitaire",
-      "total": "Total",
-      "create": "Ajouter la commande",
-      "noItems": "Ajoutez au moins un article avec une quantité et un prix.",
-      "invalidItem": "Renseignez le nom de l'article, une quantité d'au moins 1 et un prix valide.",
-      "saveFailed": "Impossible d'enregistrer la commande. Veuillez réessayer.",
-      "toastSuccess": "Commande #{{number}} ajoutée."
-    },
-    "removeStatus": {
-      "title": "Supprimer \u00ab {{name}} \u00bb ?",
-      "description": "Ce statut ne sera plus disponible pour les nouvelles commandes.",
-      "moveLabel": "Déplacer ses commandes vers",
-      "movePlaceholder": "Choisir un statut\u2026",
-      "orderCount_one": "{{count}} commande sera déplacée vers le statut choisi.",
-      "orderCount_other": "{{count}} commandes seront déplacées vers le statut choisi.",
-      "confirm": "Supprimer le statut"
+      "moveConflict": "Quelqu'un d'autre a modifié cette commande. Le tableau a été actualisé.",
+      "loadError": "Impossible de charger le tableau des commandes.",
+      "refreshFailed": "Impossible d'actualiser les commandes. Affichage des dernières données chargées.",
+      "retry": "Réessayer",
+      "refresh": "Actualiser",
+      "refreshAria": "Actualiser les commandes",
+      "refreshing": "Actualisation\u2026",
+      "lastUpdated": "Dernière mise à jour {{time}}"
     }
   },
   "menuItems": {
@@ -521,6 +497,32 @@
   "notFound": {
     "title": "404 Page non trouvée",
     "description": "Avez-vous oublié d'ajouter la page au routeur ?"
+  },
+  "notifications": {
+    "fallbackTitle": "Nouvelle activité",
+    "OrderCreated": {
+      "title": "Nouvelle commande",
+      "message": "La commande n°{{orderId}} vient d'être créée."
+    },
+    "OrderStatusChanged": {
+      "title": "Commande mise à jour",
+      "message": "Le statut de la commande n°{{orderId}} a changé."
+    },
+    "PaymentReceived": {
+      "title": "Paiement reçu",
+      "message": "Un paiement a été enregistré pour la commande n°{{orderId}}."
+    },
+    "OrderShipped": {
+      "title": "Commande expédiée",
+      "message": "La commande n°{{orderId}} a été expédiée."
+    },
+    "openOrders": "Voir les commandes",
+    "toggleSound": "Son des notifications",
+    "soundOn": "Activé",
+    "soundOff": "Muet",
+    "unread_one": "{{count}} notification non lue",
+    "unread_other": "{{count}} notifications non lues",
+    "reconnecting": "Reconnexion…"
   },
   "errorBoundary": {
     "title": "Une erreur s'est produite",

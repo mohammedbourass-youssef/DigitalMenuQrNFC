@@ -55,9 +55,9 @@ import { useRestaurantUpdate } from "@/hooks/useRestaurantUpdate";
 import { useMyProfile } from "@/hooks/useMyProfile";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { formatLocalDate, formatLocalDateTime } from "@/lib/date";
+import { CURRENCIES } from "@/lib/currencies";
+import { setCurrency, setLanguage } from "@/lib/preferences";
 import type { MyRestaurantInfosResponse, MyRestaurantUpdateInfosDTO } from "@/types";
-
-const CURRENCIES = ["MAD", "USD", "EUR", "JPY", "KRW", "CNY", "GBP"];
 
 const PLANS = [
   {
@@ -229,6 +229,16 @@ export default function SettingsPage() {
   const handleEdit = () => {
     resetForm();
     setIsEditing(true);
+  };
+
+  /**
+   * The selection is both the restaurant record value (sent on save) and the
+   * app-wide display preference: it is persisted so every request sends the
+   * chosen X-Currency instead of the default.
+   */
+  const handleCurrencyChange = (next: string) => {
+    setCurrencyCode(next);
+    setCurrency(next);
   };
 
   const handleCancel = () => {
@@ -580,7 +590,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label className="text-sm text-muted-foreground">{t("settings.fields.currency")}</Label>
                   {isEditing ? (
-                    <Select value={currencyCode} onValueChange={setCurrencyCode}>
+                    <Select value={currencyCode} onValueChange={handleCurrencyChange}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -1017,8 +1027,7 @@ function LanguagePicker() {
   ];
 
   const changeLanguage = (lng: string) => {
-    i18n.changeLanguage(lng);
-    localStorage.setItem("app-language", lng);
+    setLanguage(lng);
     toast.success(t("settings.saved"));
   };
 

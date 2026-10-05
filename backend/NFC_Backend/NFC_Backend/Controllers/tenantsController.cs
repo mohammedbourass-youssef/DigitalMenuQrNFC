@@ -34,6 +34,9 @@ namespace NFC_Backend.Controllers
     IOrderRepo orderRepo,
     IMenuItemRepo menuItemRepo,
     ILanguageAccessor languageAccessor,
+    INotifcationService notifcationService,
+    IOrderLiveChangesService orderLiveChangesService,
+    ICurrencyAccessor currencyAccessor,
     ILogger<TenantController> logger) : ControllerBase
     {
         [HttpGet("info")]
@@ -291,7 +294,7 @@ namespace NFC_Backend.Controllers
         [HttpPost("Order")]
         [AllowAnonymous]
         [NeedSession]
-        public async Task<ActionResult> CreateOrderFromMenu(OrderRequestDTO requestDTO)
+        public async Task<ActionResult> CreateOrderFromMenu(OrderRequestDTO requestDTO , CancellationToken ct)
         {
             try
             {
@@ -398,6 +401,16 @@ namespace NFC_Backend.Controllers
                     Steps  = new List<OrderStatusStepDto>(),
                     TableNumber = requestDTO.TableNumber,
                 };
+                var summary = new OrderSummaryStatusDto
+                {
+                    OrderId = order.Id,
+                    OrderNumber = order.OrderNumber,
+                    TableNumber = table.Number,
+                    TotalPrice = order.Total,
+                    Lines = await orderRepo.GetTrackingInfo(order.Id, languageAccessor.Current, currencyAccessor.Current, ct),
+                };
+                notifcationService.SendNotificationOnOrderCreated(1);
+                orderLiveChangesService.SendNewOrderAsync(summary, ct);
                 logger.LogInformation("Order {OrderId} created. TenantId: {TenantId}", orderId, tenantId);
                 return Ok(trackingDto);
             }
@@ -435,7 +448,7 @@ namespace NFC_Backend.Controllers
 
                 var lang = languageAccessor.Current;
 
-                var currentStatus = await orderRepo.GetOrderCurrentStatusByOrderIdAsync(order.Id, lang);
+                var currentStatus = await orderRepo.GetOrderCurrentStatusByOrderIdAsync(order.Id,order.StatusId ,lang);
                 var statusInfo = await orderRepo.GetStatusByIdAsync(order.StatusId);
                 if (currentStatus is null || statusInfo is null)
                 {

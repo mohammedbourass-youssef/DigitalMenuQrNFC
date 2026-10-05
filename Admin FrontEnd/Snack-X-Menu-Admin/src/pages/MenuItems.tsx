@@ -64,6 +64,7 @@ import { useRestaurantInfos } from "@/hooks/useRestaurantInfos";
 import { useToast } from "@/hooks/use-toast";
 import { friendlyErrorMessage } from "@/lib/apiErrors";
 import { CURRENCIES, DEFAULT_CURRENCY_CODE } from "@/lib/currencies";
+import { setCurrency } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
 import { activateMenuItem, deactivateMenuItem, getMenuItemInfoAdmin } from "@/services/menuService";
 import type { AdminMenuItem, PagedResult } from "@/types/menuItem";
@@ -160,6 +161,7 @@ export default function MenuItemsPage() {
   }, [totalPages, page, setSearchParams]);
 
   const changeCurrency = (next: string) => {
+    setCurrency(next);
     setSearchParams((current) => {
       current.set("currencyCode", next);
       current.set("page", "1");

@@ -1,108 +1,89 @@
+import { memo } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Plus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
-import { ColumnMenu } from "@/components/orders/board/ColumnMenu";
 import { OrderCard } from "@/components/orders/board/OrderCard";
 import { columnIdOf } from "@/lib/orderBoardUtils";
-import type { BoardOrderItem, OrderStatusItem } from "@/types";
+import type { OrderStatusColumnDto } from "@/types/orders";
 
-const DEFAULT_COLOR = "#94A3B8";
+const FALLBACK_COLOR = "#94A3B8";
+const COLUMN_WIDTH = "w-[320px]";
 
-interface OrderColumnProps {
-  status: OrderStatusItem;
-  orders: BoardOrderItem[];
-  statusKey: string;
+export interface OrderColumnProps {
+  column: OrderStatusColumnDto;
   language: string;
-  currencyCode: string;
-  isOwner: boolean;
-  dragging: boolean;
-  hovered: boolean;
-  activeId: string | null;
-  onAddOrder: (statusId: number) => void;
-  onRename: (status: OrderStatusItem) => void;
-  onRemove: (status: OrderStatusItem) => void;
+  currency: string;
+  isDragging: boolean;
+  activeOrderId: string | null;
+  pendingOrderIds: ReadonlySet<string>;
+  newOrderIds: ReadonlySet<string>;
 }
 
-export function OrderColumn({
-  status,
-  orders,
-  statusKey,
+export const OrderColumn = memo(function OrderColumn({
+  column,
   language,
-  currencyCode,
-  isOwner,
-  dragging,
-  hovered,
-  activeId,
-  onAddOrder,
-  onRename,
-  onRemove,
+  currency,
+  isDragging,
+  activeOrderId,
+  pendingOrderIds,
+  newOrderIds,
 }: OrderColumnProps) {
   const { t } = useTranslation();
-  const { setNodeRef, isOver } = useDroppable({ id: columnIdOf(statusKey) });
+  const { setNodeRef, isOver } = useDroppable({ id: columnIdOf(column.statusId) });
 
-  const highlighted = hovered || (dragging && isOver);
+  const color = column.statusColor || FALLBACK_COLOR;
+  const highlighted = isDragging && isOver;
 
   return (
     <section
       ref={setNodeRef}
-      aria-label={status.name}
-      className={`flex h-full min-h-0 w-full flex-1 min-w-[260px] flex-col rounded-2xl border bg-slate-100/80 transition-colors dark:bg-slate-800/60 ${
-        highlighted
-          ? "border-orange-400 ring-2 ring-orange-400/40"
-          : "border-slate-200 dark:border-slate-700"
+      aria-label={column.statusName}
+      className={`flex h-full min-h-0 ${COLUMN_WIDTH} shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-100/80 transition-colors dark:border-slate-700 dark:bg-slate-800/60 ${
+        highlighted ? "border-orange-400 ring-2 ring-orange-400/40" : ""
       }`}
     >
-      <header className="flex items-center gap-2 px-3 pb-2 pt-3">
+      <div className="h-1 w-full shrink-0" style={{ backgroundColor: color }} aria-hidden />
+
+      <header className="flex shrink-0 items-center gap-2 px-3 pb-2 pt-3">
         <span
           className="h-2.5 w-2.5 shrink-0 rounded-full"
-          style={{ backgroundColor: status.color ?? DEFAULT_COLOR }}
+          style={{ backgroundColor: color }}
           aria-hidden
         />
         <h2 className="min-w-0 flex-1 truncate text-sm font-bold text-slate-800 dark:text-slate-100">
-          {status.name}
+          {column.statusName}
         </h2>
-        <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-slate-600 shadow-sm dark:bg-slate-700 dark:text-slate-200 tabular-nums">
-          {orders.length}
+        <span className="shrink-0 rounded-full bg-white px-2 py-0.5 text-xs font-semibold tabular-nums text-slate-600 shadow-sm dark:bg-slate-700 dark:text-slate-200">
+          {column.totalOrders}
         </span>
-        <ColumnMenu status={status} isOwner={isOwner} onRename={onRename} onRemove={onRemove} />
       </header>
 
       <div className="min-h-0 flex-1 space-y-2.5 overflow-y-auto overscroll-contain px-2 pb-2">
         <SortableContext
-          items={orders.map((order) => order.id)}
+          items={column.orders.map((order) => order.orderId)}
           strategy={verticalListSortingStrategy}
         >
-          {orders.map((order) => (
+          {column.orders.map((order) => (
             <OrderCard
-              key={order.id}
+              key={order.orderId}
               order={order}
               language={language}
-              isActive={dragging && order.id === activeId}
+              currency={currency}
+              statusId={column.statusId}
+              isDragging={activeOrderId === order.orderId}
+              disabled={pendingOrderIds.has(order.orderId)}
+              isNew={newOrderIds.has(order.orderId)}
             />
           ))}
         </SortableContext>
 
-        {orders.length === 0 && (
+        {column.orders.length === 0 && (
           <div className="flex h-24 items-center justify-center rounded-xl border border-dashed border-slate-300 text-xs text-slate-400 dark:border-slate-600 dark:text-slate-500">
             {t("orders.board.noOrders")}
           </div>
         )}
       </div>
-
-      <footer className="p-2">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => onAddOrder(status.id)}
-          className="h-9 w-full justify-start gap-2 text-sm font-medium text-slate-500 hover:bg-white hover:text-slate-800 dark:hover:bg-slate-700 dark:hover:text-slate-100"
-        >
-          <Plus className="h-4 w-4" aria-hidden />
-          {t("orders.board.addOrder")}
-        </Button>
-      </footer>
     </section>
   );
-}
+});

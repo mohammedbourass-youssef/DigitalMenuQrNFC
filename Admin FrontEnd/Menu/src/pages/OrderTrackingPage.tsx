@@ -8,7 +8,7 @@ import { OrderStepper } from '@/components/OrderStepper';
 import { OrderSummaryCard } from '@/components/OrderSummaryCard';
 import { OrderStatusBanner } from '@/components/OrderStatusBanner';
 import { formatTime } from '@/utils/dateTime';
-import { ArrowLeft, Plus, RefreshCw } from 'lucide-react';
+import { ArrowLeft, CirclePlus, Plus, RefreshCw } from 'lucide-react';
 import type { CurrencyCode } from '@/lib/constants';
 import type { OrderTrackingView } from '@/types/order';
 
@@ -20,9 +20,10 @@ const PULL_MAX_PX = 112;
 /**
  * Order tracking screen (`/order`).
  *
- * There is deliberately no "new order" action anywhere on this page: a session
- * has at most one order, and once it exists the only way to order more is to
- * add items to it.
+ * A session has at most one order, and while the server still allows it the
+ * only way to order more is to add items to that same order. Once the server
+ * reports `canAddItems: false` the order is closed, so the page offers a "New
+ * order" action that forgets the stored order and starts an empty session.
  */
 export function OrderTrackingPage() {
   const { t, lang, dir } = useLanguage();
@@ -34,6 +35,7 @@ export function OrderTrackingPage() {
     refetch,
     isFinal,
     canAddItems,
+    startNewOrder,
   } = useSessionOrder();
 
   const pull = usePullToRefresh(refetch);
@@ -187,9 +189,21 @@ export function OrderTrackingPage() {
                 {t('addItemsToOrder')}
               </button>
             ) : (
-              <p className="rounded-2xl bg-gray-100 px-4 py-3 text-center text-xs font-bold text-gray-500">
-                {t('orderClosedCannotAdd')}
-              </p>
+              // The server has closed the order. Nothing else can be added to it,
+              // so the only way forward is a genuinely new one.
+              <>
+                <p className="rounded-2xl bg-gray-100 px-4 py-3 text-center text-xs font-bold text-gray-500">
+                  {t('orderClosedCannotAdd')}
+                </p>
+                <button
+                  type="button"
+                  onClick={startNewOrder}
+                  className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-base font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
+                >
+                  <CirclePlus className="h-5 w-5" strokeWidth={2.5} />
+                  {t('newOrder')}
+                </button>
+              </>
             )}
           </div>
         </div>

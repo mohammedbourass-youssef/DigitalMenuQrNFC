@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NFC_Backend.Adapters;
 using NFC_Backend.Extensions;
+using NFC_Backend.Hubs;
 using NFC_Backend.Infrastructure.Configs;
 using NFC_Backend.Infrastructure.Data;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
@@ -78,9 +80,13 @@ app.UseWhen(
         branch.UseMiddleware<SessionMiddleware>();
     }
     );
-app.UseMiddleware<SessionMiddleware>();
+app.UseMiddleware<LanguageMiddleware>();
+app.UseMiddleware<CurrencyMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<OrderLiveChangesHub>("/hubs/order-live-changes");
+
 
 app.Run();

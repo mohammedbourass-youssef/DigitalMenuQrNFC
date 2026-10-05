@@ -301,54 +301,30 @@
       "deleteSuccess": "تم حذف الحالة بنجاح.",
       "deleteError": "تعذر حذف الحالة."
     },
+    "live": {
+      "connecting": "جارٍ الاتصال…",
+      "connected": "مباشر",
+      "reconnecting": "جارٍ إعادة الاتصال…",
+      "disconnected": "غير متصل"
+    },
     "board": {
       "searchPlaceholder": "ابحث عن الطلبات\u2026",
       "dragHint": "اسحب البطاقات لتغيير الحالة",
       "noOrders": "لا توجد طلبات",
-      "addOrder": "إضافة طلب",
-      "addStatus": "إضافة حالة",
       "total": "الإجمالي",
-      "takeaway": "خارجي",
-      "moreItems_one": "+{{count}} عنصر إضافي",
-      "moreItems_other": "+{{count}} عناصر إضافية",
-      "statusesFallback": "حالات الطلب غير متاحة حالياً \u2014 يتم عرض الأعمدة الافتراضية. يتم حفظ التغييرات في هذا المتصفح فقط.",
+      "table": "طاولة {{number}}",
+      "moreLines_one": "+{{count}} سطر إضافي",
+      "moreLines_other": "+{{count}} أسطر إضافية",
+      "showLess": "عرض أقل",
       "moveFailed": "تعذر حفظ التغيير. تم التراجع عن التعديل.",
-      "filterEmpty": "لا توجد طلبات تطابق بحثك.",
-      "loadingStatuses": "جارٍ تحميل الحالات\u2026",
-      "columnActions": "إجراءات {{name}}",
-      "columnRename": "إعادة تسمية",
-      "columnRemove": "حذف الحالة",
-      "statusNamePlaceholder": "اسم الحالة",
-      "statusExists": "هذه الحالة موجودة بالفعل.",
-      "createStatusError": "تعذرت إضافة الحالة. حاول مرة أخرى."
-    },
-    "addOrder": {
-      "title": "إضافة طلب",
-      "description": "إنشاء طلب جديد ضمن {{status}}.",
-      "tableLabel": "الطاولة",
-      "takeaway": "خارجي",
-      "itemsLabel": "الأصناف",
-      "addItem": "إضافة صنف",
-      "removeItem": "إزالة الصنف",
-      "itemName": "اسم الصنف",
-      "itemNamePlaceholder": "مثال: ساندويتش",
-      "quantity": "الكمية",
-      "price": "سعر الوحدة",
-      "total": "الإجمالي",
-      "create": "إضافة الطلب",
-      "noItems": "أضف صنفاً واحداً على الأقل مع الكمية والسعر.",
-      "invalidItem": "أدخل اسم الصنف وكمية لا تقل عن 1 وسعراً صحيحاً.",
-      "saveFailed": "تعذر حفظ الطلب. حاول مرة أخرى.",
-      "toastSuccess": "تمت إضافة الطلب #{{number}}."
-    },
-    "removeStatus": {
-      "title": "حذف \u00ab{{name}}\u00bb؟",
-      "description": "لن تتوفر هذه الحالة للطلبات الجديدة.",
-      "moveLabel": "نقل طلباته إلى",
-      "movePlaceholder": "اختر حالة\u2026",
-      "orderCount_one": "سيتم نقل {{count}} طلب إلى الحالة المحددة.",
-      "orderCount_other": "سيتم نقل {{count}} طلبات إلى الحالة المحددة.",
-      "confirm": "حذف الحالة"
+      "moveConflict": "قام شخص آخر بتعديل هذا الطلب. تم تحديث اللوحة.",
+      "loadError": "تعذر تحميل لوحة الطلبات.",
+      "refreshFailed": "تعذر تحديث الطلبات. يتم عرض آخر البيانات المحمّلة.",
+      "retry": "إعادة المحاولة",
+      "refresh": "تحديث",
+      "refreshAria": "تحديث الطلبات",
+      "refreshing": "جارٍ التحديث\u2026",
+      "lastUpdated": "آخر تحديث {{time}}"
     }
   },
   "menuItems": {
@@ -521,6 +497,36 @@
   "notFound": {
     "title": "404 الصفحة غير موجودة",
     "description": "هل نسيت إضافة الصفحة إلى الراوتر؟"
+  },
+  "notifications": {
+    "fallbackTitle": "نشاط جديد",
+    "OrderCreated": {
+      "title": "طلب جديد",
+      "message": "تم إنشاء الطلب رقم {{orderId}}."
+    },
+    "OrderStatusChanged": {
+      "title": "تم تحديث الطلب",
+      "message": "تم تغيير حالة الطلب رقم {{orderId}}."
+    },
+    "PaymentReceived": {
+      "title": "تم استلام دفعة",
+      "message": "تم تسجيل دفعة للطلب رقم {{orderId}}."
+    },
+    "OrderShipped": {
+      "title": "تم شحن الطلب",
+      "message": "تم شحن الطلب رقم {{orderId}}."
+    },
+    "openOrders": "عرض الطلبات",
+    "toggleSound": "صوت الإشعارات",
+    "soundOn": "مفعّل",
+    "soundOff": "مكتوم",
+    "unread_zero": "لا توجد إشعارات غير مقروءة",
+    "unread_one": "إشعار واحد غير مقروء",
+    "unread_two": "إشعاران غير مقروءين",
+    "unread_few": "{{count}} إشعارات غير مقروءة",
+    "unread_many": "{{count}} إشعارًا غير مقروء",
+    "unread_other": "{{count}} إشعار غير مقروء",
+    "reconnecting": "جارٍ إعادة الاتصال…"
   },
   "errorBoundary": {
     "title": "حدث خطأ ما",

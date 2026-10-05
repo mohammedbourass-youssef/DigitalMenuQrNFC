@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import { Bell, LogOut, User, Mail, Building2, Shield, Search } from "lucide-react";
+import { Bell, BellOff, LogOut, User, Mail, Building2, Shield, Search, Volume2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/hooks/useNotifications";
 import { SidebarToggleButton } from "@/components/layout/SidebarToggleButton";
 import { isFullscreenBoardRoute } from "@/lib/sidebarFullscreen";
 import {
@@ -27,6 +28,7 @@ import {
 export default function TopBar() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const { unreadCount, isMuted, toggleMute, markAllRead } = useNotifications();
   const location = useLocation();
   const showSidebarToggle = !isFullscreenBoardRoute(location.pathname);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
@@ -53,9 +55,22 @@ export default function TopBar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button className="relative rounded-xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50">
+          <button
+            type="button"
+            onClick={markAllRead}
+            aria-label={
+              unreadCount > 0
+                ? t('notifications.unread', { count: unreadCount })
+                : t('notifications.openOrders')
+            }
+            className="relative rounded-xl border border-slate-200 bg-white p-2 text-slate-600 transition hover:bg-slate-50"
+          >
             <Bell className="h-4 w-4" />
-            <span className="absolute end-1.5 top-1.5 h-2 w-2 rounded-full bg-orange-500" />
+            {unreadCount > 0 && (
+              <span className="absolute -end-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-orange-500 px-1 text-[10px] font-bold leading-none text-white">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </button>
 
           <DropdownMenu>
@@ -123,6 +138,14 @@ export default function TopBar() {
               </div>
 
               <DropdownMenuSeparator />
+
+              <DropdownMenuItem onClick={toggleMute} className="cursor-pointer">
+                {isMuted ? <BellOff className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+                <span>{t('notifications.toggleSound')}</span>
+                <span className="ms-auto text-xs text-slate-400">
+                  {isMuted ? t('notifications.soundOff') : t('notifications.soundOn')}
+                </span>
+              </DropdownMenuItem>
 
               <DropdownMenuItem
                 onClick={() => setShowLogoutDialog(true)}

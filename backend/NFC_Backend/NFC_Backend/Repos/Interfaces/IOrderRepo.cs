@@ -1,5 +1,6 @@
 ﻿using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
+using NFC_Backend.Repos.Implementations;
 
 namespace NFC_Backend.Repos.Interfaces
 {
@@ -29,11 +30,19 @@ namespace NFC_Backend.Repos.Interfaces
         public  Task<int> GetNextOrderNumberAsync(Guid tenantId, CancellationToken ct = default);
         public Task<Order?> GetOrderByIdAsNoTrckingAsync(Guid orderId, Guid TenantId , Guid SessionID);
         public Task<Order?> GetOrderByIdAsNoTrckingIncludeTableAsync(Guid orderId, Guid TenantId , Guid SessionID);
+        public Task<Order?> GetOrderByIdAsync(Guid orderId, Guid TenantId , CancellationToken token);
         public Task<List<OrderStatusStepDto>> GetOrderHistoryAsync(
     Guid orderId,
     int currentStatus,
     string lan);
 
-        public  Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id, string lan);
-    }
+        public  Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id, int CurrentStatus, string lan);
+
+        public  Task<List<OrderStatusColumnDto>> GetOrderStatusColumnDto(
+     Guid tenantId, string lan, string currency, CancellationToken ct);
+
+        public  Task<ChangeStatusResult> ChangeStatusAsync(
+       Guid tenantId, Guid orderId, int statusId, Guid? userId, CancellationToken ct);
+        public Task<List<OrderLineItemDto>> GetTrackingInfo(Guid order, string lan, string ToCurrency, CancellationToken ct);
+        }
 }

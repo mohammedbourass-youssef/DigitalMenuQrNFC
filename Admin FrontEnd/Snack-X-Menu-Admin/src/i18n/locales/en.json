@@ -301,54 +301,30 @@
       "deleteSuccess": "Status deleted successfully.",
       "deleteError": "Failed to delete status."
     },
+    "live": {
+      "connecting": "Connecting…",
+      "connected": "Live",
+      "reconnecting": "Reconnecting…",
+      "disconnected": "Offline"
+    },
     "board": {
       "searchPlaceholder": "Search orders\u2026",
       "dragHint": "Drag cards to change status",
       "noOrders": "No orders",
-      "addOrder": "Add order",
-      "addStatus": "Add status",
       "total": "Total",
-      "takeaway": "Takeaway",
-      "moreItems_one": "+{{count}} more item",
-      "moreItems_other": "+{{count}} more items",
-      "statusesFallback": "Order statuses are unavailable right now \u2014 showing default columns. Changes are only kept in this browser.",
+      "table": "Table {{number}}",
+      "moreLines_one": "+{{count}} more line",
+      "moreLines_other": "+{{count}} more lines",
+      "showLess": "Show less",
       "moveFailed": "Couldn't save the change. The board was reverted.",
-      "filterEmpty": "No orders match your search.",
-      "loadingStatuses": "Loading statuses\u2026",
-      "columnActions": "Actions for {{name}}",
-      "columnRename": "Rename",
-      "columnRemove": "Remove status",
-      "statusNamePlaceholder": "Status name",
-      "statusExists": "This status already exists.",
-      "createStatusError": "Could not add the status. Please try again."
-    },
-    "addOrder": {
-      "title": "Add order",
-      "description": "Create a new order in {{status}}.",
-      "tableLabel": "Table",
-      "takeaway": "Takeaway",
-      "itemsLabel": "Items",
-      "addItem": "Add item",
-      "removeItem": "Remove item",
-      "itemName": "Item name",
-      "itemNamePlaceholder": "e.g. Club sandwich",
-      "quantity": "Qty",
-      "price": "Unit price",
-      "total": "Total",
-      "create": "Add order",
-      "noItems": "Add at least one item with a quantity and a price.",
-      "invalidItem": "Fill in the item name, a quantity of at least 1 and a valid price.",
-      "saveFailed": "Could not save the order. Please try again.",
-      "toastSuccess": "Order #{{number}} added."
-    },
-    "removeStatus": {
-      "title": "Remove \u201c{{name}}\u201d?",
-      "description": "This status will no longer be available for new orders.",
-      "moveLabel": "Move its orders to",
-      "movePlaceholder": "Select a status\u2026",
-      "orderCount_one": "{{count}} order will be moved to the selected status.",
-      "orderCount_other": "{{count}} orders will be moved to the selected status.",
-      "confirm": "Remove status"
+      "moveConflict": "Someone else changed this order. The board was refreshed.",
+      "loadError": "Couldn't load the orders board.",
+      "refreshFailed": "Couldn't refresh the orders. Showing the last loaded data.",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "refreshAria": "Refresh orders",
+      "refreshing": "Refreshing\u2026",
+      "lastUpdated": "Last updated {{time}}"
     }
   },
   "menuItems": {
@@ -521,6 +497,32 @@
   "notFound": {
     "title": "404 Page Not Found",
     "description": "Did you forget to add the page to the router?"
+  },
+  "notifications": {
+    "fallbackTitle": "New activity",
+    "OrderCreated": {
+      "title": "New order",
+      "message": "Order #{{orderId}} was just created."
+    },
+    "OrderStatusChanged": {
+      "title": "Order updated",
+      "message": "Order #{{orderId}} changed status."
+    },
+    "PaymentReceived": {
+      "title": "Payment received",
+      "message": "A payment was recorded for order #{{orderId}}."
+    },
+    "OrderShipped": {
+      "title": "Order shipped",
+      "message": "Order #{{orderId}} has been shipped."
+    },
+    "openOrders": "View orders",
+    "toggleSound": "Notification sound",
+    "soundOn": "On",
+    "soundOff": "Muted",
+    "unread_one": "{{count}} unread notification",
+    "unread_other": "{{count}} unread notifications",
+    "reconnecting": "Reconnecting…"
   },
   "errorBoundary": {
     "title": "Something went wrong",

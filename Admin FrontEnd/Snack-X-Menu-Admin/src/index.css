@@ -154,6 +154,33 @@
 .delay-2 { animation-delay: .12s; }
 .delay-3 { animation-delay: .18s; }
 
+/* Briefly highlights a card that just arrived over the SignalR hub. */
+@keyframes order-arrival {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / .55);
+    transform: translateY(-4px) scale(1.02);
+  }
+  70% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-order-arrival {
+  animation: order-arrival 2.6s ease-out both;
+  border-radius: .75rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Keep the cue, drop the movement. */
+  .animate-order-arrival {
+    animation: none;
+    outline: 2px solid hsl(var(--primary) / .55);
+    outline-offset: 2px;
+  }
+}
+
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }

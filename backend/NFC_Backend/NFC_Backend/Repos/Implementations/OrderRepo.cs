@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Infrastructure.Data;
@@ -8,6 +9,8 @@ using System.Reactive.Joins;
 
 namespace NFC_Backend.Repos.Implementations
 {
+    public enum ChangeStatusResult { Success, OrderNotFound, StatusNotFound }
+
     public class OrderRepo : IOrderRepo
     {
         private readonly AppDbContext _dbContextContext;
@@ -17,7 +20,7 @@ namespace NFC_Backend.Repos.Implementations
         }
         public async Task<int> CreateNewStatusAsync(OrderStatus status)
         {
-           await  _dbContextContext.OrderStatuses.AddAsync(status);
+            await _dbContextContext.OrderStatuses.AddAsync(status);
             _dbContextContext.SaveChanges();
             return status.Id;
         }
@@ -45,11 +48,11 @@ namespace NFC_Backend.Repos.Implementations
                         ?? s.Code,
                     s.Color,
                     s.DisplayOrder,
-                    s.IsFinal , s.TenantId == null))
+                    s.IsFinal, s.TenantId == null))
                 .ToListAsync(ct);
 
         }
-            public async Task<OrderStatus?> GetStatusByIdAsync(int id, CancellationToken ct = default)
+        public async Task<OrderStatus?> GetStatusByIdAsync(int id, CancellationToken ct = default)
         {
             return await _dbContextContext.OrderStatuses
                 .Include(s => s.Translations)
@@ -92,7 +95,7 @@ namespace NFC_Backend.Repos.Implementations
                 .MaxAsync(s => (int?)s.DisplayOrder, ct);
             return (max ?? 0) + 1;
         }
-    
+
         public async Task<bool> DeactivateStatusAsync(int id, Guid tenantId, CancellationToken ct = default)
         {
             var rows = await _dbContextContext.OrderStatuses
@@ -126,7 +129,7 @@ namespace NFC_Backend.Repos.Implementations
         {
             order.StatusHistory.Add(new OrderStatusHistory
             {
-                ChangedByUserId = null,              
+                ChangedByUserId = null,
                 ChangedAt = order.CreatedAt,
                 StatusId = 1
             });
@@ -137,12 +140,12 @@ namespace NFC_Backend.Repos.Implementations
             return order.Id;
         }
 
-       public async Task<OrderStatus?> GetOrderStatusById(int Id)
-       {
+        public async Task<OrderStatus?> GetOrderStatusById(int Id)
+        {
             return await _dbContextContext.OrderStatuses
                 .Include(c => c.Translations)
                 .FirstOrDefaultAsync(c => c.Id == Id);
-       }
+        }
         public async Task<int> GetNextOrderNumberAsync(Guid tenantId, CancellationToken ct = default)
         {
             var max = await _dbContextContext.Orders
@@ -152,11 +155,11 @@ namespace NFC_Backend.Repos.Implementations
             return (max ?? 0) + 1;
         }
 
-        public async Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id , string lan)
+        public async Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id,int CurrentStatus  ,string lan)
         {
             return await _dbContextContext.OrderStatusHistories
                 .AsNoTracking()
-                .Where(osh => osh.OrderId == Id)
+                .Where(osh => osh.OrderId == Id && osh.StatusId == CurrentStatus)
                 .Join(
                    _dbContextContext.OrderStatuses,
                    osh => osh.StatusId,
@@ -195,16 +198,16 @@ namespace NFC_Backend.Repos.Implementations
         }
 
 
-        public async Task<Order?> GetOrderByIdAsNoTrckingAsync(Guid orderId , Guid TenantId , Guid SessionID)
+        public async Task<Order?> GetOrderByIdAsNoTrckingAsync(Guid orderId, Guid TenantId, Guid SessionID)
         {
             return await _dbContextContext.Orders.AsNoTracking()
                 .FirstOrDefaultAsync(o => o.TenantId == TenantId && o.Id == orderId && o.SessionId == SessionID)
                 ;
         }
-        public async Task<Order?> GetOrderByIdAsNoTrckingIncludeTableAsync(Guid orderId , Guid TenantId , Guid SessionID)
+        public async Task<Order?> GetOrderByIdAsNoTrckingIncludeTableAsync(Guid orderId, Guid TenantId, Guid SessionID)
         {
             return await _dbContextContext.Orders.AsNoTracking()
-                .Include(o=>o.Table)
+                .Include(o => o.Table)
                 .FirstOrDefaultAsync(o => o.TenantId == TenantId && o.Id == orderId && o.SessionId == SessionID)
                 ;
         }
@@ -216,8 +219,8 @@ namespace NFC_Backend.Repos.Implementations
             return await _dbContextContext.OrderStatusHistories
                 .AsNoTracking()
                 .Where(osh =>
-                    osh.OrderId == orderId &&
-                    osh.StatusId != currentStatus)
+                    osh.OrderId == orderId 
+                    )
                 .Join(
                     _dbContextContext.OrderStatuses,
                     osh => osh.StatusId,
@@ -254,7 +257,141 @@ namespace NFC_Backend.Repos.Implementations
                 .ToListAsync();
         }
 
-    }
-    
 
+
+        public Task<List<OrderStatusColumnDto>> GetOrderStatusColumnDto(
+      Guid tenantId, string lan, string currency, CancellationToken ct)
+        =>
+             _dbContextContext.OrderStatuses
+                .AsNoTracking()
+                .Where(os => os.IsActive && (os.TenantId == null || os.TenantId == tenantId))
+                .Join(
+                    _dbContextContext.OrderStatusTranslations.Where(t => t.Lang == lan),
+                    os => os.Id,
+                    t => t.OrderStatusId,
+                    (os, t) => new { os.Id, os.Color, t.Name, IsSystem = os.TenantId == null })
+                .Select(x => new OrderStatusColumnDto
+                {
+                    StatusId = x.Id,
+                    StatusColor = x.Color,
+                    StatusName = x.Name,
+                    IsSystem = x.IsSystem,
+
+                    TotalOrders = _dbContextContext.Orders
+                        .Count(o => o.TenantId == tenantId && o.StatusId == x.Id),
+
+                    Orders = _dbContextContext.Orders
+                        .Where(o => o.TenantId == tenantId && o.StatusId == x.Id)
+                        .OrderByDescending(o => o.CreatedAt)   // adjust to your column
+                        .Select(o => new
+                        {
+                            Order = o,
+                            Rate = o.CurrencyCode == currency
+                                ? 1m
+                                : _dbContextContext.ExchangeRates
+                                    .Where(ex => ex.BaseCurrency == o.CurrencyCode
+                                              && ex.TargetCurrency == currency)
+                                    .Select(ex => ex.Rate)
+                                    .FirstOrDefault()
+                        })
+                        .Select(r => new OrderSummaryStatusDto
+                        {
+                            OrderId = r.Order.Id,
+                            OrderNumber = r.Order.OrderNumber,
+                            TotalPrice = r.Order.Total * r.Rate,
+                            TableNumber = _dbContextContext.Tables
+                                .Where(t => t.Id == r.Order.TableId)
+                                .Select(t => t.Number)
+                                .FirstOrDefault(),
+                            Lines = r.Order.Items.Select(item => new OrderLineItemDto
+                            {
+                                Id = item.Id,
+                                Name = _dbContextContext.MenuItemTranslations
+                                    .Where(mt => mt.MenuId == item.MenuItemId && mt.Lang == lan)
+                                    .Select(mt => mt.Name)
+                                    .FirstOrDefault(),
+                                Quantity = item.Quantity,
+                                UnitPrice = item.UnitPrice * r.Rate,
+                                TotalPrice = item.UnitPrice * item.Quantity * r.Rate
+                            }).ToList()
+                        })
+                        .ToList()
+                })
+                .AsSplitQuery()
+                .ToListAsync(ct);
+
+
+        public Task<Order?> GetOrderByIdAsync(Guid orderId, Guid TenantId , CancellationToken ct)
+        =>
+              _dbContextContext.Orders
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.TenantId == TenantId , ct);
+
+        public async Task<ChangeStatusResult> ChangeStatusAsync(
+      Guid tenantId, Guid orderId, int statusId, Guid? userId, CancellationToken ct)
+        {
+            var status = await _dbContextContext.OrderStatuses
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.Id == statusId
+                                       && s.IsActive
+                                       && (s.TenantId == null || s.TenantId == tenantId), ct);
+            if (status == null) return ChangeStatusResult.StatusNotFound;
+
+            var order = await _dbContextContext.Orders   // tracked on purpose
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.TenantId == tenantId, ct);
+            if (order == null) return ChangeStatusResult.OrderNotFound;
+
+            if (order.StatusId == status.Id) return ChangeStatusResult.Success; // no-op
+
+            var now = DateTime.UtcNow;
+            order.StatusId = status.Id;
+            order.UpdatedAt = now;
+
+            _dbContextContext.OrderStatusHistories.Add(new OrderStatusHistory
+            {
+                OrderId = order.Id,
+                StatusId = status.Id,
+                ChangedAt = now,
+                ChangedByUserId = userId
+            });
+
+            await _dbContextContext.SaveChangesAsync(ct); // one transaction
+            return ChangeStatusResult.Success;
+        }
+
+
+
+
+        public  Task<List<OrderLineItemDto>> GetTrackingInfo(Guid order , string lan ,string ToCurrency ,CancellationToken ct)
+        
+            => _dbContextContext.OrderItems
+                .Where(o => o.OrderId == order)
+                .AsNoTracking()
+                .Join(
+                  _dbContextContext.MenuItemTranslations.Where(t => t.Lang == lan),
+                  oi => oi.MenuItemId,
+                  t => t.MenuId,
+                  (oi, t) => new
+                  {
+                      oi.MenuItemId,
+                      t.Name,
+                      oi.Quantity,
+                      oi.UnitPrice
+                  }
+
+                ).Select(x => new OrderLineItemDto
+                {
+                    Id = x.MenuItemId.Value,
+                    Name = x.Name,
+                    Quantity = x.Quantity,
+                    UnitPrice = x.UnitPrice,
+                    TotalPrice = x.Quantity * x.UnitPrice
+                })
+                .ToListAsync(ct);
+                
+                
+
+
+
+        
+    }
 }

@@ -6,6 +6,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import TopBar from '@/components/layout/TopBar';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
 import { isFullscreenBoardRoute, transitionSidebarOnNav, type SidebarNavState } from '@/lib/sidebarFullscreen';
 import CategoriesPage from '@/pages/Categories';
@@ -126,21 +127,23 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/confirm-email" element={<ConfirmEmailPage />} />
-          <Route
-            path="/*"
-            element={
-              <ProtectedRoute>
-                <ProtectedLayout />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-        <Toaster position="top-right" richColors closeButton />
+        <NotificationProvider>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <ProtectedLayout />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+          <Toaster position="top-right" richColors closeButton visibleToasts={4} />
+        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   );

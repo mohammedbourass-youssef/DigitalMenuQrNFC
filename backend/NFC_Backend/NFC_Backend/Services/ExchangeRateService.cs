@@ -1,4 +1,5 @@
 ﻿using NFC_Backend.Adapters;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Repos.Interfaces;
 
 namespace NFC_Backend.Services
@@ -9,8 +10,7 @@ namespace NFC_Backend.Services
         private readonly IExchangeRateRepo _dal;
         private readonly ILogger<ExchangeRateService> _logger;
 
-        private static readonly string[] SupportedCurrencies =
-            { "MAD", "USD", "EUR", "JPY", "KRW", "CNY", "GBP" };
+        private static readonly string[] SupportedCurrencies = clsSupportedCurrencies.All;
         public ExchangeRateService(IExchangeRateApiAdapter adapter, IExchangeRateRepo dal, ILogger<ExchangeRateService> logger)
         {
             _adapter = adapter;

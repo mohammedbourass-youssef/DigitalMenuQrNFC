@@ -1,95 +1,129 @@
+import { memo, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Clock, Table2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import { formatMoney, formatTime } from "@/lib/orderBoardUtils";
-import type { BoardOrderItem } from "@/types";
+import { formatPrice } from "@/lib/orderBoardUtils";
+import type { OrderSummaryDto } from "@/types/orders";
 
-const MAX_VISIBLE_ITEMS = 4;
+const MAX_VISIBLE_LINES = 3;
 
-export function OrderCardView({
+export interface OrderCardViewProps {
+  order: OrderSummaryDto;
+  language: string;
+  currency: string;
+  dimmed?: boolean;
+  /** Briefly highlight a card that just arrived from the hub. */
+  highlight?: boolean;
+}
+
+/** Presentational card, also reused inside the drag overlay. */
+export const OrderCardView = memo(function OrderCardView({
   order,
   language,
+  currency,
   dimmed = false,
-}: {
-  order: BoardOrderItem;
-  language: string;
-  dimmed?: boolean;
-}) {
+  highlight = false,
+}: OrderCardViewProps) {
   const { t } = useTranslation();
-  const visible = order.items.slice(0, MAX_VISIBLE_ITEMS);
-  const hiddenCount = order.items.length - visible.length;
+  const [expanded, setExpanded] = useState(false);
+
+  const isCollapsible = order.lines.length > MAX_VISIBLE_LINES;
+  const visible = expanded ? order.lines : order.lines.slice(0, MAX_VISIBLE_LINES);
+  const hidden = order.lines.length - visible.length;
 
   return (
     <div
-      className={`rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-opacity ${
+      className={`rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-opacity dark:border-slate-700 dark:bg-slate-900 ${
         dimmed ? "opacity-40" : ""
-      }`}
+      } ${highlight ? "animate-order-arrival" : ""}`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-bold text-slate-900">#{order.orderNumber}</span>
-        <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-          <Clock className="h-3 w-3" aria-hidden />
-          {formatTime(order.createdAt, language)}
+        <span className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+          #{order.orderNumber}
         </span>
-      </div>
-
-      <div className="mt-1.5 flex items-center gap-1.5 text-xs font-medium text-slate-500">
-        <Table2 className="h-3.5 w-3.5 text-slate-400" aria-hidden />
-        {order.tableName ?? t("orders.board.takeaway")}
+        <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">
+          {t("orders.board.table", { number: order.tableNumber })}
+        </span>
       </div>
 
       <ul className="mt-2 space-y-1">
         {visible.map((line) => (
-          <li
-            key={`${order.id}-${line.name}-${line.quantity}`}
-            className="flex items-baseline justify-between gap-2 text-xs text-slate-600"
-          >
-            <span className="truncate">
-              <span className="font-semibold text-slate-700">{line.quantity}×</span>{" "}
+          <li key={line.id} className="flex items-baseline justify-between gap-2 text-xs">
+            <span className="min-w-0 truncate text-slate-600 dark:text-slate-300">
+              <span className="font-semibold text-slate-700 dark:text-slate-200">
+                {line.quantity} ×
+              </span>{" "}
               {line.name}
             </span>
-            <span className="shrink-0 tabular-nums text-slate-500">
-              {formatMoney(line.lineTotal, language, order.currencyCode)}
+            <span className="shrink-0 tabular-nums text-slate-500 dark:text-slate-400">
+              {formatPrice(line.totalPrice, language, currency)}
             </span>
           </li>
         ))}
-        {hiddenCount > 0 && (
-          <li className="text-xs text-slate-400">
-            {t("orders.board.moreItems", { count: hiddenCount })}
-          </li>
-        )}
       </ul>
 
-      <div className="mt-2.5 flex items-center justify-between border-t border-slate-100 pt-2">
-        <span className="text-xs font-medium text-slate-500">{t("orders.board.total")}</span>
-        <span className="text-sm font-bold text-slate-900">
-          {formatMoney(order.total, language, order.currencyCode)}
+      {isCollapsible && (
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          aria-expanded={expanded}
+          className="mt-1.5 rounded text-xs font-medium text-orange-600 transition hover:text-orange-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 dark:text-orange-400 dark:hover:text-orange-300"
+        >
+          {expanded
+            ? t("orders.board.showLess")
+            : t("orders.board.moreLines", { count: hidden })}
+        </button>
+      )}
+
+      <div className="mt-2 flex items-center justify-between gap-2 border-t border-slate-100 pt-2 dark:border-slate-800">
+        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+          {t("orders.board.total")}
+        </span>
+        <span className="shrink-0 text-sm font-bold text-slate-900 dark:text-slate-100">
+          {formatPrice(order.totalPrice, language, currency)}
         </span>
       </div>
     </div>
   );
-}
+});
 
 interface OrderCardProps {
-  order: BoardOrderItem;
+  order: OrderSummaryDto;
   language: string;
-  isActive?: boolean;
+  currency: string;
+  statusId: number;
+  isDragging: boolean;
+  /** True while this order's status change is still in flight. */
+  disabled?: boolean;
+  /** True right after the order arrived over the hub. */
+  isNew?: boolean;
 }
 
-export function OrderCard({ order, language, isActive = false }: OrderCardProps) {
+export const OrderCard = memo(function OrderCard({
+  order,
+  language,
+  currency,
+  statusId,
+  isDragging,
+  disabled = false,
+  isNew = false,
+}: OrderCardProps) {
   const {
     attributes,
     listeners,
     setNodeRef,
     transform,
     transition,
-    isDragging,
+    isDragging: sortableDragging,
   } = useSortable({
-    id: order.id,
-    data: { type: "card", statusKey: String(order.statusId) },
+    id: order.orderId,
+    data: { type: "card", statusId },
+    // Keeps a second drag from starting while the move is pending.
+    disabled,
   });
+
+  const dimmed = isDragging || sortableDragging;
 
   return (
     <div
@@ -97,14 +131,23 @@ export function OrderCard({ order, language, isActive = false }: OrderCardProps)
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        zIndex: isDragging ? 20 : undefined,
+        zIndex: dimmed ? 20 : undefined,
       }}
       {...attributes}
       {...listeners}
-      className="cursor-grab touch-none select-none outline-none active:cursor-grabbing focus-visible:ring-2 focus-visible:ring-orange-500"
-      aria-label={`#${order.orderNumber}${order.tableName ? `, ${order.tableName}` : ""}`}
+      aria-label={`#${order.orderNumber}, ${order.tableNumber}`}
+      aria-busy={disabled || undefined}
+      className={`touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${
+        disabled ? "cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
+      }`}
     >
-      <OrderCardView order={order} language={language} dimmed={isActive} />
+      <OrderCardView
+        order={order}
+        language={language}
+        currency={currency}
+        dimmed={dimmed}
+        highlight={isNew}
+      />
     </div>
   );
-}
+});

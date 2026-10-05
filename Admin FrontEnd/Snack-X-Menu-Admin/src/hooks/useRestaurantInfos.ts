@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { getMyRestaurantInfos } from '@/services/restaurantService';
+import { hasStoredCurrency, isSupportedCurrency, setCurrency } from '@/lib/preferences';
 import type { MyRestaurantInfosResponse } from '@/types';
 
 interface UseRestaurantInfosReturn {
@@ -30,6 +31,17 @@ export function useRestaurantInfos(): UseRestaurantInfosReturn {
   useEffect(() => {
     void fetchData();
   }, [fetchData]);
+
+  // Seed the X-Currency preference from the restaurant account (once), so every
+  // later request is converted to the currency this tenant actually uses.
+  // An unsupported code is ignored rather than persisted as the fallback,
+  // otherwise the default would be frozen into storage and never re-evaluated.
+  useEffect(() => {
+    const code = data?.currencyCode?.trim();
+    if (code && !hasStoredCurrency() && isSupportedCurrency(code)) {
+      setCurrency(code);
+    }
+  }, [data]);
 
   return { data, isLoading, error, refetch: fetchData };
 }
