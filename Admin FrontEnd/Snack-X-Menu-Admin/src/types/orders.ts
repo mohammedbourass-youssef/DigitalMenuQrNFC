@@ -11,6 +11,15 @@ export interface OrderSummaryDto {
   orderNumber: number;
   tableNumber: number;
   totalPrice: number;
+  /**
+   * Whether the order is fully paid.
+   *
+   * Note: the board endpoint and the `NewOrderReceived` hub event are both
+   * expected to send this flag. The UI only ever renders it on a strict `true`,
+   * so a response that still omits the field shows nothing rather than
+   * mislabelling an order.
+   */
+  isPaid: boolean;
   lines: OrderLineDto[];
 }
 

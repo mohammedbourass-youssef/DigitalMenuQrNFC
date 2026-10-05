@@ -312,6 +312,8 @@
       "dragHint": "اسحب البطاقات لتغيير الحالة",
       "noOrders": "لا توجد طلبات",
       "total": "الإجمالي",
+      "paid": "مدفوعة",
+      "unpaid": "غير مدفوعة",
       "table": "طاولة {{number}}",
       "moreLines_one": "+{{count}} سطر إضافي",
       "moreLines_other": "+{{count}} أسطر إضافية",

@@ -312,6 +312,8 @@
       "dragHint": "Drag cards to change status",
       "noOrders": "No orders",
       "total": "Total",
+      "paid": "Paid",
+      "unpaid": "Unpaid",
       "table": "Table {{number}}",
       "moreLines_one": "+{{count}} more line",
       "moreLines_other": "+{{count}} more lines",

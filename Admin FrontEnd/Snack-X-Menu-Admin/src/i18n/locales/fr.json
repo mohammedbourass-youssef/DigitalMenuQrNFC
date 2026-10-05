@@ -312,6 +312,8 @@
       "dragHint": "Faites glisser les cartes pour changer de statut",
       "noOrders": "Aucune commande",
       "total": "Total",
+      "paid": "Payée",
+      "unpaid": "Impayée",
       "table": "Table {{number}}",
       "moreLines_one": "+{{count}} article de plus",
       "moreLines_other": "+{{count}} articles de plus",

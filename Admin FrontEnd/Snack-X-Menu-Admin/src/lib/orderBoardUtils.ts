@@ -220,9 +220,31 @@ export function collectOrderIds(columns: OrderStatusColumnDto[]): Set<string> {
  * Client-side filtering (never triggers a request)
  * ------------------------------------------------------------------ */
 
-export function orderMatchesQuery(order: OrderSummaryDto, query: string): boolean {
-  const q = query.trim().toLowerCase();
+/** Localized labels used to search by payment state. */
+export interface PaidSearchLabels {
+  paid: string;
+  unpaid: string;
+}
+
+const normalize = (value: string): string => value.trim().toLowerCase();
+
+export function orderMatchesQuery(
+  order: OrderSummaryDto,
+  query: string,
+  labels?: PaidSearchLabels
+): boolean {
+  const q = normalize(query);
   if (!q) return true;
+
+  if (labels) {
+    const paid = normalize(labels.paid);
+    const unpaid = normalize(labels.unpaid);
+    // "unpaid" contains "paid", so it has to be tested first, otherwise
+    // searching for "unpaid" would also match paid orders.
+    if (unpaid && q === unpaid) return order.isPaid !== true;
+    if (paid && q === paid) return order.isPaid === true;
+  }
+
   return (
     String(order.orderNumber).includes(q) ||
     String(order.tableNumber).includes(q) ||
@@ -236,11 +258,12 @@ export function orderMatchesQuery(order: OrderSummaryDto, query: string): boolea
  */
 export function filterColumns(
   columns: OrderStatusColumnDto[],
-  query: string
+  query: string,
+  labels?: PaidSearchLabels
 ): OrderStatusColumnDto[] {
   if (query.trim() === "") return columns;
   return columns.map((column) => {
-    const orders = column.orders.filter((order) => orderMatchesQuery(order, query));
+    const orders = column.orders.filter((order) => orderMatchesQuery(order, query, labels));
     // Columns the search does not touch keep their reference so React.memo
     // can skip them while typing.
     if (orders.length === column.orders.length) return column;

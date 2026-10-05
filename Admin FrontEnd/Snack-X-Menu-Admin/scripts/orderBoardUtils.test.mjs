@@ -25,8 +25,8 @@ function line(id, name, quantity, totalPrice) {
   return { id, name, quantity, unitPrice: totalPrice / quantity, totalPrice };
 }
 
-function order(orderId, orderNumber, tableNumber, totalPrice, lines = []) {
-  return { orderId, orderNumber, tableNumber, totalPrice, lines };
+function order(orderId, orderNumber, tableNumber, totalPrice, lines = [], isPaid = false) {
+  return { orderId, orderNumber, tableNumber, totalPrice, isPaid, lines };
 }
 
 function column(statusId, statusName, totalOrders, orders) {
@@ -158,6 +158,46 @@ test("filterColumns keeps empty columns and the server counts", () => {
   assert.equal(filterColumns(columns, "  "), columns);
   assert.equal(orderMatchesQuery(b, "  "), true);
   assert.equal(orderMatchesQuery(b, "nope"), false);
+});
+
+test("search matches the localized paid and unpaid labels", () => {
+  const labels = { paid: "Paid", unpaid: "Unpaid" };
+  const paidOrder = order("p", 10, 1, 20, [], true);
+  const unpaidOrder = order("u", 11, 2, 20, [], false);
+  const columns = [column(2, "Preparing", 2, [paidOrder, unpaidOrder])];
+
+  assert.deepEqual(filterColumns(columns, "Paid", labels)[0].orders.map((o) => o.orderId), ["p"]);
+  assert.deepEqual(filterColumns(columns, "unpaid", labels)[0].orders.map((o) => o.orderId), ["u"]);
+  // Case and surrounding whitespace must not matter.
+  assert.deepEqual(filterColumns(columns, "  UNPAID  ", labels)[0].orders.map((o) => o.orderId), ["u"]);
+
+  // "unpaid" contains "paid": the longer label has to win, otherwise every
+  // paid order would also show up when searching for unpaid ones.
+  assert.equal(orderMatchesQuery(paidOrder, "unpaid", labels), false);
+  assert.equal(orderMatchesQuery(unpaidOrder, "paid", labels), false);
+  assert.equal(orderMatchesQuery(paidOrder, "paid", labels), true);
+  assert.equal(orderMatchesQuery(unpaidOrder, "unpaid", labels), true);
+
+  // Without labels the paid keywords are not special and fall through to the
+  // normal number/line matching, so existing behaviour is untouched.
+  assert.equal(orderMatchesQuery(paidOrder, "10", undefined), true);
+  assert.equal(orderMatchesQuery(paidOrder, "zzz", undefined), false);
+
+  // A non-latin locale works the same way.
+  const arabic = { paid: "مدفوعة", unpaid: "غير مدفوعة" };
+  assert.deepEqual(filterColumns(columns, "مدفوعة", arabic)[0].orders.map((o) => o.orderId), ["p"]);
+  assert.deepEqual(filterColumns(columns, "غير مدفوعة", arabic)[0].orders.map((o) => o.orderId), [
+    "u",
+  ]);
+});
+
+test("an order that is not paid is never reported as paid", () => {
+  // The API is expected to send the flag, but a response predating it must
+  // not be mistaken for a paid order.
+  const missing = { orderId: "m", orderNumber: 5, tableNumber: 3, totalPrice: 9, lines: [] };
+  assert.equal(orderMatchesQuery(missing, "paid", { paid: "Paid", unpaid: "Unpaid" }), false);
+  assert.equal(orderMatchesQuery(missing, "unpaid", { paid: "Paid", unpaid: "Unpaid" }), true);
+  assert.equal(orderMatchesQuery(missing, "5", undefined), true);
 });
 
 test("formatPrice always renders two decimals and never throws", () => {

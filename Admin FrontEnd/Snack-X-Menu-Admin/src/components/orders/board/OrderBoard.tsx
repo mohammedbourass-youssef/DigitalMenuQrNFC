@@ -62,8 +62,14 @@ export function OrderBoard({ board }: { board: UseCurrentOrdersReturn }) {
   );
 
   const visibleColumns = useMemo(
-    () => (board.columns ? filterColumns(board.columns, search) : []),
-    [board.columns, search]
+    () =>
+      board.columns
+        ? filterColumns(board.columns, search, {
+            paid: t("orders.board.paid"),
+            unpaid: t("orders.board.unpaid"),
+          })
+        : [],
+    [board.columns, search, t]
   );
 
   const resetDrag = useCallback(() => {

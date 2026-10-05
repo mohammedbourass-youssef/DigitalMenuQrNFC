@@ -2,11 +2,18 @@ import { memo, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useTranslation } from "react-i18next";
+import { Check, Clock } from "lucide-react";
 
 import { formatPrice } from "@/lib/orderBoardUtils";
 import type { OrderSummaryDto } from "@/types/orders";
 
 const MAX_VISIBLE_LINES = 3;
+
+const CHIP_BASE =
+  "inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide";
+/** Paid is the loud state; unpaid stays muted so paid cards draw the eye. */
+const PAID_CHIP_CLASS = `${CHIP_BASE} bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400`;
+const UNPAID_CHIP_CLASS = `${CHIP_BASE} bg-slate-100 text-slate-500 dark:bg-slate-700/60 dark:text-slate-400`;
 
 export interface OrderCardViewProps {
   order: OrderSummaryDto;
@@ -32,16 +39,39 @@ export const OrderCardView = memo(function OrderCardView({
   const visible = expanded ? order.lines : order.lines.slice(0, MAX_VISIBLE_LINES);
   const hidden = order.lines.length - visible.length;
 
+  // Only one opacity utility may be applied: Tailwind gives them equal
+  // specificity, so `opacity-40` and `opacity-80` would fight over the
+  // cascade order in the generated stylesheet. Dragging wins over payment.
+  const opacityState = dimmed
+    ? "opacity-40"
+    : order.isPaid === true
+      ? ""
+      : "opacity-80 hover:opacity-100";
+
   return (
     <div
-      className={`rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-opacity dark:border-slate-700 dark:bg-slate-900 ${
-        dimmed ? "opacity-40" : ""
-      } ${highlight ? "animate-order-arrival" : ""}`}
+      className={`rounded-xl border border-slate-200 bg-white p-3 shadow-sm transition-opacity dark:border-slate-700 dark:bg-slate-900 ${opacityState} ${
+        highlight ? "animate-order-arrival" : ""
+      }`}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
-          #{order.orderNumber}
-        </span>
+        <div className="flex min-w-0 items-center gap-1.5">
+          <span className="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
+            #{order.orderNumber}
+          </span>
+          {order.isPaid === true && (
+            <span className={PAID_CHIP_CLASS}>
+              <Check className="h-2.5 w-2.5" aria-hidden />
+              {t("orders.board.paid")}
+            </span>
+          )}
+          {order.isPaid === false && (
+            <span className={UNPAID_CHIP_CLASS}>
+              <Clock className="h-2.5 w-2.5" aria-hidden />
+              {t("orders.board.unpaid")}
+            </span>
+          )}
+        </div>
         <span className="shrink-0 text-xs font-medium text-slate-500 dark:text-slate-400">
           {t("orders.board.table", { number: order.tableNumber })}
         </span>
