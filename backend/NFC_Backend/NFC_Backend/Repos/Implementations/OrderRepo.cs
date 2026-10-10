@@ -278,10 +278,10 @@ namespace NFC_Backend.Repos.Implementations
                     IsSystem = x.IsSystem,
 
                     TotalOrders = _dbContextContext.Orders
-                        .Count(o => o.TenantId == tenantId && o.StatusId == x.Id),
+                        .Count(o => o.TenantId == tenantId && o.StatusId == x.Id &&   o.CreatedAt.Date == DateTime.UtcNow.Date),
 
                     Orders = _dbContextContext.Orders
-                        .Where(o => o.TenantId == tenantId && o.StatusId == x.Id)
+                        .Where(o => o.TenantId == tenantId && o.StatusId == x.Id && o.CreatedAt.Date == DateTime.UtcNow.Date)
                         .OrderByDescending(o => o.CreatedAt)   // adjust to your column
                         .Select(o => new
                         {
@@ -303,6 +303,11 @@ namespace NFC_Backend.Repos.Implementations
                                 .Where(t => t.Id == r.Order.TableId)
                                 .Select(t => t.Number)
                                 .FirstOrDefault(),
+                            // PaymentStatus is the only field the payment flow
+                            // actually maintains (PaidAmount/PaidAt are never
+                            // written), so the status code decides this.
+                            // "partial" and "refunded" are both not paid.
+                            IsPaid = r.Order.PaymentStatus.Code == PaymentStatusCodes.Paid,
                             Lines = r.Order.Items.Select(item => new OrderLineItemDto
                             {
                                 Id = item.Id,

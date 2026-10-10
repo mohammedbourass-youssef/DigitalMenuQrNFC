@@ -1,51 +1,56 @@
 {
-  "orderPayment": {
-    "button": "Informazioni di pagamento",
-    "title": "Informazioni di pagamento",
-    "description": "Dettagli dell'ordine e importo dovuto",
-    "copyId": "Copia l'id dell'ordine",
-    "copied": "Copiato",
-    "close": "Chiudi",
-    "discard": "Chiudi",
-    "generateInvoice": "Genera fattura",
-    "orderId": "Id ordine",
-    "orderNumber": "Numero ordine",
-    "tableNumber": "Tavolo",
-    "status": {
-      "unpaid": "Non pagato",
-      "partial": "Parzialmente pagato",
-      "paid": "Pagato",
-      "refunded": "Rimborsato"
-    },
-    "items": {
-      "title": "Voci",
-      "column": {
-        "item": "Voce",
-        "quantity": "Qtà",
-        "unitPrice": "Prezzo unitario",
-        "lineTotal": "Totale"
-      }
-    },
-    "totals": {
-      "total": "Totale",
-      "paid": "Importo pagato",
-      "due": "Importo dovuto"
-    },
-    "payment": {
-      "section": "Pagamento",
-      "method": "Metodo di pagamento",
-      "methodPlaceholder": "Seleziona un metodo di pagamento",
-      "methodsLoading": "Caricamento dei metodi di pagamento…",
-      "methodsError": "Impossibile caricare i metodi di pagamento",
-      "retry": "Riprova",
-      "methodsEmpty": "Nessun metodo di pagamento attivo.",
-      "methodsEmptyLink": "Vai ai metodi di pagamento",
-      "amount": "Importo da pagare",
-      "amountDueHint": "È quanto resta da pagare per questo ordine.",
-      "amountRequired": "Inserisci un importo maggiore di 0.",
-      "amountTooHigh": "L'importo non può superare l'importo dovuto ({{due}}).",
-      "confirm": "Paga",
-      "pendingEndpoint": "La registrazione di un pagamento e la generazione di una fattura non sono ancora disponibili: gli endpoint del backend non esistono, quindi qui non viene registrato nulla."
-    }
-  }
+    "orderPayment":  {
+                         "button":  "Informazioni di pagamento",
+                         "title":  "Informazioni di pagamento",
+                         "description":  "Dettagli dell\u0027ordine e importo dovuto",
+                         "copyId":  "Copia l\u0027id dell\u0027ordine",
+                         "copied":  "Copiato",
+                         "close":  "Chiudi",
+                         "discard":  "Chiudi",
+                         "orderId":  "Id ordine",
+                         "orderNumber":  "Numero ordine",
+                         "tableNumber":  "Tavolo",
+                         "status":  {
+                                        "unpaid":  "Non pagato",
+                                        "partial":  "Parzialmente pagato",
+                                        "paid":  "Pagato",
+                                        "refunded":  "Rimborsato"
+                                    },
+                         "items":  {
+                                       "title":  "Voci",
+                                       "column":  {
+                                                      "item":  "Voce",
+                                                      "quantity":  "QtÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â ",
+                                                      "unitPrice":  "Prezzo unitario",
+                                                      "lineTotal":  "Totale"
+                                                  }
+                                   },
+                         "totals":  {
+                                        "total":  "Totale",
+                                        "paid":  "Importo pagato",
+                                        "due":  "Importo dovuto"
+                                    },
+                         "payment":  {
+                                         "section":  "Pagamento",
+                                         "method":  "Metodo di pagamento",
+                                         "methodPlaceholder":  "Seleziona un metodo di pagamento",
+                                         "methodsLoading":  "Caricamento dei metodi di pagamentoÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦",
+                                         "methodsError":  "Impossibile caricare i metodi di pagamento",
+                                         "retry":  "Riprova",
+                                         "methodsEmpty":  "Nessun metodo di pagamento attivo.",
+                                         "methodsEmptyLink":  "Vai ai metodi di pagamento",
+                                         "amount":  "Importo da pagare",
+                                         "amountDueHint":  "ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â¹ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â  quanto resta da pagare per questo ordine.",
+                                         "amountRequired":  "Inserisci un importo maggiore di 0.",
+                                         "amountTooHigh":  "L\u0027importo non puÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â² superare l\u0027importo dovuto ({{due}}).",
+                                         "receiptNote":  "Generate a simple PDF receipt for this order locally on this device. No payment is recorded and no invoice is created on the server.",
+                                         "pay":  "Pay",
+                                         "noEndpoint":  "Payment endpoint is not available yet.",
+                                         "error":  "Payment failed. Please try again."
+                                     },
+                         "generateReceipt":  "Generate Receipt"
+                     },
+    "sidebar":  {
+
+                }
 }

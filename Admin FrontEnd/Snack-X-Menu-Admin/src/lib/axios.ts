@@ -15,9 +15,33 @@ const axiosInstance = axios.create({
   },
 });
 
-// Read on every request (not in create defaults) so a language/currency change
-// is picked up immediately, including for the /auth/refresh retry.
+// ---- /auth/me guard -------------------------------------------------------
+// true  -> /auth/me is allowed
+// false -> /auth/me already failed (refresh failed too); don't call it again
+// Kept in memory on purpose: a page reload gives the app one fresh attempt.
+let meAllowed = true;
+
+export const isMeAllowed = () => meAllowed;
+export const resetMeGuard = () => {
+  meAllowed = true;
+};
+
+const isMeUrl = (url?: string) => !!url && url.includes('/auth/me');
+
+const redirectToLogin = () => {
+  // Avoid a reload loop when we're already on the login page
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login';
+  }
+};
+// ---------------------------------------------------------------------------
+
 axiosInstance.interceptors.request.use((config) => {
+  // Block /auth/me while the guard is closed
+  if (isMeUrl(config.url) && !meAllowed) {
+    return Promise.reject(new axios.CanceledError('auth/me blocked after failed refresh'));
+  }
+
   // Never leak these to a third-party host if an absolute URL is ever passed.
   if (config.url && /^https?:\/\//i.test(config.url)) {
     try {
@@ -38,33 +62,52 @@ let isRefreshing = false;
 let failedQueue: Array<{ resolve: Function; reject: Function }> = [];
 
 const processQueue = (error: any) => {
-  failedQueue.forEach(p => error ? p.reject(error) : p.resolve(null));
+  failedQueue.forEach(p => (error ? p.reject(error) : p.resolve(null)));
   failedQueue = [];
 };
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const url = response.config.url || '';
+    // Successful me / login / refresh => session is good, re-open the guard
+    if (
+      isMeUrl(url) ||
+      url.includes('/auth/login') ||
+      url.includes('/auth/refresh')
+    ) {
+      meAllowed = true;
+    }
+    return response;
+  },
   async (error) => {
+    // Our own blocked-me cancel, or an error without config: pass through
+    if (axios.isCancel(error) || !error.config) {
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
     const url = originalRequest.url || '';
 
     if (url.includes('/auth/refresh')) {
+      meAllowed = false; // refresh failed => stop calling /auth/me
       isRefreshing = false;
       processQueue(error);
-      window.location.href = '/login';
+      redirectToLogin();
       return Promise.reject(error);
     }
 
-    // Skip interceptor for these endpoints
-    if (
-      url.includes('/auth/login') ||
-      url.includes('/auth/logout') ||
-      url.includes('/auth/me')
-    ) {
+    // Skip interceptor for these endpoints (/auth/me is no longer here)
+    if (url.includes('/auth/login') || url.includes('/auth/logout')) {
       return Promise.reject(error);
     }
 
-    // For all other 401s → try refresh once
+    // /auth/me failed again after its retry => close the guard
+    if (isMeUrl(url) && error.response?.status === 401 && originalRequest._retry) {
+      meAllowed = false;
+      return Promise.reject(error);
+    }
+
+    // For all other 401s (including /auth/me) → try refresh once
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
@@ -80,11 +123,13 @@ axiosInstance.interceptors.response.use(
 
       try {
         await axiosInstance.post('/auth/refresh', {}, { withCredentials: true });
+        meAllowed = true; // correct refresh => re-open the guard
         processQueue(null);
         return axiosInstance(originalRequest);
       } catch (refreshError) {
+        meAllowed = false;
         processQueue(refreshError);
-        window.location.href = '/login';
+        redirectToLogin();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

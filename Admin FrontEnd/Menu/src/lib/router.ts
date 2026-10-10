@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
  * does this by default.
  */
 
-export type Route = '/' | '/order';
+export type Route = '/' | '/order' | '/ticket';
 
 function currentPath(): string {
   // `base` is injected by Vite so the app also works when served from a

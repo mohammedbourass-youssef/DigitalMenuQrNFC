@@ -17,12 +17,12 @@ namespace NFC_Backend.Services
             _logger = logger;
         }
 
-        public async Task SendNotificationOnOrderCreated(int orderId, CancellationToken ct = default)
+        public async Task SendNotificationOnOrderCreated(int orderId,Guid tenantId ,CancellationToken ct = default)
         {
             try
             {
                 await _hub.Clients
-                    .Group(NotificationHub.OrdersGroup)   // only subscribed clients
+                    .Group(HubsHelpers.TenantGroup(tenantId.ToString()))   // only subscribed clients
                     .SendAsync("ReceiveNotification", new
                     {
                         Message = "New Order Created",

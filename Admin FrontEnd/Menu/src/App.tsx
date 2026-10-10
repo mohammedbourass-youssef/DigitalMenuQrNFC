@@ -28,6 +28,9 @@ const MenuItemDetailSheet = lazy(() =>
 const CartBottomSheet = lazy(() =>
   import('@/components/CartBottomSheet').then((m) => ({ default: m.CartBottomSheet })),
 );
+const OrderTicketPage = lazy(() =>
+  import('@/pages/OrderTicketPage').then((m) => ({ default: m.OrderTicketPage })),
+);
 const OrderTrackingPage = lazy(() =>
   import('@/pages/OrderTrackingPage').then((m) => ({ default: m.OrderTrackingPage })),
 );
@@ -218,18 +221,28 @@ function MenuApp() {
     return <InvalidTableScreen onContinue={dismissInvalid} />;
   }
 
-  if (route === '/order') {
-    return (
-      <div className="relative flex h-full flex-col overflow-hidden bg-gray-50">
-        {/* The session has no order (cleared, or 404/403 from the API). Spec is
+if (route === '/order') {
+        return (
+          <div className="relative flex h-full flex-col overflow-hidden bg-gray-50">
+            {/* The session has no order (cleared, or 404/403 from the API). Spec is
             to return to the menu rather than sit on a dead /order URL. */}
-        <ReturnToMenu />
-        <Suspense fallback={null}>
-          <OrderTrackingPage />
-        </Suspense>
-      </div>
-    );
-  }
+            <ReturnToMenu />
+            <Suspense fallback={null}>
+              <OrderTrackingPage />
+            </Suspense>
+          </div>
+        );
+      }
+      if (route === '/ticket') {
+        return (
+          <div className="relative flex h-full flex-col overflow-hidden bg-gray-50">
+            <ReturnToMenu />
+            <Suspense fallback={null}>
+              <OrderTicketPage />
+            </Suspense>
+          </div>
+        );
+      }
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-gray-50">

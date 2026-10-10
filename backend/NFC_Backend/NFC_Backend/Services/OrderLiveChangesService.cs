@@ -19,12 +19,12 @@ namespace NFC_Backend.Services
             _logger = logger;
         }
 
-        public async Task SendNewOrderAsync(OrderSummaryStatusDto order, CancellationToken ct = default)
+        public async Task SendNewOrderAsync(OrderSummaryStatusDto order, Guid tenantId, CancellationToken ct = default)
         {
             try
             {
                 await _hub.Clients
-                    .Group(OrderLiveChangesHub.OrderTrackingGroup)
+                    .Group(HubsHelpers.TenantGroup(tenantId.ToString()))   // only subscribed clients
                     .SendAsync(NewOrderEvent, order, ct);
             }
             catch (Exception ex)

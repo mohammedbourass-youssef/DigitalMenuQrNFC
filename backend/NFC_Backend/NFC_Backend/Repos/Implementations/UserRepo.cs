@@ -130,8 +130,7 @@ namespace NFC_Backend.Repos.Implementations
                 v.VerificationsStatus = VerificationStatus.Replaced;
             }
 
-            var code = Random.Shared.Next(0, 1000000);
-
+            var code = Random.Shared.Next(100000, 1000000);
             var verification = new VerificationCode
             {
                 UserId = userId,

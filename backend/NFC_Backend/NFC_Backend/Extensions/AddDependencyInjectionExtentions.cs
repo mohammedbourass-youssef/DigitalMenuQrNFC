@@ -9,6 +9,8 @@ namespace NFC_Backend.Extensions
 {
     public static class AddDependencyInjectionExtentions
     {
+
+      
         public static IServiceCollection AddDependencyInjection(this IServiceCollection services , IConfiguration configuration)
         {
             //Repos 
@@ -20,7 +22,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<ISessionsRepository, SessionsRepository>();
             services.AddScoped<ITableRepo, TableRepo>();
             services.AddScoped<IOrderRepo, OrderRepo>();
-
+            services.AddScoped<IPaymentMethodsRepo, PaymentMethodsRepo>();
             //Services
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IFileStorageService, MinioFileStorageService>();
@@ -29,6 +31,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<ICategoryTranslationService, CategoryTranslationService>();
             services.AddScoped<INotifcationService, NotifcationService>();
             services.AddScoped<IOrderLiveChangesService, OrderLiveChangesService>();
+            services.AddScoped<IPaymentStatusRepo, PaymentStatusRepo>();
 
 
             //Accesseurs
@@ -88,3 +91,4 @@ namespace NFC_Backend.Extensions
         }
     }
 }
+

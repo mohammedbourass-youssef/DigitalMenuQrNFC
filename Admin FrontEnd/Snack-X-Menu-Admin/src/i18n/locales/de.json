@@ -1,51 +1,56 @@
 {
-  "orderPayment": {
-    "button": "Zahlungsinformationen",
-    "title": "Zahlungsinformationen",
-    "description": "Bestelldetails und offener Betrag",
-    "copyId": "Bestell-ID kopieren",
-    "copied": "Kopiert",
-    "close": "Schließen",
-    "discard": "Schließen",
-    "generateInvoice": "Rechnung erstellen",
-    "orderId": "Bestell-ID",
-    "orderNumber": "Bestellnummer",
-    "tableNumber": "Tisch",
-    "status": {
-      "unpaid": "Unbezahlt",
-      "partial": "Teilweise bezahlt",
-      "paid": "Bezahlt",
-      "refunded": "Erstattet"
-    },
-    "items": {
-      "title": "Positionen",
-      "column": {
-        "item": "Artikel",
-        "quantity": "Menge",
-        "unitPrice": "Einzelpreis",
-        "lineTotal": "Gesamt"
-      }
-    },
-    "totals": {
-      "total": "Gesamt",
-      "paid": "Bezahlter Betrag",
-      "due": "Offener Betrag"
-    },
-    "payment": {
-      "section": "Zahlung",
-      "method": "Zahlungsart",
-      "methodPlaceholder": "Zahlungsart auswählen",
-      "methodsLoading": "Zahlungsarten werden geladen…",
-      "methodsError": "Die Zahlungsarten konnten nicht geladen werden",
-      "retry": "Erneut versuchen",
-      "methodsEmpty": "Es ist noch keine Zahlungsart aktiviert.",
-      "methodsEmptyLink": "Zu den Zahlungsarten",
-      "amount": "Zu zahlender Betrag",
-      "amountDueHint": "Das ist der offene Betrag dieser Bestellung.",
-      "amountRequired": "Bitte einen Betrag größer als 0 eingeben.",
-      "amountTooHigh": "Der Betrag darf nicht größer als der offene Betrag ({{due}}) sein.",
-      "confirm": "Bezahlen",
-      "pendingEndpoint": "Eine Zahlung zu erfassen und eine Rechnung zu erstellen sind noch nicht verfügbar: die Endpunkte im Backend existieren nicht, es wird daher nichts gespeichert."
-    }
-  }
+    "orderPayment":  {
+                         "button":  "Zahlungsinformationen",
+                         "title":  "Zahlungsinformationen",
+                         "description":  "Bestelldetails und offener Betrag",
+                         "copyId":  "Bestell-ID kopieren",
+                         "copied":  "Kopiert",
+                         "close":  "SchlieÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸en",
+                         "discard":  "SchlieÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸en",
+                         "orderId":  "Bestell-ID",
+                         "orderNumber":  "Bestellnummer",
+                         "tableNumber":  "Tisch",
+                         "status":  {
+                                        "unpaid":  "Unbezahlt",
+                                        "partial":  "Teilweise bezahlt",
+                                        "paid":  "Bezahlt",
+                                        "refunded":  "Erstattet"
+                                    },
+                         "items":  {
+                                       "title":  "Positionen",
+                                       "column":  {
+                                                      "item":  "Artikel",
+                                                      "quantity":  "Menge",
+                                                      "unitPrice":  "Einzelpreis",
+                                                      "lineTotal":  "Gesamt"
+                                                  }
+                                   },
+                         "totals":  {
+                                        "total":  "Gesamt",
+                                        "paid":  "Bezahlter Betrag",
+                                        "due":  "Offener Betrag"
+                                    },
+                         "payment":  {
+                                         "section":  "Zahlung",
+                                         "method":  "Zahlungsart",
+                                         "methodPlaceholder":  "Zahlungsart auswÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¤hlen",
+                                         "methodsLoading":  "Zahlungsarten werden geladenÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¦",
+                                         "methodsError":  "Die Zahlungsarten konnten nicht geladen werden",
+                                         "retry":  "Erneut versuchen",
+                                         "methodsEmpty":  "Es ist noch keine Zahlungsart aktiviert.",
+                                         "methodsEmptyLink":  "Zu den Zahlungsarten",
+                                         "amount":  "Zu zahlender Betrag",
+                                         "amountDueHint":  "Das ist der offene Betrag dieser Bestellung.",
+                                         "amountRequired":  "Bitte einen Betrag grÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¶ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸er als 0 eingeben.",
+                                         "amountTooHigh":  "Der Betrag darf nicht grÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¶ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¸er als der offene Betrag ({{due}}) sein.",
+                                         "receiptNote":  "Generate a simple PDF receipt for this order locally on this device. No payment is recorded and no invoice is created on the server.",
+                                         "pay":  "Pay",
+                                         "noEndpoint":  "Payment endpoint is not available yet.",
+                                         "error":  "Payment failed. Please try again."
+                                     },
+                         "generateReceipt":  "Generate Receipt"
+                     },
+    "sidebar":  {
+
+                }
 }

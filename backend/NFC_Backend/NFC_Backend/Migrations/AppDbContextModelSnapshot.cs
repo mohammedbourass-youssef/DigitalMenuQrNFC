@@ -227,6 +227,54 @@ namespace NFC_Backend.Migrations
                     b.ToTable("ExchangeRates");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Invoice", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("OrderTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PaidAmount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<int>("TenantPaymentMethodId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("TenantPaymentMethodId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("invoices", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Invoice_Amounts", "\"OrderTotal\" >= 0 AND \"PaidAmount\" >= 0");
+                        });
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuImage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -896,6 +944,369 @@ namespace NFC_Backend.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentMethod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("payment_methods", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Code = "CASH",
+                            Color = "#10B981",
+                            DisplayOrder = 1,
+                            Icon = "banknote",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "CARD",
+                            Color = "#3B82F6",
+                            DisplayOrder = 2,
+                            Icon = "credit-card",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "BANK_TRANSFER",
+                            Color = "#6366F1",
+                            DisplayOrder = 3,
+                            Icon = "landmark",
+                            IsActive = true
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Code = "MOBILE",
+                            Color = "#F59E0B",
+                            DisplayOrder = 4,
+                            Icon = "smartphone",
+                            IsActive = true
+                        });
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentMethodTranslation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Lang")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentMethodId", "Lang")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_PaymentMethodTranslation_Lang");
+
+                    b.ToTable("payment_method_translations", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Lang = "fr",
+                            Name = "Espèces",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Lang = "ar",
+                            Name = "نقدًا",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Lang = "en",
+                            Name = "Cash",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Lang = "es",
+                            Name = "Efectivo",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Lang = "it",
+                            Name = "Contanti",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Lang = "ja",
+                            Name = "現金",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Lang = "zh",
+                            Name = "现金",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Lang = "ko",
+                            Name = "현금",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Lang = "de",
+                            Name = "Bargeld",
+                            PaymentMethodId = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Lang = "fr",
+                            Name = "Carte bancaire",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Lang = "ar",
+                            Name = "بطاقة بنكية",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Lang = "en",
+                            Name = "Card",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Lang = "es",
+                            Name = "Tarjeta",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Lang = "it",
+                            Name = "Carta",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Lang = "ja",
+                            Name = "カード",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Lang = "zh",
+                            Name = "银行卡",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Lang = "ko",
+                            Name = "카드",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Lang = "de",
+                            Name = "Karte",
+                            PaymentMethodId = 2
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Lang = "fr",
+                            Name = "Virement bancaire",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Lang = "ar",
+                            Name = "تحويل بنكي",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Lang = "en",
+                            Name = "Bank transfer",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Lang = "es",
+                            Name = "Transferencia bancaria",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Lang = "it",
+                            Name = "Bonifico bancario",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Lang = "ja",
+                            Name = "銀行振込",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Lang = "zh",
+                            Name = "银行转账",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Lang = "ko",
+                            Name = "계좌이체",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Lang = "de",
+                            Name = "Banküberweisung",
+                            PaymentMethodId = 3
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Lang = "fr",
+                            Name = "Paiement mobile",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Lang = "ar",
+                            Name = "الدفع عبر الهاتف",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Lang = "en",
+                            Name = "Mobile payment",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Lang = "es",
+                            Name = "Pago móvil",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Lang = "it",
+                            Name = "Pagamento mobile",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Lang = "ja",
+                            Name = "モバイル決済",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Lang = "zh",
+                            Name = "移动支付",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Lang = "ko",
+                            Name = "모바일 결제",
+                            PaymentMethodId = 4
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Lang = "de",
+                            Name = "Mobile Zahlung",
+                            PaymentMethodId = 4
+                        });
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatus", b =>
                 {
                     b.Property<int>("Id")
@@ -921,6 +1332,9 @@ namespace NFC_Backend.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("IsSystem")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Code")
@@ -932,34 +1346,20 @@ namespace NFC_Backend.Migrations
                         new
                         {
                             Id = 1,
-                            Code = "unpaid",
+                            Code = "NotPaid",
                             Color = "#EF4444",
                             DisplayOrder = 1,
-                            IsActive = true
+                            IsActive = true,
+                            IsSystem = true
                         },
                         new
                         {
                             Id = 2,
-                            Code = "partial",
-                            Color = "#F59E0B",
-                            DisplayOrder = 2,
-                            IsActive = true
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Code = "paid",
+                            Code = "Paid",
                             Color = "#10B981",
                             DisplayOrder = 3,
-                            IsActive = true
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Code = "refunded",
-                            Color = "#6B7280",
-                            DisplayOrder = 4,
-                            IsActive = true
+                            IsActive = true,
+                            IsSystem = true
                         });
                 });
 
@@ -1060,190 +1460,64 @@ namespace NFC_Backend.Migrations
                         {
                             Id = 200,
                             Lang = "fr",
-                            Name = "Partiellement payée",
+                            Name = "Payée",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 201,
                             Lang = "ar",
-                            Name = "مدفوع جزئياً",
+                            Name = "مدفوع",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 202,
                             Lang = "en",
-                            Name = "Partially paid",
+                            Name = "Paid",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 203,
                             Lang = "es",
-                            Name = "Pago parcial",
+                            Name = "Pagado",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 204,
                             Lang = "it",
-                            Name = "Pagato parzialmente",
+                            Name = "Pagato",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 205,
                             Lang = "ja",
-                            Name = "一部支払済み",
+                            Name = "支払済み",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 206,
                             Lang = "zh",
-                            Name = "部分支付",
+                            Name = "已支付",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 207,
                             Lang = "ko",
-                            Name = "부분 결제",
+                            Name = "결제 완료",
                             PaymentStatusId = 2
                         },
                         new
                         {
                             Id = 208,
                             Lang = "de",
-                            Name = "Teilweise bezahlt",
-                            PaymentStatusId = 2
-                        },
-                        new
-                        {
-                            Id = 300,
-                            Lang = "fr",
-                            Name = "Payée",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 301,
-                            Lang = "ar",
-                            Name = "مدفوع",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 302,
-                            Lang = "en",
-                            Name = "Paid",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 303,
-                            Lang = "es",
-                            Name = "Pagado",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 304,
-                            Lang = "it",
-                            Name = "Pagato",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 305,
-                            Lang = "ja",
-                            Name = "支払済み",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 306,
-                            Lang = "zh",
-                            Name = "已支付",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 307,
-                            Lang = "ko",
-                            Name = "결제 완료",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 308,
-                            Lang = "de",
                             Name = "Bezahlt",
-                            PaymentStatusId = 3
-                        },
-                        new
-                        {
-                            Id = 400,
-                            Lang = "fr",
-                            Name = "Remboursée",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 401,
-                            Lang = "ar",
-                            Name = "مسترجع",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 402,
-                            Lang = "en",
-                            Name = "Refunded",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 403,
-                            Lang = "es",
-                            Name = "Reembolsado",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 404,
-                            Lang = "it",
-                            Name = "Rimborsato",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 405,
-                            Lang = "ja",
-                            Name = "返金済み",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 406,
-                            Lang = "zh",
-                            Name = "已退款",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 407,
-                            Lang = "ko",
-                            Name = "환불됨",
-                            PaymentStatusId = 4
-                        },
-                        new
-                        {
-                            Id = 408,
-                            Lang = "de",
-                            Name = "Erstattet",
-                            PaymentStatusId = 4
+                            PaymentStatusId = 2
                         });
                 });
 
@@ -1408,6 +1682,55 @@ namespace NFC_Backend.Migrations
                     b.ToTable("tenants", (string)null);
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.TenantPaymentMethod", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PaymentMethodId");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_TenantPaymentMethod_Default")
+                        .HasFilter("\"IsDefault\" = true");
+
+                    b.HasIndex("TenantId", "PaymentMethodId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_TenantPaymentMethod");
+
+                    b.ToTable("tenant_payment_methods", (string)null);
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1553,6 +1876,33 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Base");
 
                     b.Navigation("Target");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Invoice", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Order", "Order")
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.TenantPaymentMethod", "Method")
+                        .WithMany()
+                        .HasForeignKey("TenantPaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Method");
+
+                    b.Navigation("Order");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuImage", b =>
@@ -1709,6 +2059,17 @@ namespace NFC_Backend.Migrations
                     b.Navigation("OrderStatus");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentMethodTranslation", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.PaymentMethod", "PaymentMethod")
+                        .WithMany("Translations")
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PaymentMethod");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatusTranslation", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.PaymentStatus", "PaymentStatus")
@@ -1756,6 +2117,25 @@ namespace NFC_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Currency");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.TenantPaymentMethod", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.PaymentMethod", "PaymentMethod")
+                        .WithMany("TenantPaymentMethods")
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PaymentMethod");
+
+                    b.Navigation("Tenant");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
@@ -1807,6 +2187,13 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.OrderStatus", b =>
                 {
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentMethod", b =>
+                {
+                    b.Navigation("TenantPaymentMethods");
+
                     b.Navigation("Translations");
                 });
 

@@ -61,6 +61,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+if (args.Contains("--migrate-only", StringComparer.OrdinalIgnoreCase))
+{
+    await using var migrationScope = app.Services.CreateAsyncScope();
+    var dbContext = migrationScope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await dbContext.Database.MigrateAsync();
+    return;
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

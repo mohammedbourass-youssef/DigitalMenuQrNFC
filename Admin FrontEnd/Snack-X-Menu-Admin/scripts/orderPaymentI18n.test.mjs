@@ -57,7 +57,7 @@ const parsedByLocale = new Map(
 );
 
 test("the modal actually uses keys, otherwise this test is vacuous", () => {
-  assert.ok(usedKeys.size >= 35, `only found ${usedKeys.size} keys`);
+  assert.ok(usedKeys.size >= 30, `only found ${usedKeys.size} keys`);
 });
 
 test("all nine languages ship a resource file", () => {

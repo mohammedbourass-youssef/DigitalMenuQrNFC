@@ -2,9 +2,12 @@
 {
     public static class PaymentStatusCodes
     {
-        public const string Unpaid = "unpaid";
-        public const string Partial = "partial";
-        public const string Paid = "paid";
-        public const string Refunded = "refunded";
+        public const string Paid = "Paid";
+        public const string NotPaid = "NotPaid";
+
+        public static readonly string[] Protected = { Paid, NotPaid };
+
+        public static bool IsProtected(string code) =>
+            Protected.Contains(code, StringComparer.OrdinalIgnoreCase);
     }
 }

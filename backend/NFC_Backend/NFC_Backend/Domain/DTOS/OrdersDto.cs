@@ -122,6 +122,12 @@ namespace NFC_Backend.Domain.DTOS
         public int OrderNumber { get; set; }
         public int TableNumber { get; set; }
         public decimal TotalPrice { get; set; }
+
+        /// <summary>
+        /// True only when the order's PaymentStatus code is "paid".
+        /// Partial and refunded orders are NOT considered paid.
+        /// </summary>
+        public bool IsPaid { get; set; } = false;
         public IEnumerable<OrderLineItemDto> Lines { get; set; } = [];
     }
 

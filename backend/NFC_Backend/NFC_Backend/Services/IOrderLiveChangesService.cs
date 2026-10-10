@@ -4,6 +4,6 @@ namespace NFC_Backend.Services
 {
     public interface IOrderLiveChangesService
     {
-        Task SendNewOrderAsync(OrderSummaryStatusDto order, CancellationToken ct = default);
+        Task SendNewOrderAsync(OrderSummaryStatusDto order,Guid TenantId ,CancellationToken ct = default);
     }
 }

@@ -409,8 +409,8 @@ namespace NFC_Backend.Controllers
                     TotalPrice = order.Total,
                     Lines = await orderRepo.GetTrackingInfo(order.Id, languageAccessor.Current, currencyAccessor.Current, ct),
                 };
-                notifcationService.SendNotificationOnOrderCreated(1);
-                orderLiveChangesService.SendNewOrderAsync(summary, ct);
+                notifcationService.SendNotificationOnOrderCreated(1 , tenantId);
+                orderLiveChangesService.SendNewOrderAsync(summary, tenantId,ct);
                 logger.LogInformation("Order {OrderId} created. TenantId: {TenantId}", orderId, tenantId);
                 return Ok(trackingDto);
             }

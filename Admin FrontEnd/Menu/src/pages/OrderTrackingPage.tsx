@@ -9,6 +9,7 @@ import { OrderSummaryCard } from '@/components/OrderSummaryCard';
 import { OrderStatusBanner } from '@/components/OrderStatusBanner';
 import { formatTime } from '@/utils/dateTime';
 import { ArrowLeft, CirclePlus, Plus, RefreshCw } from 'lucide-react';
+import type { Route } from '@/lib/router';
 import type { CurrencyCode } from '@/lib/constants';
 import type { OrderTrackingView } from '@/types/order';
 
@@ -35,7 +36,6 @@ export function OrderTrackingPage() {
     refetch,
     isFinal,
     canAddItems,
-    startNewOrder,
   } = useSessionOrder();
 
   const pull = usePullToRefresh(refetch);
@@ -189,21 +189,21 @@ export function OrderTrackingPage() {
                 {t('addItemsToOrder')}
               </button>
             ) : (
-              // The server has closed the order. Nothing else can be added to it,
-              // so the only way forward is a genuinely new one.
-              <>
-                <p className="rounded-2xl bg-gray-100 px-4 py-3 text-center text-xs font-bold text-gray-500">
-                  {t('orderClosedCannotAdd')}
-                </p>
-                <button
-                  type="button"
-                  onClick={startNewOrder}
-                  className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-base font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
-                >
-                  <CirclePlus className="h-5 w-5" strokeWidth={2.5} />
-                  {t('newOrder')}
-                </button>
-              </>
+              <button
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (tracking.orderId) params.set('orderId', tracking.orderId);
+                  if (tracking.orderNumber) params.set('orderNumber', String(tracking.orderNumber));
+                  if (tracking.tableNumber) params.set('tableNumber', String(tracking.tableNumber));
+                  if (tracking.total != null) params.set('total', tracking.total.toFixed(2));
+                  navigate(`/ticket?${params.toString()}` as Route);
+                }}
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-base font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
+              >
+                <CirclePlus className="h-5 w-5" strokeWidth={2.5} />
+                {t('finishAndGetTicket')}
+              </button>
             )}
           </div>
         </div>

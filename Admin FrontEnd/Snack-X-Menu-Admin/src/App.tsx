@@ -27,10 +27,11 @@ import OrdersHistoryPage from '@/pages/OrdersHistory';
 import PaymentMethodsPage from '@/pages/PaymentMethods';
 import PaymentsComingSoonPage from '@/pages/PaymentsComingSoon';
 import PaymentsInvoicesPage from '@/pages/PaymentsInvoices';
+import PaymentStatusPage from '@/pages/PaymentsStatus';
 import SettingsPage from '@/pages/Settings';
 import TablesPage from '@/pages/Tables';
 import NotFound from '@/pages/not-found';
-import { PAYMENTS_COMING_SOON_ENTRY } from '@/components/layout/paymentsNav';
+import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'snackx.sidebar.collapsed';
 
@@ -117,7 +118,8 @@ function ProtectedLayout() {
               <Route path="/orders/status-settings" element={<OrderStatusSettingsPage />} />
               <Route path="/orders/history" element={<OrdersHistoryPage />} />
               <Route path="/nfc-tags" element={<NFCTagsPage />} />
-              <Route path="/payments/invoices" element={<PaymentsInvoicesPage />} />
+                <Route path="/payments/invoices" element={<PaymentsInvoicesPage />} />
+                <Route path={PAYMENT_STATUS_ENTRY.href} element={<PaymentStatusPage />} />
               {/* Owner-only: every PaymentMethods endpoint but /Enabled is. */}
               <Route
                 path="/payments/methods"
@@ -127,8 +129,8 @@ function ProtectedLayout() {
                   </ProtectedRoute>
                 }
               />
-              {/* Temporary entry - path is owned by PAYMENTS_COMING_SOON_ENTRY. */}
-              <Route path={PAYMENTS_COMING_SOON_ENTRY.href} element={<PaymentsComingSoonPage />} />
+                {/* Temporary entry - redirect to payment status. */}
+                <Route path={PAYMENTS_COMING_SOON_ENTRY.href} element={<Navigate to={PAYMENT_STATUS_ENTRY.href} replace />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

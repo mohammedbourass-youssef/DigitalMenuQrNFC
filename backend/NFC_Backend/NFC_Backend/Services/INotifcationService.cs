@@ -2,7 +2,7 @@
 {
     public interface INotifcationService
     {
-        Task SendNotificationOnOrderCreated(int orderId, CancellationToken ct = default);
+        public  Task SendNotificationOnOrderCreated(int orderId, Guid tenantId, CancellationToken ct = default);
 
     }
 }

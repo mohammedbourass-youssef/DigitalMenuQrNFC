@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 
 import { useSidebar } from '@/contexts/SidebarContext';
 import { DESKTOP_SIDEBAR_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
-import { PAYMENTS_COMING_SOON_ENTRY } from '@/components/layout/paymentsNav';
+import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
 
 type SidebarLink = {
   type: 'link';
@@ -61,11 +61,11 @@ const navItems: SidebarEntry[] = [
     children: [
       { href: '/payments/invoices', labelKey: 'sidebar.paymentsInvoices', icon: FileText },
       { href: '/payments/methods', labelKey: 'sidebar.paymentMethods', icon: CreditCard },
-      {
-        href: PAYMENTS_COMING_SOON_ENTRY.href,
-        labelKey: PAYMENTS_COMING_SOON_ENTRY.labelKey,
-        icon: PAYMENTS_COMING_SOON_ENTRY.icon,
-      },
+        {
+          href: PAYMENT_STATUS_ENTRY.href,
+          labelKey: PAYMENT_STATUS_ENTRY.labelKey,
+          icon: PAYMENT_STATUS_ENTRY.icon,
+        },
     ],
   },
   { type: 'link', href: '/nfc-tags', labelKey: 'sidebar.nfcTags', icon: Tags },

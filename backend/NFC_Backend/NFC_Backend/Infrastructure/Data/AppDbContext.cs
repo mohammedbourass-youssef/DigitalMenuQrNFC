@@ -32,6 +32,12 @@ namespace NFC_Backend.Infrastructure.Data
         public DbSet<PaymentStatus> PaymentStatuses { get; set; } = null!;
         public DbSet<PaymentStatusTranslation> PaymentStatusTranslations { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; }
+        // ── Payment methods ──────────────────────────────────────
+        public DbSet<PaymentMethod> PaymentMethods { get; set; } = null!;
+        public DbSet<PaymentMethodTranslation> PaymentMethodTranslations { get; set; } = null!;
+        public DbSet<TenantPaymentMethod> TenantPaymentMethods { get; set; } = null!;
+
+        public DbSet<Invoice> Invoices { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -391,10 +397,8 @@ namespace NFC_Backend.Infrastructure.Data
                 entity.HasIndex(s => s.Code).IsUnique();
 
                 entity.HasData(
-                    new PaymentStatus { Id = 1, Code = PaymentStatusCodes.Unpaid, Color = "#EF4444", DisplayOrder = 1, IsActive = true },
-                    new PaymentStatus { Id = 2, Code = PaymentStatusCodes.Partial, Color = "#F59E0B", DisplayOrder = 2, IsActive = true },
-                    new PaymentStatus { Id = 3, Code = PaymentStatusCodes.Paid, Color = "#10B981", DisplayOrder = 3, IsActive = true },
-                    new PaymentStatus { Id = 4, Code = PaymentStatusCodes.Refunded, Color = "#6B7280", DisplayOrder = 4, IsActive = true }
+                    new PaymentStatus { Id = 1, Code = PaymentStatusCodes.NotPaid,IsSystem = true , Color = "#EF4444", DisplayOrder = 1, IsActive = true },
+                    new PaymentStatus { Id = 2, Code = PaymentStatusCodes.Paid,IsSystem = true ,Color = "#10B981", DisplayOrder = 3, IsActive = true }
                 );
             });
 
@@ -530,6 +534,123 @@ namespace NFC_Backend.Infrastructure.Data
                 e.Property(n => n.Message).HasMaxLength(1000).IsRequired();
                 e.Property(n => n.Type).HasConversion<string>().HasMaxLength(50);
                 e.HasIndex(n => n.CreatedAt);
+            });
+            // ═════════════════════════════════════════════════════
+            //  PAYMENT METHODS  (Cash, Card, Bank transfer, Mobile)
+            // ═════════════════════════════════════════════════════
+            modelBuilder.Entity<PaymentMethod>(entity =>
+            {
+                entity.ToTable("payment_methods");
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.Code).HasMaxLength(30).IsRequired();
+                entity.Property(p => p.Color).HasMaxLength(20);
+                entity.Property(p => p.Icon).HasMaxLength(50);
+                entity.Property(p => p.IsActive).HasDefaultValue(true);
+
+                entity.HasIndex(p => p.Code).IsUnique();
+
+                entity.HasData(
+                    new PaymentMethod { Id = 1, Code = PaymentMethodCodes.Cash, Color = "#10B981", Icon = "banknote", DisplayOrder = 1, IsActive = true },
+                    new PaymentMethod { Id = 2, Code = PaymentMethodCodes.Card, Color = "#3B82F6", Icon = "credit-card", DisplayOrder = 2, IsActive = true },
+                    new PaymentMethod { Id = 3, Code = PaymentMethodCodes.BankTransfer, Color = "#6366F1", Icon = "landmark", DisplayOrder = 3, IsActive = true },
+                    new PaymentMethod { Id = 4, Code = PaymentMethodCodes.Mobile, Color = "#F59E0B", Icon = "smartphone", DisplayOrder = 4, IsActive = true }
+                );
+            });
+
+            modelBuilder.Entity<PaymentMethodTranslation>(entity =>
+            {
+                entity.ToTable("payment_method_translations");
+                entity.HasKey(t => t.Id);
+
+                entity.Property(t => t.Lang).HasMaxLength(5).IsRequired();
+                entity.Property(t => t.Name).HasMaxLength(100).IsRequired();
+                entity.Property(t => t.Description).HasMaxLength(300);
+
+                entity.HasIndex(t => new { t.PaymentMethodId, t.Lang })
+                      .IsUnique()
+                      .HasDatabaseName("UQ_PaymentMethodTranslation_Lang");
+
+                entity.HasOne(t => t.PaymentMethod)
+                      .WithMany(p => p.Translations)
+                      .HasForeignKey(t => t.PaymentMethodId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasData(AppDbContextHelpers.BuildPaymentMethodSeed());
+            });
+
+            modelBuilder.Entity<TenantPaymentMethod>(entity =>
+            {
+                entity.ToTable("tenant_payment_methods");
+                entity.HasKey(t => t.Id);
+
+                entity.Property(t => t.DisplayName).HasMaxLength(100);
+                entity.Property(t => t.IsEnabled).HasDefaultValue(true);
+                entity.Property(t => t.IsDefault).HasDefaultValue(false);
+                entity.Property(t => t.DisplayOrder).HasDefaultValue(0);
+
+                entity.HasIndex(t => t.TenantId);
+
+                // A tenant can't add the same method twice
+                entity.HasIndex(t => new { t.TenantId, t.PaymentMethodId })
+                      .IsUnique()
+                      .HasDatabaseName("UQ_TenantPaymentMethod");
+
+                // Only one default method per tenant (PostgreSQL filtered index)
+                entity.HasIndex(t => t.TenantId)
+                      .IsUnique()
+                      .HasFilter("\"IsDefault\" = true")
+                      .HasDatabaseName("UQ_TenantPaymentMethod_Default");
+
+                entity.HasOne(t => t.Tenant)
+                      .WithMany()
+                      .HasForeignKey(t => t.TenantId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(t => t.PaymentMethod)
+                      .WithMany(p => p.TenantPaymentMethods)
+                      .HasForeignKey(t => t.PaymentMethodId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                // ── 1. Add next to the other DbSets ──────────────────────────
+
+
+        // ── 2. Add inside OnModelCreating (after TenantPaymentMethod, before Notification) ──
+        // ═════════════════════════════════════════════════════
+        //  INVOICES
+        // ═════════════════════════════════════════════════════
+        modelBuilder.Entity<Invoice>(entity =>
+{
+    entity.ToTable("invoices", t =>
+        t.HasCheckConstraint("CK_Invoice_Amounts", "\"OrderTotal\" >= 0 AND \"PaidAmount\" >= 0"));
+
+    entity.HasKey(i => i.Id);
+
+    entity.Property(i => i.OrderTotal).HasColumnType("decimal(18,2)");
+        entity.Property(i => i.PaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+        entity.Property(i => i.Notes).HasMaxLength(500);
+        entity.Property(i => i.CreatedAtUtc).HasDefaultValueSql("NOW()");
+
+        entity.HasIndex(i => i.OrderId);
+    entity.HasIndex(i => i.UserId);
+    entity.HasIndex(i => i.TenantPaymentMethodId);
+    entity.HasIndex(i => i.CreatedAtUtc);        // history / reports
+
+    // Invoices are financial records: never delete them by cascade
+    entity.HasOne(i => i.Order)
+          .WithMany()
+          .HasForeignKey(i => i.OrderId)
+          .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasOne(i => i.User)
+          .WithMany()
+          .HasForeignKey(i => i.UserId)
+          .OnDelete(DeleteBehavior.Restrict);
+
+        entity.HasOne(i => i.Method)
+          .WithMany()
+          .HasForeignKey(i => i.TenantPaymentMethodId)
+          .OnDelete(DeleteBehavior.Restrict);
+    });
             });
         }
     }

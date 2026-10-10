@@ -7,7 +7,8 @@
         public string? Color { get; set; }
         public int DisplayOrder { get; set; }
         public bool IsActive { get; set; } = true;
-
+        public bool IsSystem { get; set; } = false;
+        
         public ICollection<PaymentStatusTranslation> Translations { get; set; } = new List<PaymentStatusTranslation>();
     }
 }

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+﻿import { useCallback, useEffect, useRef, useState } from "react";
 import type React from "react";
 import { useTranslation } from "react-i18next";
-import { Check, Copy, CreditCard, Info } from "lucide-react";
+import { Check, Copy, CreditCard, Info, Loader2 } from "lucide-react";
 
 import { OrderPaymentItemsTable } from "@/components/orders/payment/OrderPaymentItemsTable";
 import { OrderPaymentStatusBadge } from "@/components/orders/payment/OrderPaymentStatusBadge";
@@ -18,7 +18,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { UseOrderPaymentModalReturn } from "@/hooks/useOrderPaymentModal";
-import { amountDue, defaultPaymentMethodId, validateAmount } from "@/lib/orderPaymentUtils";
+import { toast } from "sonner";
+import { generateOrderReceiptPdf } from "@/lib/pdf";
+import { amountDue, defaultPaymentMethodId, validateAmount, parseAmount } from "@/lib/orderPaymentUtils";
 import { formatPrice } from "@/lib/orderBoardUtils";
 
 const COPIED_FEEDBACK_MS = 2000;
@@ -45,6 +47,7 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
   const [isCopied, setIsCopied] = useState(false);
   const [methodId, setMethodId] = useState<number | null>(null);
   const [amountError, setAmountError] = useState<AmountError | null>(null);
+  const [isPaying, setIsPaying] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
@@ -58,6 +61,7 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
     setMethodId(null);
     setAmountError(null);
     setIsCopied(false);
+    setIsPaying(false);
   }, [isOpen, order?.orderId]);
 
   // Preselect the tenant's default method as soon as the real list arrives.
@@ -79,8 +83,44 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
 
   const due = info ? amountDue(info.total, info.paidAmount) : 0;
   const isPaid = info?.paymentStatus === "Paid";
+  const amountValue = due > 0 ? String(due) : "0";
+  const parsedAmount = parseAmount(amountValue);
+  const isAmountValid =
+    parsedAmount !== null &&
+    parsedAmount > 0 &&
+    parsedAmount <= due + 0.005;
 
-  // No payment endpoint exists yet, so the amount is validated but never sent.
+  const handleGenerateReceipt = useCallback(() => {
+    if (!info) return;
+    generateOrderReceiptPdf({
+      orderNumber: info.orderNumber,
+      orderId: info.orderId,
+      tableNumber: info.tableNumber,
+      currencyCode: info.currencyCode,
+      language,
+      total: info.total,
+      paidAmount: info.paidAmount,
+      due,
+      isPaid,
+      lines: info.items,
+    });
+  }, [due, info, isPaid, language]);
+
+  const handlePay = useCallback(async () => {
+    if (!isAmountValid || methodId === null || !info) return;
+    setIsPaying(true);
+    try {
+      // No payment endpoint exists in the codebase.
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      toast.info(t("orderPayment.payment.noEndpoint"));
+    } catch (error) {
+      console.error(error);
+      toast.error(t("orderPayment.payment.error"));
+    } finally {
+      setIsPaying(false);
+    }
+  }, [info, isAmountValid, methodId, t]);
+
   const handleAmountChange = useCallback(
     (value: string) => setAmountError(validateAmount(value, due)),
     [due]
@@ -209,25 +249,37 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
                 currency={info.currencyCode}
               />
 
-              <p className="flex items-start gap-2 rounded-md bg-slate-50 px-3 py-2 text-[11px] leading-relaxed text-slate-500 dark:bg-slate-800/60 dark:text-slate-400">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGenerateReceipt}
+                className="w-full"
+              >
+                <CreditCard className="h-4 w-4" aria-hidden />
+                {t("orderPayment.generateReceipt")}
+              </Button>
+              <p className="flex items-start gap-2 rounded-md bg-transparent px-1 py-0.5 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                {t("orderPayment.payment.pendingEndpoint")}
+                {t("orderPayment.payment.receiptNote")}
               </p>
             </div>
           </div>
         )}
 
         <div className="flex shrink-0 items-center justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-700">
-          {isPaid ? (
-            <Button type="button" variant="outline" disabled>
+          <Button
+            type="button"
+            onClick={handlePay}
+            disabled={isPaying || !isAmountValid || methodId === null}
+            className="min-w-24"
+          >
+            {isPaying ? (
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+            ) : (
               <CreditCard className="h-4 w-4" aria-hidden />
-              {t("orderPayment.generateInvoice")}
-            </Button>
-          ) : (
-            <Button type="button" disabled>
-              {t("orderPayment.payment.confirm")}
-            </Button>
-          )}
+            )}
+            {t("orderPayment.payment.pay")}
+          </Button>
           <Button type="button" variant="outline" onClick={close}>
             {isPaid ? t("orderPayment.close") : t("orderPayment.discard")}
           </Button>

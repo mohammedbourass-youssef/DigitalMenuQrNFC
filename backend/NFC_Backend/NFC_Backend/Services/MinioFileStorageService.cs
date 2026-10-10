@@ -8,12 +8,14 @@ namespace NFC_Backend.Services
         private readonly IMinioClient _minioClient;
         private readonly string _endpoint;
         private readonly bool _useSsl;
-
+        private readonly string _fileAPI;
 
         public MinioFileStorageService(IConfiguration configuration)
         {
              _endpoint = configuration["Minio:Endpoint"]
                 ?? throw new InvalidOperationException("Minio:Endpoint not configured.");
+            _fileAPI = configuration["Minio:FileAPI"]
+              ?? throw new InvalidOperationException("Minio:Endpoint not configured.");
             var accessKey = configuration["Minio:AccessKey"]
                 ?? throw new InvalidOperationException("Minio:AccessKey not configured.");
             var secretKey = configuration["Minio:SecretKey"]
@@ -82,7 +84,7 @@ namespace NFC_Backend.Services
         public Task<string> GetFileUrlAsync(string objectKey, string bucketName, int expiryInSeconds = 3600)
         {
             var scheme = _useSsl ? "https" : "http";
-            var url = $"{scheme}://{_endpoint}/{bucketName}/{objectKey}";
+            var url = $"{scheme}://{_fileAPI}/{bucketName}/{objectKey}";
             return Task.FromResult(url);
         }
     }
