@@ -110,20 +110,20 @@ services:
 
       profiles__http__applicationUrl : ${BACKEND_URL}
 
-  migrator:
-    build:
-      context: ./backend/NFC_Backend
-      dockerfile: NFC_Backend/Dockerfile
-    container_name: nfc_ef_migrator
-    command: ["dotnet", "NFC_Backend.dll", "--migrate-only"]
-    restart: "no"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      ConnectionStrings__SmartMenuDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
-    networks:
-      - app_network
+  # migrator:
+  #   build:
+  #     context: ./backend/NFC_Backend
+  #     dockerfile: NFC_Backend/Dockerfile
+  #   container_name: nfc_ef_migrator
+  #   command: ["dotnet", "NFC_Backend.dll", "--migrate-only"]
+  #   restart: "no"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #   environment:
+  #     ConnectionStrings__SmartMenuDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+  #   networks:
+  #     - app_network
 
   menu:
     build:
