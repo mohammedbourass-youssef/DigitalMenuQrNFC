@@ -66,8 +66,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      migrator:
-        condition: service_completed_successfully
+      # migrator:
+      #   condition: service_completed_successfully
     ports:
       - "7194:8080"
     networks:
