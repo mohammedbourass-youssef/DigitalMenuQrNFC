@@ -4,6 +4,7 @@
 # Environment files
 .env
 *.env
+p.env
 
 # User-specific files
 *.rsuser
