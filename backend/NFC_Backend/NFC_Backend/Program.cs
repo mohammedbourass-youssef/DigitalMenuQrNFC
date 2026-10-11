@@ -8,9 +8,14 @@ using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 
 var connectionString = builder.Configuration.GetConnectionString("SmartMenuDb")
     ?? throw new InvalidOperationException("Connection string 'SmartMenuDb' not found.");
