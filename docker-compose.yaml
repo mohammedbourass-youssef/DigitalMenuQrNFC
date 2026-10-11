@@ -178,8 +178,11 @@ services:
       - snack-x-menu-admin
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx/conf.d/app.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/ssl/cloudflare/origin.pem:/etc/ssl/cloudflare/origin.pem:ro
+      - /etc/ssl/cloudflare/origin.key:/etc/ssl/cloudflare/origin.key:ro
     networks:
       - app_network
 
