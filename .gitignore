@@ -5,6 +5,7 @@
 .env
 *.env
 p.env
+/nginx/conf.d/app.local.conf
 
 # User-specific files
 *.rsuser
