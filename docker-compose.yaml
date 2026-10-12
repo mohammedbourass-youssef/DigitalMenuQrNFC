@@ -110,7 +110,7 @@ services:
       Minio__UseSsl: ${MINIO_USE_SSL}
 
       AppSettings__BaseDomain: ${BASE_DOMAIN}
-      AppSettings__UseHttps: "false"
+      AppSettings__UseHttps: ${MINIO_USE_SSL}
       AppSettings__DefaultPort : ${DEFAULT_PORT}
 
       ExchangeRateApi__ApiKey: ${EXCHANGE_RATE_API_KEY}
