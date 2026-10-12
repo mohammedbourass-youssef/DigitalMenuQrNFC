@@ -90,7 +90,13 @@ namespace NFC_Backend.Controllers
             var plainToken = tokenService.GenerateSessionToken();
             var tokenHash = tokenService.HashSessionToken(plainToken);
             
-            var expiresIn = TimeSpan.FromHours(int.Parse(configuration["Variable:SessionExprisesHours"]));
+            // Key must match docker-compose `Variable__SessionExpirationHours`
+            // (= SESSION_EXPIRATION_HOURS). Fall back to 24h if unset/invalid
+            // rather than throwing on a missing value.
+            var expiresInHours = int.TryParse(configuration["Variable:SessionExpirationHours"], out var hours) && hours > 0
+                ? hours
+                : 24;
+            var expiresIn = TimeSpan.FromHours(expiresInHours);
             var session = await sessionRepo.CreateAsync(tokenHash, tenant.Id, expiresIn);
             await sessionRepo.SaveChangesAsync();
 
