@@ -107,7 +107,7 @@ services:
       Minio__AccessKey: ${MINIO_ACCESS_KEY}
       Minio__SecretKey: ${MINIO_SECRET_KEY}
       Minio__BucketName: ${MINIO_BUCKET_NAME}
-      Minio__UseSsl: "false"
+      Minio__UseSsl: ${MINIO_USE_SSL}
 
       AppSettings__BaseDomain: ${BASE_DOMAIN}
       AppSettings__UseHttps: "false"
