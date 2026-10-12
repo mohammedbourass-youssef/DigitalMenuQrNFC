@@ -85,6 +85,7 @@ namespace NFC_Backend.Services
 
         public Task<string> GetFileUrlAsync(string objectKey, string bucketName, int expiryInSeconds = 3600)
         {
+            _logger.LogInformation("Generating file URL for bucket: {BucketName}, objectKey: {ObjectKey}, expiryInSeconds: {ExpiryInSeconds}", bucketName, objectKey, expiryInSeconds);
             var scheme = _useSsl ? "https" : "http";
             var url = $"{scheme}://{_fileAPI}/{bucketName}/{objectKey}";
             _logger.LogInformation("Generated file URL: {Url} for bucket: {BucketName}, objectKey: {ObjectKey}", url, bucketName, objectKey);
