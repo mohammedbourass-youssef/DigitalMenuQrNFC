@@ -4,7 +4,7 @@ using NFC_Backend.Infrastructure.Data;
 using NFC_Backend.Services;
 using System.Text.RegularExpressions;
 
-public sealed partial class TenantMiddleware(RequestDelegate next, IMemoryCache cache)
+public sealed partial class TenantMiddleware(RequestDelegate next, IMemoryCache cache, ILogger<TenantMiddleware> logger)
 {
     [GeneratedRegex("^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$")]
     private static partial Regex SlugRegex();
@@ -21,11 +21,12 @@ public sealed partial class TenantMiddleware(RequestDelegate next, IMemoryCache 
 
         if (string.IsNullOrEmpty(slug) || !SlugRegex().IsMatch(slug))
         {
+            logger.LogWarning($"Rejected request {ctx.Request.Method} {ctx.Request.Path}: missing or invalid X-Tenant header '{slug}'");
             ctx.Response.StatusCode = StatusCodes.Status400BadRequest;
             await ctx.Response.WriteAsJsonAsync(new { error = "Missing or invalid X-Tenant header" });
             return;
         }
-
+    
         var tenant = await cache.GetOrCreateAsync($"tenant:{slug}", async e =>
         {
             e.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
@@ -37,6 +38,7 @@ public sealed partial class TenantMiddleware(RequestDelegate next, IMemoryCache 
 
         if (tenant is null)
         {
+            logger.LogWarning($"Tenant not found or inactive for slug '{slug}' ({ctx.Request.Method} {ctx.Request.Path})");
             ctx.Response.StatusCode = StatusCodes.Status404NotFound;
             return;
         }
@@ -47,10 +49,13 @@ public sealed partial class TenantMiddleware(RequestDelegate next, IMemoryCache 
             var claim = ctx.User.FindFirst("tenant_id")?.Value;
             if (claim != tenant.Id.ToString())
             {
+                logger.LogWarning($"Tenant mismatch for authenticated request: token tenant '{claim}' does not match header tenant '{slug}' ({tenant.Id})");
                 ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return;
             }
         }
+
+        logger.LogDebug($"Resolved tenant '{tenant.Slug}' ({tenant.Id}) for {ctx.Request.Method} {ctx.Request.Path}");
 
         accessor.Current = tenant;
         await next(ctx);
