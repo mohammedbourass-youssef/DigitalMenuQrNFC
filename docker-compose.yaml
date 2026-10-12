@@ -103,7 +103,7 @@ services:
       Jwt__AccessTokenExpiryMinutes : ${JWT_ACCESS_TOKEN_EXPIRY_MINUTES}
       Jwt__RefreshTokenExpiryDays : ${JWT_REFRESH_TOKEN_EXPIRY_DAYS}
       Minio__Endpoint: minio:9000
-      Minio__FileAPI : http://${BASE_DOMAIN}/minio-api
+      Minio__FileAPI : ${BASE_DOMAIN}/minio-api
       Minio__AccessKey: ${MINIO_ACCESS_KEY}
       Minio__SecretKey: ${MINIO_SECRET_KEY}
       Minio__BucketName: ${MINIO_BUCKET_NAME}
