@@ -1,0 +1,54 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & deploy on Linux server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install rsync
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rsync
+
+      - name: Setup SSH access
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ vars.SSH_PORT }} ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Ensure deploy directory exists
+        run: |
+          ssh -i $HOME/.ssh/deploy_key -p ${{ vars.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+            "mkdir -p ~/smart-menu-nfc"
+
+      - name: Sync repository to server
+        run: |
+          rsync -az --delete \
+            -e "ssh -i $HOME/.ssh/deploy_key -p ${{ vars.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude 'p.env' \
+            --exclude '.env' \
+            --exclude '*.env' \
+            ./ \
+            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:~/smart-menu-nfc/
+
+      - name: Run deployment
+        run: |
+          ssh -i $HOME/.ssh/deploy_key -p ${{ vars.SSH_PORT }} -o StrictHostKeyChecking=no \
+            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
+            "cd ~/smart-menu-nfc && bash deploy.sh"
