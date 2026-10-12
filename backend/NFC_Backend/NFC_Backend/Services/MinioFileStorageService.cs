@@ -9,9 +9,11 @@ namespace NFC_Backend.Services
         private readonly string _endpoint;
         private readonly bool _useSsl;
         private readonly string _fileAPI;
+        private readonly ILogger<MinioFileStorageService> _logger;
 
-        public MinioFileStorageService(IConfiguration configuration)
+        public MinioFileStorageService(IConfiguration configuration , ILogger<MinioFileStorageService> logger)
         {
+            _logger = logger;
              _endpoint = configuration["Minio:Endpoint"]
                 ?? throw new InvalidOperationException("Minio:Endpoint not configured.");
             _fileAPI = configuration["Minio:FileAPI"]
@@ -21,10 +23,10 @@ namespace NFC_Backend.Services
             var secretKey = configuration["Minio:SecretKey"]
                 ?? throw new InvalidOperationException("Minio:SecretKey not configured.");
              _useSsl = configuration.GetValue<bool>("Minio:UseSsl", false);
-
+             _logger.LogInformation("MinioFileStorageService initialized with endpoint: {Endpoint}, useSsl: {UseSsl}", _endpoint, _useSsl);
             _minioClient = new MinioClient()
                 .WithEndpoint(_endpoint)
-                .WithCredentials(accessKey, secretKey)
+                .WithCredentials(accessKey, secretKey) 
                 .WithSSL(_useSsl)
                 .Build();
         }
@@ -85,6 +87,7 @@ namespace NFC_Backend.Services
         {
             var scheme = _useSsl ? "https" : "http";
             var url = $"{scheme}://{_fileAPI}/{bucketName}/{objectKey}";
+            _logger.LogInformation("Generated file URL: {Url} for bucket: {BucketName}, objectKey: {ObjectKey}", url, bucketName, objectKey);
             return Task.FromResult(url);
         }
     }
