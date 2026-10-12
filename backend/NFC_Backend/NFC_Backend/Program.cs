@@ -34,6 +34,10 @@ builder.Services.AddSignalR();
 
 
 
+// Root domain used to resolve tenant subdomains (e.g. "mohammedbourass.me").
+// Configured via AppSettings:BaseDomain (docker-compose: AppSettings__BaseDomain).
+var baseDomain = builder.Configuration["AppSettings:BaseDomain"]?.Trim().TrimStart('.');
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -45,14 +49,26 @@ builder.Services.AddCors(options =>
 
             var host = uri.Host;
 
-            // Customer menu: snackme.localhost, any tenant subdomain, any port
-            var isTenantMenu = host == "localhost"
-                || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase);
+            // Local development: localhost and any *.localhost (customer menu + admin)
+            if (host == "localhost"
+                || host.Equals("127.0.0.1", StringComparison.OrdinalIgnoreCase)
+                || host.EndsWith(".localhost", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
 
-            // Admin frontend: adjust to match its actual host
-            var isAdmin = host == "admin.localhost";
+            // Production: the base domain itself and any tenant subdomain of it
+            // (e.g. snackme.mohammedbourass.me, admin.mohammedbourass.me).
+            if (!string.IsNullOrEmpty(baseDomain))
+            {
+                if (host.Equals(baseDomain, StringComparison.OrdinalIgnoreCase)
+                    || host.EndsWith("." + baseDomain, StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
 
-            return isTenantMenu || isAdmin;
+            return false;
         })
             .AllowAnyHeader()
             .AllowAnyMethod()

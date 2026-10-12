@@ -15,7 +15,11 @@ if (!API_BASE_URL) {
   );
 }
 
-const API_BASE = API_BASE_URL.replace(/\/+$/, '');
+// `VITE_API_URL` may or may not carry the `/api` suffix (the admin app passes
+// it straight to axios as its baseURL). This client's paths already start with
+// `/api`, so a trailing `/api` here would produce `/api/api/...` → 404. Strip
+// it, then any trailing slashes, leaving just the origin (possibly empty).
+const API_BASE = API_BASE_URL.replace(/\/api\/?$/, '').replace(/\/+$/, '');
 
 const TIMEOUT_MS = 10_000;
 
