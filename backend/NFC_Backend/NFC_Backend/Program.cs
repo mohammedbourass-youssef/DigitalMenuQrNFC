@@ -9,8 +9,13 @@ using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
 using Serilog;
+using Serilog.Debugging;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Surface Serilog's internal errors (e.g. a Seq ingestion failure) on stderr,
+// so they show up in `docker logs nfc_backend` instead of being swallowed.
+SelfLog.Enable(Console.Error);
 
 builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
     .ReadFrom.Configuration(context.Configuration)

@@ -55,7 +55,7 @@ public sealed partial class TenantMiddleware(RequestDelegate next, IMemoryCache 
             }
         }
 
-        logger.LogDebug($"Resolved tenant '{tenant.Slug}' ({tenant.Id}) for {ctx.Request.Method} {ctx.Request.Path}");
+        logger.LogInformation($"Resolved tenant '{tenant.Slug}' ({tenant.Id}) for {ctx.Request.Method} {ctx.Request.Path}");
 
         accessor.Current = tenant;
         await next(ctx);
