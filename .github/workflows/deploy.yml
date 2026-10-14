@@ -50,21 +50,22 @@ jobs:
       - name: Ensure deploy directory exists
         run: |
           ssh -i $HOME/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no \
-            "$SSH_USER@$SSH_HOST" "mkdir -p ~/smart-menu-nfc"
+            "$SSH_USER@$SSH_HOST" "mkdir -p ~/DigitalMenuQrNFC"
 
       - name: Sync repository to server
         run: |
-          rsync -az --delete \
+          rsync -az \
             -e "ssh -i $HOME/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
             --exclude '.git' \
             --exclude 'node_modules' \
             --exclude 'p.env' \
             --exclude '.env' \
             --exclude '*.env' \
+            --exclude 'minio_data.tar.gz' \
             ./ \
-            "$SSH_USER@$SSH_HOST:~/smart-menu-nfc/"
+            "$SSH_USER@$SSH_HOST:~/DigitalMenuQrNFC/"
 
       - name: Run deployment
         run: |
           ssh -i $HOME/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no \
-            "$SSH_USER@$SSH_HOST" "cd ~/smart-menu-nfc && bash deploy.sh"
+            "$SSH_USER@$SSH_HOST" "cd ~/DigitalMenuQrNFC && bash deploy.sh"

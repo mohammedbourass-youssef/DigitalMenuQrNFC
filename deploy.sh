@@ -17,13 +17,13 @@ fi
 
 # Compose auto-loads ".env" from the project directory in every version, which is
 # more portable than the "--env-file" global flag (unsupported on older CLIs).
-if [ -f "$ENV_FILE" ]; then
+if [ -f .env ]; then
+  echo "[deploy] Using env file: .env"
+elif [ -f "$ENV_FILE" ]; then
   cp -f "$ENV_FILE" .env
   echo "[deploy] Using env file: $ENV_FILE (copied to .env)"
-elif [ -f .env ]; then
-  echo "[deploy] WARNING: $ENV_FILE not found; using existing .env"
 else
-  echo "[deploy] ERROR: no $ENV_FILE or .env found in $(pwd)" >&2
+  echo "[deploy] ERROR: no .env or '$ENV_FILE' found in $(pwd)" >&2
   exit 1
 fi
 
