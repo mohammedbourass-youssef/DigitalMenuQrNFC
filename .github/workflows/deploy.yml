@@ -13,9 +13,27 @@ jobs:
   deploy:
     name: Build & deploy on Linux server
     runs-on: ubuntu-latest
+    env:
+      SSH_HOST: ${{ secrets.SSH_HOST || vars.SSH_HOST }}
+      SSH_USER: ${{ secrets.SSH_USER || vars.SSH_USER }}
+      SSH_PORT: ${{ secrets.SSH_PORT || vars.SSH_PORT || '22' }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Validate deploy configuration
+        run: |
+          missing=""
+          [ -z "$SSH_HOST" ] && missing="$missing SSH_HOST"
+          [ -z "$SSH_USER" ] && missing="$missing SSH_USER"
+          [ -z "$SSH_PRIVATE_KEY" ] && missing="$missing SSH_PRIVATE_KEY"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing GitHub Actions configuration:$missing"
+            echo "Add them in Settings > Secrets and variables > Actions (as Secrets or Variables)."
+            exit 1
+          fi
+          echo "Deploy target: $SSH_USER@$SSH_HOST port $SSH_PORT"
 
       - name: Install rsync
         run: |
@@ -25,30 +43,28 @@ jobs:
       - name: Setup SSH access
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ vars.SSH_PORT }} ${{ vars.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
 
       - name: Ensure deploy directory exists
         run: |
-          ssh -i $HOME/.ssh/deploy_key -p ${{ vars.SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
-            "mkdir -p ~/smart-menu-nfc"
+          ssh -i $HOME/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no \
+            "$SSH_USER@$SSH_HOST" "mkdir -p ~/smart-menu-nfc"
 
       - name: Sync repository to server
         run: |
           rsync -az --delete \
-            -e "ssh -i $HOME/.ssh/deploy_key -p ${{ vars.SSH_PORT }} -o StrictHostKeyChecking=no" \
+            -e "ssh -i $HOME/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no" \
             --exclude '.git' \
             --exclude 'node_modules' \
             --exclude 'p.env' \
             --exclude '.env' \
             --exclude '*.env' \
             ./ \
-            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:~/smart-menu-nfc/
+            "$SSH_USER@$SSH_HOST:~/smart-menu-nfc/"
 
       - name: Run deployment
         run: |
-          ssh -i $HOME/.ssh/deploy_key -p ${{ vars.SSH_PORT }} -o StrictHostKeyChecking=no \
-            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }} \
-            "cd ~/smart-menu-nfc && bash deploy.sh"
+          ssh -i $HOME/.ssh/deploy_key -p "$SSH_PORT" -o StrictHostKeyChecking=no \
+            "$SSH_USER@$SSH_HOST" "cd ~/smart-menu-nfc && bash deploy.sh"
