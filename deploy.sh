@@ -2,7 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-ENV_FILE="${ENV_FILE:-p.env}"
+ENV_FILE="${ENV_FILE:-.env}"
 RUN_MIGRATIONS="${RUN_MIGRATIONS:-true}"
 
 # Prefer the Compose v2 plugin ("docker compose"), fall back to v1 ("docker-compose").
