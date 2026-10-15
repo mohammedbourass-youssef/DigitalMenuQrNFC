@@ -5,6 +5,17 @@ import { parseTableNumberPath } from '../lib/tenant';
 import type { TablePublicDTO } from '../types/table';
 
 /**
+ * The path the app was opened with, captured at module load.
+ *
+ * `useRoute` (lib/router.ts) normalises unknown paths — including the NFC
+ * deep-link `/3` — back to `/` in a mount effect. This hook only learns the
+ * table number after the tables request resolves, which is well after that
+ * rewrite, so reading the live pathname then would always see `/`. The number
+ * must be read once, here, before React effects run.
+ */
+const initialPath = window.location.pathname;
+
+/**
  * Seat the customer at the table their NFC tag or QR code pointed them to, once
  * the tables have loaded.
  *
@@ -36,7 +47,7 @@ export function useAutoSelectTableFromUrl(): void {
     // 204 / no tables: nothing to select, same as before.
     if (available.length === 0) return;
 
-    const fromUrl = parseTableNumberPath(window.location.pathname);
+    const fromUrl = parseTableNumberPath(initialPath);
     if (fromUrl !== null) {
       const match = available.find((table) => table.number === fromUrl);
       // The URL is how the tag routed this customer, so it wins over a table
