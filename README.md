@@ -316,6 +316,28 @@ cd "Admin FrontEnd/Menu" && npm ci && npm run dev
 Menu scripts: `dev`, `build`, `lint`, `typecheck` (`tsc --noEmit -p tsconfig.app.json`), `test`.
 Admin scripts: `dev`, `build`, `preview`, `test`.
 
+### Local override (`docker-compose.local.yaml`)
+
+`docker-compose.yaml` alone targets the server. Layering
+`docker-compose.local.yaml` on top makes the stack runnable locally:
+
+```bash
+docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d
+# or simply run  .\run-local.ps1
+```
+
+`deploy.sh` / GitHub Actions only ever load `docker-compose.yaml`, so nothing in
+this file can affect the server deployment.
+
+What it changes compared to the deployed stack:
+
+- **gateway** → HTTP only, using `nginx/conf.d/app.local.conf`. The production
+  `app.conf` needs Cloudflare origin certificates at
+  `/etc/ssl/cloudflare/origin.{pem,key}`, which only exist on the server, so
+  nginx crashes locally without this override.
+- **backend** → `ASPNETCORE_ENVIRONMENT=Development`, which enables Swagger UI
+  at `http://localhost:7194/swagger` (disabled in Production).
+
 ---
 
 ## CI/CD deployment
