@@ -1,0 +1,30 @@
+# -----------------------------------------------------------------------------
+# LOCAL ONLY override for docker-compose.yaml.
+#
+#   docker compose -f docker-compose.yaml -f docker-compose.local.yaml up -d
+#   (or simply run  .\run-local.ps1 )
+#
+# deploy.sh / GitHub Actions only ever load docker-compose.yaml, so nothing in
+# this file can affect the server deployment.
+#
+# What it changes compared to the deployed stack:
+#   * gateway  -> HTTP only, using nginx/conf.d/app.local.conf. The production
+#                 app.conf needs Cloudflare origin certificates at
+#                 /etc/ssl/cloudflare/origin.{pem,key}, which only exist on the
+#                 server, so nginx crashes locally without this override.
+#   * backend  -> ASPNETCORE_ENVIRONMENT=Development, which enables Swagger UI
+#                 at http://localhost:7194/swagger (disabled in Production).
+# -----------------------------------------------------------------------------
+
+services:
+  gateway:
+    # `!override` replaces the list from docker-compose.yaml instead of merging
+    # it, which is what drops the /etc/ssl/cloudflare/*.pem bind mounts.
+    ports: !override
+      - "80:80" # no 443: there is no TLS certificate locally
+    volumes: !override
+      - ./nginx/conf.d/app.local.conf:/etc/nginx/conf.d/default.conf:ro
+
+  backend:
+    environment:
+      ASPNETCORE__ENVIRONMENT: Development
