@@ -23,7 +23,7 @@ export const getAdminCategories = async (
 
 export const getCategories = async (): Promise<Category[]> => {
   const { data } = await axiosInstance.get<AdminCategoryResponse>("Cateogries/categories-Admin");
-  return data.data.map((item) => ({
+  return (data?.data ?? []).map((item) => ({
     id: item.id,
     name: item.name ?? "",
     description: item.desc ?? "",

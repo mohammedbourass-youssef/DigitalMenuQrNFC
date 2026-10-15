@@ -126,7 +126,7 @@ export default function CategoriesPage() {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <h1 className="font-display text-2xl font-bold text-slate-900">{t("categories.title")}</h1>
-            <Badge variant="secondary">{t("categories.total", { count: query.data?.meta.totalCount ?? 0 })}</Badge>
+            <Badge variant="secondary">{t("categories.total", { count: query.data?.meta?.totalCount ?? 0 })}</Badge>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex rounded-lg border border-slate-200 bg-white p-1" role="group" aria-label="Language">
@@ -148,10 +148,10 @@ export default function CategoriesPage() {
       ) : query.isError ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-10 text-center"><p className="font-semibold text-red-800">{t("categories.serverError")}</p><Button variant="outline" onClick={() => void query.refetch()}>{t("categories.retry")}</Button></div>
       ) : (
-        <div className="relative">{query.isFetching && <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/50 pt-8 backdrop-blur-[1px]"><Spinner className="h-6 w-6 text-primary" /></div>}<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{query.data?.data.map((category) => <CategoryCard key={category.id} category={category} activeLabel={t("categories.active")} inactiveLabel={t("categories.inactive")} createdLabel={(time) => t("categories.created", { time })} onDeactivate={handleDeactivate} onActivate={handleActivate} />)}</div></div>
+        <div className="relative">{query.isFetching && <div className="absolute inset-0 z-10 flex items-start justify-center bg-white/50 pt-8 backdrop-blur-[1px]"><Spinner className="h-6 w-6 text-primary" /></div>}<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">{query.data?.data?.map((category) => <CategoryCard key={category.id} category={category} activeLabel={t("categories.active")} inactiveLabel={t("categories.inactive")} createdLabel={(time) => t("categories.created", { time })} onDeactivate={handleDeactivate} onActivate={handleActivate} />)}</div></div>
       )}
 
-      {query.data && query.data.meta.totalCount > 0 && <CategoriesPagination pageNumber={pageNumber} pageCount={pageCount} totalCount={query.data.meta.totalCount} hasMore={query.data.meta.hasMore} showingLabel={t("categories.showing")} onPageChange={changePage} />}
+      {(query.data?.meta?.totalCount ?? 0) > 0 && <CategoriesPagination pageNumber={pageNumber} pageCount={pageCount} totalCount={query.data!.meta.totalCount} hasMore={query.data!.meta.hasMore} showingLabel={t("categories.showing")} onPageChange={changePage} />}
       <AddCategorySheet open={showAddSheet} onOpenChange={setShowAddSheet} onCreated={() => void query.refetch()} onCategoryCreated={() => void query.refetch()} />
     </div>
   );

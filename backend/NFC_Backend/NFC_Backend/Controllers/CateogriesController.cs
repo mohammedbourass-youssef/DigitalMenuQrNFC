@@ -277,7 +277,21 @@ namespace NFC_Backend.Controllers
                 var totalCount = await _categoryRepo.CountTotalCategories(tenant.Id); 
 
                 if (categories == null || categories.Count == 0)
-                    return NoContent();
+                {
+                    // Always return the pagination envelope (never 204) so clients
+                    // can safely read meta/data for an empty list.
+                    return Ok(new
+                    {
+                        meta = new
+                        {
+                            pageNumber = request.PageNumber,
+                            pageSize = request.PageCount,
+                            totalCount,
+                            hasMore = (request.PageNumber * request.PageCount) < totalCount
+                        },
+                        data = Array.Empty<AdminCategorisData>()
+                    });
+                }
 
                 // ✅ Map each category concurrently since GetFileUrlAsync is async
                 var dataTask = categories.Select(async c =>
