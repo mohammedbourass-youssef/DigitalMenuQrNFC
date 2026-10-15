@@ -39,6 +39,14 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
   "${COMPOSE[@]}" run --rm backend dotnet NFC_Backend.dll --migrate-only
 fi
 
+# Legacy docker-compose v1 (<= 1.29.2) crashes on recreate with recent Docker
+# engines (KeyError: 'ContainerConfig'). Removing the existing containers first
+# avoids that broken code path. Only needed for the legacy v1 binary.
+if [ "${COMPOSE[0]}" = "docker-compose" ]; then
+  echo "[deploy] Legacy docker-compose detected; removing old containers to avoid the ContainerConfig bug..."
+  "${COMPOSE[@]}" down --remove-orphans || true
+fi
+
 echo "[deploy] Starting/updating containers..."
 "${COMPOSE[@]}" up -d
 
