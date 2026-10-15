@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import axiosInstance from "@/lib/axios";
+import type { OrderPaymentDetails, PayOrderRequest } from "@/types/orderPayment";
 import type { CurrentOrdersResponse } from "@/types/orders";
 
 /**
@@ -76,4 +77,35 @@ export const updateOrderStatus = async (
     if (axios.isCancel(error)) throw error;
     throw toOrderMoveError(error);
   }
+};
+
+/**
+ * Registers a payment for an order (`POST /api/Orders/Pay`).
+ *
+ * The server reads userId, tenantId and currency from the token, so the body
+ * only carries the order, the chosen payment method and the amount. `signal`
+ * lets the caller abort on close/unmount - the backend honours the
+ * CancellationToken and answers 499, which the caller ignores silently.
+ */
+export const payOrder = async (
+  payload: PayOrderRequest,
+  signal?: AbortSignal
+): Promise<void> => {
+  await axiosInstance.post("Orders/Pay", payload, { signal });
+};
+
+/**
+ * Read-only payment details of a paid order (`GET /api/Orders/{id}/Payment`),
+ * used to show where/when/how it was paid. The board payload only carries
+ * `isPaid`, so this is the only honest source for the rest.
+ */
+export const getOrderPayment = async (
+  orderId: string,
+  signal?: AbortSignal
+): Promise<OrderPaymentDetails> => {
+  const { data } = await axiosInstance.get<OrderPaymentDetails>(
+    `Orders/${orderId}/Payment`,
+    { signal }
+  );
+  return data;
 };

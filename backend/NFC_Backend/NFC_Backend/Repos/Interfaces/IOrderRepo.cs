@@ -35,7 +35,7 @@ namespace NFC_Backend.Repos.Interfaces
     Guid orderId,
     int currentStatus,
     string lan);
-
+        public  Task<Order?> GetOrderByIdAsNoTrckingAsync(Guid orderId, Guid TenantId);
         public  Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id, int CurrentStatus, string lan);
 
         public  Task<List<OrderStatusColumnDto>> GetOrderStatusColumnDto(
@@ -44,5 +44,7 @@ namespace NFC_Backend.Repos.Interfaces
         public  Task<ChangeStatusResult> ChangeStatusAsync(
        Guid tenantId, Guid orderId, int statusId, Guid? userId, CancellationToken ct);
         public Task<List<OrderLineItemDto>> GetTrackingInfo(Guid order, string lan, string ToCurrency, CancellationToken ct);
+
+        //public Task<bool> PaymentExist(int paymentId);
         }
 }

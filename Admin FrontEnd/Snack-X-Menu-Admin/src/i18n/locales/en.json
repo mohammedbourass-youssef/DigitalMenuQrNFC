@@ -861,7 +861,18 @@
             "amountTooHigh": "The amount cannot be higher than the amount due ({{due}}).",
             "receiptNote": "Generate a simple PDF receipt for this order locally on this device. No payment is recorded and no invoice is created on the server.",
             "pay": "Pay",
-            "noEndpoint": "Payment endpoint is not available yet.",
+            "success": "Payment registered successfully.",
+            "paid": {
+                "section": "Payment",
+                "date": "Paid on",
+                "amount": "Amount paid",
+                "cashier": "Registered by",
+                "notes": "Notes",
+                "loading": "Loading payment details…",
+                "unavailable": "Payment details are not available yet.",
+                "generateTicket": "Generate ticket",
+                "receiptNote": "Generate the ticket for this paid order locally on this device."
+            },
             "error": "Payment failed. Please try again."
         },
         "generateReceipt": "Generate Receipt"

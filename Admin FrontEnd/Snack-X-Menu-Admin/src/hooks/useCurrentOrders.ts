@@ -20,7 +20,8 @@ import {
 import { readApiError } from "@/lib/apiErrors";
 import type { OrderStatusColumnDto, OrderSummaryDto } from "@/types/orders";
 
-const CURRENT_ORDERS_KEY = ["orders", "current-orders"] as const;
+/** Shared so a payment can invalidate the board without a second copy of the key. */
+export const CURRENT_ORDERS_KEY = ["orders", "current-orders"] as const;
 
 /** How long a live-arrived card keeps its highlight (matches the CSS animation). */
 const NEW_ORDER_HIGHLIGHT_MS = 2600;

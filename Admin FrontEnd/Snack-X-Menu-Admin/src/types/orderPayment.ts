@@ -41,3 +41,55 @@ export interface OrderPaymentInfo {
   paidAmount: number;
   paymentStatus: OrderPaymentStatus;
 }
+
+/**
+ * Body of `POST /api/Orders/Pay`.
+ *
+ * `orderId` stays a string on the client because the board's
+ * `OrderSummaryDto.orderId` is a Guid serialized as a string; the backend's
+ * `PayOrder.OrderId` is a `Guid` and binds it. `userId`, `tenantId` and
+ * `currency` are deliberately absent: the server takes them from the token.
+ */
+export interface PayOrderRequest {
+  orderId: string;
+  /** The selected `TenantPaymentMethod.id`. */
+  paymentId: number;
+  /** Must equal the order total exactly, or the server answers 400. */
+  amountToPay: number;
+  notes: string | null;
+}
+
+/* ------------------------------------------------------------------ *
+ * Paid order details (`GET /api/Orders/{orderId}/Payment`)
+ *
+ * The board payload only carries `isPaid`, so "where / when / how" an order was
+ * paid has to come from the invoice. Read-only: nothing here is ever submitted.
+ * ------------------------------------------------------------------ */
+
+export interface OrderPaymentMethodDetails {
+  /** `TenantPaymentMethod.id`. */
+  id: number;
+  code: string;
+  /** `DisplayName ?? SystemName`, translated by the server via `X-Lang`. */
+  label: string;
+  color: string | null;
+  icon: string | null;
+}
+
+export interface OrderPaymentCashier {
+  userId: string;
+  fullName: string | null;
+}
+
+export interface OrderPaymentDetails {
+  orderId: string;
+  invoiceId: string;
+  orderTotal: number;
+  paidAmount: number;
+  currencyCode: string;
+  /** ISO-8601 UTC instant of the invoice. */
+  paidAtUtc: string;
+  paymentMethod: OrderPaymentMethodDetails;
+  notes: string | null;
+  cashier: OrderPaymentCashier | null;
+}

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using System.Text.Json.Serialization;
 
 namespace NFC_Backend.Domain.DTOS
@@ -140,6 +141,17 @@ namespace NFC_Backend.Domain.DTOS
         public bool IsSystem { get; set; }
 
         public IEnumerable<OrderSummaryStatusDto> Orders { get; set; } = [];
+    }
+
+    public sealed class PayOrder
+    {
+        [Required]
+        public Guid OrderId { get; set; }
+        [Required]
+        public int PaymentId { get; set; }
+        [Required]
+        public decimal AmountToPay { get; set; }
+        public string? Notes { get; set; }
     }
 
 

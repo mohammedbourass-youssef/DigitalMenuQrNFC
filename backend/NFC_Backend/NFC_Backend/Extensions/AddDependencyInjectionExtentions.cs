@@ -23,6 +23,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<ITableRepo, TableRepo>();
             services.AddScoped<IOrderRepo, OrderRepo>();
             services.AddScoped<IPaymentMethodsRepo, PaymentMethodsRepo>();
+            services.AddScoped<IinvoiceRepo, invoiceRepo>();
             //Services
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IFileStorageService, MinioFileStorageService>();

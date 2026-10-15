@@ -614,43 +614,58 @@ namespace NFC_Backend.Infrastructure.Data
                 // ── 1. Add next to the other DbSets ──────────────────────────
 
 
-        // ── 2. Add inside OnModelCreating (after TenantPaymentMethod, before Notification) ──
-        // ═════════════════════════════════════════════════════
-        //  INVOICES
-        // ═════════════════════════════════════════════════════
-        modelBuilder.Entity<Invoice>(entity =>
-{
-    entity.ToTable("invoices", t =>
-        t.HasCheckConstraint("CK_Invoice_Amounts", "\"OrderTotal\" >= 0 AND \"PaidAmount\" >= 0"));
+                // ── 2. Add inside OnModelCreating (after TenantPaymentMethod, before Notification) ──
+                // ═════════════════════════════════════════════════════
+                //  INVOICES
+                // ═════════════════════════════════════════════════════
 
-    entity.HasKey(i => i.Id);
+                modelBuilder.Entity<Invoice>(entity =>
+                {
+                    entity.ToTable("invoices", t =>
+                        t.HasCheckConstraint("CK_Invoice_Amounts", "\"OrderTotal\" >= 0 AND \"PaidAmount\" >= 0"));
 
-    entity.Property(i => i.OrderTotal).HasColumnType("decimal(18,2)");
-        entity.Property(i => i.PaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
-        entity.Property(i => i.Notes).HasMaxLength(500);
-        entity.Property(i => i.CreatedAtUtc).HasDefaultValueSql("NOW()");
+                    entity.HasKey(i => i.Id);
 
-        entity.HasIndex(i => i.OrderId);
-    entity.HasIndex(i => i.UserId);
-    entity.HasIndex(i => i.TenantPaymentMethodId);
-    entity.HasIndex(i => i.CreatedAtUtc);        // history / reports
+                    entity.Property(i => i.CurrencyCode)
+      .HasMaxLength(3)
+      .IsFixedLength()
+      .IsRequired()
+      .HasDefaultValue("MAD");
+                    entity.Property(i => i.OrderTotal).HasColumnType("decimal(18,2)");
+                    entity.Property(i => i.PaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+                    entity.Property(i => i.Notes).HasMaxLength(500);
+                    entity.Property(i => i.CreatedAtUtc).HasDefaultValueSql("NOW()");
 
-    // Invoices are financial records: never delete them by cascade
-    entity.HasOne(i => i.Order)
-          .WithMany()
-          .HasForeignKey(i => i.OrderId)
-          .OnDelete(DeleteBehavior.Restrict);
+                    entity.HasIndex(i => i.OrderId);
+                    entity.HasIndex(i => i.UserId);
+                    entity.HasIndex(i => i.TenantPaymentMethodId);
+                    entity.HasIndex(i => i.CurrencyCode);
+                    entity.HasIndex(i => i.CreatedAtUtc);
 
-        entity.HasOne(i => i.User)
-          .WithMany()
-          .HasForeignKey(i => i.UserId)
-          .OnDelete(DeleteBehavior.Restrict);
+                    entity.HasOne(i => i.Order)
+                          .WithMany()
+                          .HasForeignKey(i => i.OrderId)
+                          .OnDelete(DeleteBehavior.Restrict);
 
-        entity.HasOne(i => i.Method)
-          .WithMany()
-          .HasForeignKey(i => i.TenantPaymentMethodId)
-          .OnDelete(DeleteBehavior.Restrict);
-    });
+                    entity.HasOne(i => i.User)
+                          .WithMany()
+                          .HasForeignKey(i => i.UserId)
+                          .OnDelete(DeleteBehavior.Restrict);
+
+                    entity.HasOne(i => i.Method)
+                          .WithMany()
+                          .HasForeignKey(i => i.TenantPaymentMethodId)
+                          .OnDelete(DeleteBehavior.Restrict);
+                     
+                    // NEW
+                    entity.HasOne(i => i.Currency)
+                       
+                          .WithMany()
+                          .HasForeignKey(i => i.CurrencyCode)
+                          .OnDelete(DeleteBehavior.Restrict);
+                });
+
+
             });
         }
     }

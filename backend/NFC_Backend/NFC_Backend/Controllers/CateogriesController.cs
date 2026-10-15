@@ -621,5 +621,7 @@ namespace NFC_Backend.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
+
+      
     }
 }

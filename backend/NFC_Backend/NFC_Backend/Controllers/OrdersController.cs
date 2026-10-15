@@ -27,9 +27,10 @@ namespace NFC_Backend.Controllers
         private readonly ICategoryTranslationService _translation;
         private readonly ILanguageAccessor _languageAccessor;
         private readonly ICurrencyAccessor _CurrencyAccessor;
-
+        private readonly IPaymentMethodsRepo _paymentMethodsRepo;
+        private readonly IinvoiceRepo _invoiceRepo;
         public OrdersController(ITenantRepo tenantRepo, IUserRepo userRepo, 
-            ILogger<OrdersController> logger, IOrderRepo orderRepo, ICategoryTranslationService translation , ILanguageAccessor languageAccessor , ICurrencyAccessor currencyAccessor)
+            ILogger<OrdersController> logger, IOrderRepo orderRepo, IinvoiceRepo iinvoice, IPaymentMethodsRepo paymentMethods , ICategoryTranslationService translation , ILanguageAccessor languageAccessor , ICurrencyAccessor currencyAccessor)
         {
             _tenantRepo = tenantRepo;
             _userRepo = userRepo;
@@ -38,6 +39,8 @@ namespace NFC_Backend.Controllers
             _translation = translation;
             _languageAccessor = languageAccessor;
             _CurrencyAccessor = currencyAccessor;
+            _paymentMethodsRepo = paymentMethods;
+            _invoiceRepo = iinvoice;
         }
         [HttpPost("NewStatus")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
@@ -288,10 +291,6 @@ namespace NFC_Backend.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
-
-
-
-
         [HttpPut("Status/{id:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
         public async Task<ActionResult> UpdateStatus(int id, UpdateStatusRequest request, CancellationToken ct)
@@ -607,5 +606,140 @@ namespace NFC_Backend.Controllers
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
+
+        [HttpPost("Pay")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult> Pay([FromBody]PayOrder pay, CancellationToken ct)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest("Payment data is required.");
+
+
+                }
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (userIdClaim == null || !Guid.TryParse(userIdClaim, out var userId))
+                {
+                    _logger.LogWarning("Pay failed - invalid or missing userId in token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("Pay failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                if (pay.AmountToPay <= 0)
+                    return BadRequest(new { error = "Amount must be greater than zero." });
+
+                var user = await _userRepo.GetUserByID(userId);
+                if (user == null)
+                {
+                    _logger.LogWarning("Pay failed - user not found. UserId: {UserId}", userId);
+                    return NotFound(new { error = "User not found." });
+                }
+
+                var tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("Pay failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { error = "Restaurant not found." });
+                }
+
+                var order = await _orderRepo.GetOrderByIdAsNoTrckingAsync(pay.OrderId, tenantId.Value);
+                if (order == null)
+                    return NotFound(new { error = "Order not found." });
+
+                if (order.PaymentStatusId != 1)
+                    return BadRequest(new { error = "This order is already paid." });
+
+                if (pay.AmountToPay != order.Total)
+                    return BadRequest(new { error = "Amount does not match the order total." });
+
+                var paymentMethod = await _paymentMethodsRepo.GetByIdAsync(
+                    tenantId.Value, pay.PaymentId, _languageAccessor.Current, ct);
+                if (paymentMethod == null)
+                    return BadRequest(new { error = "Invalid payment method." });
+
+                await _invoiceRepo.SaveNewInvoice(
+                    new InvoiceDTO(pay.OrderId, pay.PaymentId, tenant.Id, pay.AmountToPay,
+                                   _CurrencyAccessor.Current, pay.Notes, userId),
+                    ct);
+
+                return Created();
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("Pay cancelled by client. OrderId: {OrderId}", pay.OrderId);
+                return StatusCode(499);
+            }
+            catch (NotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Pay failed - not found");
+                return NotFound(new { error = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Pay unexpected error. OrderId: {pay.OrderId} , Ex : {ex.Message}");
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
+        [HttpGet("{orderId:guid}/Payment")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult<PaymentReceiptDto>> GetPaymentReceipt(Guid orderId, CancellationToken ct)
+        {
+            try
+            {
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("GetPaymentReceipt failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                // Tenant-scoped lookup: prevents reading another restaurant's receipt
+                var order = await _orderRepo.GetOrderByIdAsNoTrckingAsync(orderId, tenantId.Value);
+                if (order == null)
+                    return NotFound(new { error = "Order not found." });
+
+                // Receipt only exists for paid orders (Id 2 = Paid in your seed data)
+                if (order.PaymentStatusId == 1)
+                    return BadRequest(new { error = "This order has not been paid yet." });
+
+                var receipt = await _invoiceRepo.GetPaymentReceiptAsync(
+                    orderId,
+                    _CurrencyAccessor.Current,   // from CurrencyMiddleware
+                    _languageAccessor.Current,           // from LanguageMiddleware
+                    ct);
+
+                return Ok(receipt);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                _logger.LogWarning(ex, "Receipt not found. OrderId: {OrderId}", orderId);
+                return NotFound(new { error = "Invoice not found for this order." });
+            }
+            catch (InvalidOperationException ex)
+            {
+                // e.g. missing exchange rate
+                _logger.LogError(ex, "Receipt conversion failed. OrderId: {OrderId}", orderId);
+                return StatusCode(500, new { error = "Could not convert the receipt to the requested currency." });
+            }
+            catch (OperationCanceledException)
+            {
+                return StatusCode(499);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetPaymentReceipt unexpected error. OrderId: {OrderId}", orderId);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
     }
 }

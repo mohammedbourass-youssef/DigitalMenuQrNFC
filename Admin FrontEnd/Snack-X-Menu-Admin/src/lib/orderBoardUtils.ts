@@ -298,3 +298,17 @@ export function formatClock(timestamp: number, language: string): string {
     return "";
   }
 }
+
+/** Full localized date + time for a paid invoice timestamp (ISO string or epoch). */
+export function formatDateTime(value: string | number, language: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  try {
+    return new Intl.DateTimeFormat(language, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(date);
+  } catch {
+    return "";
+  }
+}

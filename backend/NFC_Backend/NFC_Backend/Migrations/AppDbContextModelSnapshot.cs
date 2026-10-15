@@ -238,6 +238,14 @@ namespace NFC_Backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasDefaultValue("MAD")
+                        .IsFixedLength();
+
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -262,6 +270,8 @@ namespace NFC_Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAtUtc");
+
+                    b.HasIndex("CurrencyCode");
 
                     b.HasIndex("OrderId");
 
@@ -1880,6 +1890,12 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Invoice", b =>
                 {
+                    b.HasOne("NFC_Backend.Domain.Entities.Currency", "Currency")
+                        .WithMany()
+                        .HasForeignKey("CurrencyCode")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("NFC_Backend.Domain.Entities.Order", "Order")
                         .WithMany()
                         .HasForeignKey("OrderId")
@@ -1897,6 +1913,8 @@ namespace NFC_Backend.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Currency");
 
                     b.Navigation("Method");
 

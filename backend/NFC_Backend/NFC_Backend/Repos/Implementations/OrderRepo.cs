@@ -204,6 +204,12 @@ namespace NFC_Backend.Repos.Implementations
                 .FirstOrDefaultAsync(o => o.TenantId == TenantId && o.Id == orderId && o.SessionId == SessionID)
                 ;
         }
+        public async Task<Order?> GetOrderByIdAsNoTrckingAsync(Guid orderId, Guid TenantId)
+        {
+            return await _dbContextContext.Orders.AsNoTracking()
+                .FirstOrDefaultAsync(o => o.TenantId == TenantId && o.Id == orderId)
+                ;
+        }
         public async Task<Order?> GetOrderByIdAsNoTrckingIncludeTableAsync(Guid orderId, Guid TenantId, Guid SessionID)
         {
             return await _dbContextContext.Orders.AsNoTracking()
@@ -392,11 +398,14 @@ namespace NFC_Backend.Repos.Implementations
                     TotalPrice = x.Quantity * x.UnitPrice
                 })
                 .ToListAsync(ct);
-                
-                
 
 
 
-        
+        //public Task<bool> PaymentExist(int paymentId , Guid ORderID) =>
+        // _dbContextContext.PaymentMethods
+        //    .Include(t=>t.TenantPaymentMethods)
+        // .AsNoTracking()
+        // .AnyAsync(p => p.Id == paymentId && p.TenantPaymentMethods.);
+
     }
 }

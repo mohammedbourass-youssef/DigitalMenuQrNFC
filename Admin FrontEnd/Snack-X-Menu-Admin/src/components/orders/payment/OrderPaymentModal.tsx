@@ -2,9 +2,12 @@
 import type React from "react";
 import { useTranslation } from "react-i18next";
 import { Check, Copy, CreditCard, Info, Loader2 } from "lucide-react";
+import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { OrderPaymentItemsTable } from "@/components/orders/payment/OrderPaymentItemsTable";
 import { OrderPaymentStatusBadge } from "@/components/orders/payment/OrderPaymentStatusBadge";
+import { PaidPaymentInfo } from "@/components/orders/payment/PaidPaymentInfo";
 import {
   RegisterPaymentForm,
   type AmountError,
@@ -17,11 +20,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { CURRENT_ORDERS_KEY } from "@/hooks/useCurrentOrders";
+import { useOrderPaymentDetails } from "@/hooks/useOrderPaymentDetails";
 import type { UseOrderPaymentModalReturn } from "@/hooks/useOrderPaymentModal";
 import { toast } from "sonner";
 import { generateOrderReceiptPdf } from "@/lib/pdf";
 import { amountDue, defaultPaymentMethodId, validateAmount, parseAmount } from "@/lib/orderPaymentUtils";
+import { friendlyErrorMessage, readErrorStatus } from "@/lib/apiErrors";
 import { formatPrice } from "@/lib/orderBoardUtils";
+import { payOrder } from "@/services/orderService";
 
 const COPIED_FEEDBACK_MS = 2000;
 
@@ -49,9 +56,14 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
   const [amountError, setAmountError] = useState<AmountError | null>(null);
   const [isPaying, setIsPaying] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // One payment at a time: closing the dialog or unmounting aborts the request,
+  // and the backend answers 499, which we ignore.
+  const payAbortRef = useRef<AbortController | null>(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => () => {
     if (copyTimer.current) clearTimeout(copyTimer.current);
+    payAbortRef.current?.abort();
   }, []);
 
   // Fresh selection on every open, so a discarded payment never leaks into the
@@ -90,6 +102,9 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
     parsedAmount > 0 &&
     parsedAmount <= due + 0.005;
 
+  // Only paid orders need the invoice details; unpaid ones pay right here.
+  const detailsQuery = useOrderPaymentDetails(info?.orderId ?? null, isPaid);
+
   const handleGenerateReceipt = useCallback(() => {
     if (!info) return;
     generateOrderReceiptPdf({
@@ -106,20 +121,48 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
     });
   }, [due, info, isPaid, language]);
 
+  // Closing while a payment is on the wire cancels it; the backend answers 499
+  // and `handlePay` stays silent about it.
+  useEffect(() => {
+    if (!isOpen) payAbortRef.current?.abort();
+  }, [isOpen]);
+
   const handlePay = useCallback(async () => {
-    if (!isAmountValid || methodId === null || !info) return;
+    // Guarded here as well as on the button: a second click must never fire a
+    // second request.
+    if (isPaying || !info) return;
+    if (methodId === null || parsedAmount === null || !isAmountValid) return;
+    // The backend rejects anything that is not the order total, exactly.
+    if (Math.abs(parsedAmount - info.total) > 0.005) return;
+
+    const controller = new AbortController();
+    payAbortRef.current?.abort();
+    payAbortRef.current = controller;
     setIsPaying(true);
     try {
-      // No payment endpoint exists in the codebase.
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      toast.info(t("orderPayment.payment.noEndpoint"));
+      await payOrder(
+        {
+          orderId: info.orderId,
+          paymentId: methodId,
+          amountToPay: parsedAmount,
+          notes: null,
+        },
+        controller.signal
+      );
+
+      toast.success(t("orderPayment.payment.success"));
+      // The board holds no partial payments, so the order leaves it entirely.
+      void queryClient.invalidateQueries({ queryKey: CURRENT_ORDERS_KEY });
+      close();
     } catch (error) {
-      console.error(error);
-      toast.error(t("orderPayment.payment.error"));
+      // Cancelled on purpose (dialog closed, unmounted): stay silent.
+      if (axios.isCancel(error) || readErrorStatus(error) === 499) return;
+      toast.error(friendlyErrorMessage(error, t("orderPayment.payment.error")));
     } finally {
+      if (payAbortRef.current === controller) payAbortRef.current = null;
       setIsPaying(false);
     }
-  }, [info, isAmountValid, methodId, t]);
+  }, [close, info, isAmountValid, isPaying, methodId, parsedAmount, queryClient, t]);
 
   const handleAmountChange = useCallback(
     (value: string) => setAmountError(validateAmount(value, due)),
@@ -234,52 +277,65 @@ export function OrderPaymentModal({ controller }: { controller: UseOrderPaymentM
                 </div>
               </dl>
 
-              <RegisterPaymentForm
-                methodId={methodId}
-                onMethodChange={setMethodId}
-                amount={due > 0 ? String(due) : "0"}
-                onAmountChange={handleAmountChange}
-                amountDue={due}
-                amountError={amountError}
-                methods={methods}
-                isMethodsLoading={isMethodsLoading}
-                isMethodsError={isMethodsError}
-                onRetryMethods={refetchMethods}
-                language={language}
-                currency={info.currencyCode}
-              />
+              {isPaid ? (
+                <PaidPaymentInfo
+                  details={detailsQuery.data}
+                  isLoading={detailsQuery.isPending}
+                  isError={detailsQuery.isError}
+                  fallbackPaidAmount={info.paidAmount}
+                  currency={info.currencyCode}
+                  language={language}
+                />
+              ) : (
+                <RegisterPaymentForm
+                  methodId={methodId}
+                  onMethodChange={setMethodId}
+                  amount={due > 0 ? String(due) : "0"}
+                  onAmountChange={handleAmountChange}
+                  amountDue={due}
+                  amountError={amountError}
+                  methods={methods}
+                  isMethodsLoading={isMethodsLoading}
+                  isMethodsError={isMethodsError}
+                  onRetryMethods={refetchMethods}
+                  language={language}
+                  currency={info.currencyCode}
+                />
+              )}
 
               <Button
                 type="button"
-                variant="outline"
+                variant={isPaid ? "default" : "outline"}
                 onClick={handleGenerateReceipt}
                 className="w-full"
               >
                 <CreditCard className="h-4 w-4" aria-hidden />
-                {t("orderPayment.generateReceipt")}
+                {t(isPaid ? "orderPayment.payment.paid.generateTicket" : "orderPayment.generateReceipt")}
               </Button>
               <p className="flex items-start gap-2 rounded-md bg-transparent px-1 py-0.5 text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                {t("orderPayment.payment.receiptNote")}
+                {t(isPaid ? "orderPayment.payment.paid.receiptNote" : "orderPayment.payment.receiptNote")}
               </p>
             </div>
           </div>
         )}
 
         <div className="flex shrink-0 items-center justify-end gap-2 border-t border-slate-200 px-5 py-3 dark:border-slate-700">
-          <Button
-            type="button"
-            onClick={handlePay}
-            disabled={isPaying || !isAmountValid || methodId === null}
-            className="min-w-24"
-          >
-            {isPaying ? (
-              <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
-            ) : (
-              <CreditCard className="h-4 w-4" aria-hidden />
-            )}
-            {t("orderPayment.payment.pay")}
-          </Button>
+          {!isPaid && (
+            <Button
+              type="button"
+              onClick={handlePay}
+              disabled={isPaying || !isAmountValid || methodId === null}
+              className="min-w-24"
+            >
+              {isPaying ? (
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+              ) : (
+                <CreditCard className="h-4 w-4" aria-hidden />
+              )}
+              {t("orderPayment.payment.pay")}
+            </Button>
+          )}
           <Button type="button" variant="outline" onClick={close}>
             {isPaid ? t("orderPayment.close") : t("orderPayment.discard")}
           </Button>

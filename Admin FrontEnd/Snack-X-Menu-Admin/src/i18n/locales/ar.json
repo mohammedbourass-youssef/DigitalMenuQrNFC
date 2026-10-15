@@ -865,7 +865,18 @@
             "amountTooHigh": "لا يمكن أن يتجاوز المبلغ المبلغ المستحق ({{due}}).",
             "receiptNote": "Generate a simple PDF receipt for this order locally on this device. No payment is recorded and no invoice is created on the server.",
             "pay": "Pay",
-            "noEndpoint": "Payment endpoint is not available yet.",
+            "success": "Payment registered successfully.",
+            "paid": {
+                "section": "الدفع",
+                "date": "تاريخ الدفع",
+                "amount": "المبلغ المدفوع",
+                "cashier": "سُجّل بواسطة",
+                "notes": "ملاحظات",
+                "loading": "جارٍ تحميل تفاصيل الدفع…",
+                "unavailable": "تفاصيل الدفع غير متوفرة بعد.",
+                "generateTicket": "إنشاء التذكرة",
+                "receiptNote": "أنشئ تذكرة هذا الطلب المدفوع محليًا على هذا الجهاز."
+            },
             "error": "Payment failed. Please try again."
         },
         "generateReceipt": "Generate Receipt"
