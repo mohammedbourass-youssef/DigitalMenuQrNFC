@@ -3,14 +3,14 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Minimal path router.
  *
- * The app has exactly two screens (menu and order tracking) and no routing
- * dependency, so this replaces react-router rather than adding it. It covers
- * what is actually needed: read the current path, push a new one, and react to
- * back/forward.
+ * The app has exactly three screens (menu, order tracking and the order
+ * ticket) and no routing dependency, so this replaces react-router rather than
+ * adding it. It covers what is actually needed: read the current path, push a
+ * new one, and react to back/forward.
  *
- * Deployment note: `/order` is a client-side path, so the static host needs an
- * SPA fallback rule rewriting unknown paths to `index.html`. Vite's dev server
- * does this by default.
+ * Deployment note: `/order` and `/ticket` are client-side paths, so the static
+ * host needs an SPA fallback rule rewriting unknown paths to `index.html`.
+ * Vite's dev server does this by default.
  */
 
 export type Route = '/' | '/order' | '/ticket';
@@ -26,7 +26,7 @@ function currentPath(): string {
 }
 
 function isRoute(value: string): value is Route {
-  return value === '/' || value === '/order';
+  return value === '/' || value === '/order' || value === '/ticket';
 }
 
 export function navigate(to: Route, opts: { replace?: boolean } = {}): void {

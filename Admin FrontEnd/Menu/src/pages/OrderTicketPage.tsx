@@ -1,15 +1,18 @@
 import { useEffect, useMemo } from 'react';
-import { navigate, useRoute } from '@/lib/router';
+import { navigate } from '@/lib/router';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSessionOrder } from '@/contexts/SessionOrderContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { formatTime } from '@/utils/dateTime';
-import { ArrowLeft, Download, Star } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Download, Star } from 'lucide-react';
 
 interface TicketRouteParams {
   orderId?: string;
   orderNumber?: string;
   tableNumber?: string;
   total?: string;
+  currency?: string;
+  createdAt?: string;
 }
 
 function parseParams(search: string): TicketRouteParams {
@@ -19,27 +22,41 @@ function parseParams(search: string): TicketRouteParams {
     orderNumber: q.get('orderNumber') ?? undefined,
     tableNumber: q.get('tableNumber') ?? undefined,
     total: q.get('total') ?? undefined,
+    currency: q.get('currency') ?? undefined,
+    createdAt: q.get('createdAt') ?? undefined,
   };
 }
 
+/**
+ * Order ticket screen (`/ticket`).
+ *
+ * Opened by the tracking screen's "Finish & Get My Ticket" action, which wipes
+ * the session (order, cart and session token) before navigating here — so this
+ * screen reads the receipt from its own query string rather than from the
+ * session, which no longer has an order. It is intentionally reachable even
+ * with no active order.
+ */
 export function OrderTicketPage() {
   const { t, lang, dir } = useLanguage();
-  const { route } = useRoute();
   const { tracking, orderId, startNewOrder } = useSessionOrder();
+  const { tenant } = useTenant();
 
-  const params = useMemo(() => parseParams(route.search as unknown as string), [route.search]);
+  // Read once: the finish action builds these params, and nothing updates the
+  // query string while this screen is mounted.
+  const params = useMemo(() => parseParams(window.location.search), []);
   const effectiveOrderId = params.orderId ?? orderId ?? tracking?.orderId;
   const effectiveOrderNumber = params.orderNumber ?? tracking?.orderNumber?.toString();
   const effectiveTable = params.tableNumber ?? tracking?.tableNumber?.toString();
   const effectiveTotal = params.total ?? (tracking?.total != null ? tracking.total.toFixed(2) : undefined);
-  const effectiveCurrency = tracking?.currencyCode ?? null;
+  const effectiveCurrency = params.currency ?? tracking?.currencyCode ?? null;
+  const effectiveCreatedAt = params.createdAt ?? tracking?.createdAt ?? null;
 
   useEffect(() => {
-    // If we have no context at all, go back to menu; otherwise stay on ticket.
+    // If we have no context at all (a bare deep link), go back to menu.
     if (!effectiveOrderId && !tracking) {
       navigate('/', { replace: true });
     }
-  }, [effectiveOrderId, tracking, navigate]);
+  }, [effectiveOrderId, tracking]);
 
   const handleDownload = () => {
     // Minimal client-side "download ticket" — print is the simplest portable way.
@@ -48,9 +65,12 @@ export function OrderTicketPage() {
   };
 
   const handleRate = () => {
-    // Placeholder Google Maps search — replace with the tenant's place link if available.
-    const query = encodeURIComponent('Snack X');
-    window.open(`https://maps.google.com/?q=${query}`, '_blank', 'noopener,noreferrer');
+    // Search for the restaurant by name; the tenant name is the only public
+    // identifier the menu app has (no place id is exposed by the backend).
+    const name = tenant?.restaurantName || tenant?.name || '';
+    const base = 'https://maps.google.com/';
+    const url = name ? `${base}?q=${encodeURIComponent(name)}` : base;
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const handleBackToMenu = () => {
@@ -75,20 +95,22 @@ export function OrderTicketPage() {
         <span className="h-11 w-11" />
       </header>
 
-      <main className="flex flex-1 flex-col items-center justify-between px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] pt-6">
+      <main className="flex flex-1 flex-col items-center justify-between gap-4 overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1.5rem)] pt-6">
         <section className="w-full max-w-md space-y-5 rounded-3xl bg-white p-5 shadow-soft ring-1 ring-gray-100 print:shadow-none print:ring-0">
-          <div className="space-y-1 text-center">
+          <div className="space-y-2 text-center">
+            <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-500" strokeWidth={2.5} />
+            <h2 className="text-xl font-black text-gray-900">{t('thankYou')}</h2>
             <p className="text-sm font-bold uppercase tracking-wide text-gray-400">
               {t('orderDetails')}
             </p>
             {effectiveOrderNumber && (
-              <h2 className="text-2xl font-black text-gray-900">
+              <p className="text-lg font-extrabold text-gray-900">
                 {t('orderNumber')} {effectiveOrderNumber}
-              </h2>
+              </p>
             )}
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs font-semibold text-gray-500">
               {effectiveTable && <span>{t('tableNumber')} {effectiveTable}</span>}
-              {tracking?.createdAt && <span>{formatTime(tracking.createdAt, lang)}</span>}
+              {effectiveCreatedAt && <span>{formatTime(effectiveCreatedAt, lang)}</span>}
             </div>
           </div>
 
@@ -119,22 +141,33 @@ export function OrderTicketPage() {
         </section>
 
         <div className="w-full max-w-md space-y-2 print:hidden">
-          <button
-            type="button"
-            onClick={handleDownload}
-            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-base font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
-          >
-            <Download className="h-5 w-5" strokeWidth={2.5} />
-            {t('downloadTicket')}
-          </button>
+          {/* Rating prompt — the five stars mirror what the customer is asked
+              for; tapping either the stars or the button opens Google Maps. */}
+          <div className="rounded-2xl bg-white p-4 text-center shadow-sm ring-1 ring-gray-100">
+            <p className="text-sm font-extrabold text-gray-900">{t('rateUsFiveStars')}</p>
+            <div className="mt-2 flex items-center justify-center gap-1.5" aria-hidden="true">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Star key={i} className="h-6 w-6 fill-amber-400 text-amber-400" strokeWidth={1.5} />
+              ))}
+            </div>
+          </div>
 
           <button
             type="button"
             onClick={handleRate}
+            className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-base font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
+          >
+            <Star className="h-5 w-5" strokeWidth={2.5} />
+            {t('rateUsOnGoogleMaps')}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDownload}
             className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white text-base font-extrabold text-gray-900 shadow-sm transition-transform active:scale-[0.98]"
           >
-            <Star className="h-5 w-5 text-amber-500" strokeWidth={2.5} />
-            {t('rateUsOnGoogleMaps')}
+            <Download className="h-5 w-5" strokeWidth={2.5} />
+            {t('downloadTicket')}
           </button>
 
           <button

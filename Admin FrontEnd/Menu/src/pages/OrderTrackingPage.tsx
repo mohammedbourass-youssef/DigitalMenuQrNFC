@@ -1,7 +1,10 @@
 import { useCallback, useRef, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { STATUS_BANNER_MS, useSessionOrder } from '@/contexts/SessionOrderContext';
+import { useCart } from '@/contexts/CartContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { navigate } from '@/lib/router';
+import { clearSessionId } from '@/lib/session';
 import { hapticFeedback } from '@/lib/haptics';
 import { OrderStatusIcon } from '@/components/OrderStatusIcon';
 import { OrderStepper } from '@/components/OrderStepper';
@@ -36,9 +39,38 @@ export function OrderTrackingPage() {
     refetch,
     isFinal,
     canAddItems,
+    startNewOrder,
   } = useSessionOrder();
+  const { clearCart } = useCart();
+  const { renewSession } = useTenant();
 
   const pull = usePullToRefresh(refetch);
+
+  /**
+   * Closes out the meal: the ticket carries everything it needs in its query
+   * string, so the session is wiped first — order, cart and the session token
+   * itself — then a fresh token is minted so the menu is usable for a new
+   * order. See `finishOrder` below.
+   */
+  const handleFinish = useCallback(() => {
+    const params = new URLSearchParams();
+    if (tracking?.orderId) params.set('orderId', tracking.orderId);
+    if (tracking?.orderNumber) params.set('orderNumber', String(tracking.orderNumber));
+    if (tracking?.tableNumber) params.set('tableNumber', String(tracking.tableNumber));
+    if (tracking?.total != null) params.set('total', tracking.total.toFixed(2));
+    if (tracking?.currencyCode) params.set('currency', tracking.currencyCode);
+    if (tracking?.createdAt) params.set('createdAt', tracking.createdAt);
+
+    // Back to a first-load state before the ticket renders: forget the stored
+    // order (+ GUID), empty the cart and drop the session token. `renewSession`
+    // then silently mints a new token so the next order starts clean.
+    startNewOrder();
+    clearCart();
+    clearSessionId();
+    void renewSession();
+
+    navigate(`/ticket?${params.toString()}` as Route);
+  }, [tracking, startNewOrder, clearCart, renewSession]);
 
   /* --- Loading skeleton -------------------------------------------------- */
   if (isLoading && !tracking) {
@@ -191,14 +223,7 @@ export function OrderTrackingPage() {
             ) : (
               <button
                 type="button"
-                onClick={() => {
-                  const params = new URLSearchParams();
-                  if (tracking.orderId) params.set('orderId', tracking.orderId);
-                  if (tracking.orderNumber) params.set('orderNumber', String(tracking.orderNumber));
-                  if (tracking.tableNumber) params.set('tableNumber', String(tracking.tableNumber));
-                  if (tracking.total != null) params.set('total', tracking.total.toFixed(2));
-                  navigate(`/ticket?${params.toString()}` as Route);
-                }}
+                onClick={handleFinish}
                 className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand text-base font-extrabold text-white shadow-lg transition-transform active:scale-[0.98]"
               >
                 <CirclePlus className="h-5 w-5" strokeWidth={2.5} />

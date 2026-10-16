@@ -236,7 +236,9 @@ if (route === '/order') {
       if (route === '/ticket') {
         return (
           <div className="relative flex h-full flex-col overflow-hidden bg-gray-50">
-            <ReturnToMenu />
+            {/* No <ReturnToMenu /> here: finishing an order intentionally clears
+            the session's order, and the ticket must still render from the URL
+            params it was opened with. */}
             <Suspense fallback={null}>
               <OrderTicketPage />
             </Suspense>

@@ -21,6 +21,16 @@ interface TenantContextValue {
   tenant: Tenant | null;
   status: TenantStatus;
   retry: () => void;
+  /**
+   * Mint a fresh session in place, without tearing the tree down.
+   *
+   * `retry()` re-runs the bootstrap effect, which flips the status back to
+   * 'loading' and replaces the children with the splash screen. Finishing an
+   * order only needs a new session token — the tenant and the current screen
+   * stay valid — so this refetches `/info` and swaps the token silently.
+   * Callers must clear the old token first so the server issues a new one.
+   */
+  renewSession: () => Promise<void>;
 }
 
 const TenantContext = createContext<TenantContextValue | null>(null);
@@ -110,8 +120,28 @@ export function TenantProvider({ children }: { children: ReactNode }) {
     setAttempt((n) => n + 1);
   }, []);
 
+  /**
+   * Silently replaces the session token. The next `/info` call is anonymous
+   * (the caller cleared the old token), so the server mints a brand-new
+   * session. Failures are logged rather than surfaced: the screen that asked
+   * for this has already navigated away, and the normal session-recovery path
+   * still covers a subsequent rejected request.
+   */
+  const renewSession = useCallback(async () => {
+    try {
+      const info = await fetchTenantInfo();
+      if (!mountedRef.current) return;
+      const resolved = buildTenant(info);
+      saveSessionId(info.sessionId);
+      setTenant(resolved);
+      applyTheme(resolved);
+    } catch (error) {
+      console.error('[TenantContext] failed to renew session:', error);
+    }
+  }, []);
+
   return (
-    <TenantContext.Provider value={{ tenant, status, retry }}>
+    <TenantContext.Provider value={{ tenant, status, retry, renewSession }}>
       <LanguageProvider>
         {status === 'loading' && <SplashScreen />}
         {status === 'notfound' && <RestaurantNotFound />}

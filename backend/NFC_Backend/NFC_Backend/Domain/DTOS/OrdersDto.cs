@@ -155,4 +155,23 @@ namespace NFC_Backend.Domain.DTOS
     }
 
 
+    
+    public sealed class AdminOrdersHistoryDTO
+    {
+        public Guid orderId { get; set; }
+        public Guid? TableId { get; set; }
+        public int OrderNumber { get; set; }
+        public string OrderStatus { get ; set; } = string.Empty;
+        public string PaymentStatus { get ; set; } = string.Empty;
+        public decimal Subtotal { get; set; }
+        public decimal Total { get; set; }
+        public decimal PaidAmount { get; set; }        // drives Unpaid / Partial / Paid
+        public DateTime? PaidAtUTC { get; set; }          // set when fully paid
+        public string? Notes { get; set; }
+        public DateTime CreatedAtURC { get; set; }
+        public int TotalItems { get; set; }
+    }
+
+    public record AdminHistoryFilters(int? OrderNumber , DateTime? FromUTC , DateTime? ToUTC , int PageCunt , int PageNumber , int? OrderStatus , int? paymentStatus );
+
 }

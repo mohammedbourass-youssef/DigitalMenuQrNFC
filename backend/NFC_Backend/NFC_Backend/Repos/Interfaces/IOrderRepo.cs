@@ -45,6 +45,7 @@ namespace NFC_Backend.Repos.Interfaces
        Guid tenantId, Guid orderId, int statusId, Guid? userId, CancellationToken ct);
         public Task<List<OrderLineItemDto>> GetTrackingInfo(Guid order, string lan, string ToCurrency, CancellationToken ct);
 
-        //public Task<bool> PaymentExist(int paymentId);
-        }
+        public Task<List<AdminOrdersHistoryDTO>> GetAdminOrdersHistoryAsync(
+    AdminHistoryFilters f, Guid tenantId, string language, string currency);
+    }
 }

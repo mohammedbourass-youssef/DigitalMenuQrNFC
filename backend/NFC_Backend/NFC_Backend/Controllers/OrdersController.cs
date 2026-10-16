@@ -741,5 +741,27 @@ namespace NFC_Backend.Controllers
             }
         }
 
+        [HttpGet("order-history")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult<AdminOrdersHistoryDTO>> GetOrderHistoryAsync(AdminHistoryFilters historyFilters)
+        {
+            try
+            {
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("GetPaymentReceipt failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                var data = await _orderRepo.GetAdminOrdersHistoryAsync(historyFilters);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "GetPaymentReceipt unexpected error. OrderId: {OrderId}", orderId);
+                return StatusCode(500, new { error = "An unexpected error occurred." });
+            }
+        }
+
     }
 }
