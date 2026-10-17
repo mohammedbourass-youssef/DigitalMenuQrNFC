@@ -53,8 +53,8 @@ export default function OrdersPage() {
   });
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-5">
-      <div className="flex shrink-0 flex-wrap items-start justify-between gap-4">
+    <div className="flex min-h-0 w-full flex-1 flex-col gap-4">
+      <div className="flex w-full shrink-0 flex-wrap items-start justify-between gap-4">
         {/* The top bar hides its own toggle on this route, so the board owns it. */}
         <div className="flex items-start gap-3">
           <SidebarToggleButton className="mt-0.5" />

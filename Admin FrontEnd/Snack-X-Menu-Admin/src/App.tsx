@@ -100,7 +100,7 @@ function ProtectedLayout() {
           <div
             className={
               isBoardRoute
-                ? 'flex h-full min-h-0 w-full flex-col p-4 lg:p-6'
+                ? 'flex min-h-0 w-full flex-1 flex-col p-3 sm:p-4 lg:p-5'
                 : 'mx-auto w-full max-w-7xl p-6'
             }
           >

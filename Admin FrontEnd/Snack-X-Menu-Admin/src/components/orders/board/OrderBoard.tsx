@@ -201,11 +201,11 @@ export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
 
   if (board.isInitialLoading && !board.columns) {
     return (
-      <div className="flex shrink-0 gap-4 overflow-x-auto pb-2" aria-busy>
+      <div className="flex min-h-0 flex-1 gap-3 overflow-x-auto pb-1" aria-busy>
         {Array.from({ length: SKELETON_COLUMNS }, (_, index) => (
           <section
             key={index}
-            className="flex h-72 w-[320px] shrink-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-100/80 p-3 dark:border-slate-700 dark:bg-slate-800/60"
+            className="flex min-h-[320px] w-[320px] shrink-0 flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-100/80 p-3 dark:border-slate-700 dark:bg-slate-800/60"
           >
             <div className="h-1 w-full rounded-full bg-slate-300 dark:bg-slate-700" />
             <div className="h-4 w-32 rounded bg-slate-300 dark:bg-slate-700" />
@@ -218,7 +218,7 @@ export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4">
+      <div className="flex min-h-0 w-full flex-1 flex-col gap-3">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <BoardSearchBar value={search} onValueChange={setSearch} />
         <p className="text-xs text-slate-400" aria-hidden>
@@ -235,7 +235,7 @@ export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
         onDragEnd={handleDragEnd}
         onDragCancel={handleDragCancel}
       >
-        <div className="flex min-h-0 flex-1 items-stretch gap-4 overflow-x-auto overflow-y-hidden pb-1 pt-0.5">
+        <div className="flex min-h-0 w-full flex-1 items-stretch gap-3 overflow-x-auto overflow-y-hidden pb-1 pt-0.5">
           {visibleColumns.map((column) => (
             <OrderColumn
               key={column.statusId}
