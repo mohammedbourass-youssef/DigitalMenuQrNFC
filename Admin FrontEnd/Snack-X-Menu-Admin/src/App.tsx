@@ -8,7 +8,7 @@ import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
-import { isFullscreenBoardRoute, transitionSidebarOnNav, type SidebarNavState } from '@/lib/sidebarFullscreen';
+import { isFullscreenBoardRoute, isFullWidthContentRoute, transitionSidebarOnNav, type SidebarNavState } from '@/lib/sidebarFullscreen';
 import CategoriesPage from '@/pages/Categories';
 import CategoryDetailsPage from '@/pages/CategoryDetails';
 import DashboardPage from '@/pages/Dashboard';
@@ -77,6 +77,7 @@ function ProtectedLayout() {
 
   const collapsed = sidebarState.collapsed;
   const isBoardRoute = isFullscreenBoardRoute(location.pathname);
+  const isFullWidthRoute = isFullWidthContentRoute(location.pathname);
   const toggleCollapsed = useCallback(() => {
     setSidebarState((prev) => ({ ...prev, collapsed: !prev.collapsed }));
   }, []);
@@ -101,6 +102,8 @@ function ProtectedLayout() {
             className={
               isBoardRoute
                 ? 'flex min-h-0 w-full flex-1 flex-col p-3 sm:p-4 lg:p-5'
+                : isFullWidthRoute
+                  ? 'flex min-h-0 w-full flex-1 flex-col p-4'
                 : 'mx-auto w-full max-w-7xl p-6'
             }
           >
