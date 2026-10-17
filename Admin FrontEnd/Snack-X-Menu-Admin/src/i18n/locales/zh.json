@@ -1,4 +1,12 @@
 {
+    "orders": {
+        "history": {
+            "results": "{{count}}条结果",
+            "ofTotal": "共{{count}}条",
+            "pageOf": "第{{page}}页，共{{totalPages}}页",
+            "noOrdersYet": "暂无订单"
+        }
+    },
     "orderPayment": {
         "button": "支付信息",
         "title": "支付信息",

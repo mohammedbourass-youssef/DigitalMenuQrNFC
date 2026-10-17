@@ -4,13 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { format } from 'date-fns';
 import { ChevronDown, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 import { toast } from 'sonner';
-import axios from 'axios';
 import type { TFunction } from 'i18next';
 
 import { Button } from '@/components/ui/button';
 import { useOrderHistory } from '@/hooks/useOrderHistory';
 import { PAYMENT_STATUS_LOOKUP } from '@/lib/orderHistoryConstants';
 import { getCurrency } from '@/lib/preferences';
+import { getOrderHistoryErrorMessage, getOrderHistoryRange, isUnauthorizedOrderHistoryError } from '@/lib/orderHistoryUtils';
 import type { AdminHistoryFilters, AdminOrdersHistoryDTO } from '@/types/orderHistory';
 import { useOrderStatuses } from '@/hooks/useOrderStatuses';
 
@@ -21,13 +21,6 @@ function localDateToUtc(value: string, endOfDay = false): string | undefined {
   if (!value) return undefined;
   const date = new Date(`${value}T${endOfDay ? '23:59:59.999' : '00:00:00'}`);
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString();
-}
-
-function getErrorMessage(error: unknown): string {
-  if (axios.isAxiosError<{ error?: string; message?: string }>(error)) {
-    return error.response?.data?.error ?? error.response?.data?.message ?? error.message;
-  }
-  return error instanceof Error ? error.message : 'Unable to load order history';
 }
 
 function StatusBadge({ value, kind }: { value: string; kind: 'order' | 'payment' }) {
@@ -69,9 +62,33 @@ export default function OrdersHistoryPage() {
     paymentStatus: payment ? Number(payment) : undefined,
   }), [orderNumber, from, to, pageSize, page, status, payment]);
 
-  const { data = [], isLoading, isFetching, isError, error, refetch } = useOrderHistory(filters);
-  const hasNext = data.length === pageSize;
+  const {
+    items,
+    page: resultPage,
+    pageSize: resultPageSize,
+    totalCount,
+    totalOrdersInTenant,
+    totalPages,
+    hasNextPage,
+    hasPreviousPage,
+    isLoading,
+    isFetching,
+    isPlaceholderData,
+    isError,
+    error,
+    refetch,
+  } = useOrderHistory(filters);
   const currency = getCurrency();
+  const setPage = useCallback((nextPage: number) => {
+    const next = new URLSearchParams(params);
+    next.set('page', String(nextPage));
+    setParams(next);
+  }, [params, setParams]);
+
+  useEffect(() => {
+    if (isFetching || isPlaceholderData || totalPages === 0 || page <= totalPages) return;
+    setPage(totalPages);
+  }, [isFetching, isPlaceholderData, page, setPage, totalPages]);
 
   useEffect(() => {
     const parsed = Number(searchInput.trim());
@@ -87,7 +104,7 @@ export default function OrdersHistoryPage() {
   }, [searchInput, params, setParams]);
 
   useEffect(() => {
-    if (isError && axios.isAxiosError(error) && error.response?.status === 401) {
+    if (isError && isUnauthorizedOrderHistoryError(error)) {
       window.location.assign('/login');
     }
   }, [isError, error]);
@@ -100,12 +117,6 @@ export default function OrdersHistoryPage() {
     setParams(next);
   }, [params, setParams]);
 
-  const setPage = (nextPage: number) => {
-    const next = new URLSearchParams(params);
-    next.set('page', String(nextPage));
-    setParams(next);
-  };
-
   const reset = () => setParams({ page: '1', pageSize: String(pageSize) });
 
   const facets: Facet[] = [
@@ -113,6 +124,8 @@ export default function OrdersHistoryPage() {
     ...(status ? [{ key: 'orderStatus', label: t('orderHistory.facetOrderStatus', { defaultValue: 'Order Status' }), value: orderStatuses.find(x => x.id === Number(status))?.name ?? status }] : []),
     ...(payment ? [{ key: 'paymentStatus', label: t('orderHistory.facetPaymentStatus', { defaultValue: 'Payment Status' }), value: PAYMENT_STATUS_LOOKUP.find(x => x.id === Number(payment))?.name ?? payment }] : []),
   ];
+  const hasActiveFilters = Boolean(orderNumber || status || payment || from || to);
+  const range = getOrderHistoryRange(resultPage, resultPageSize, items.length, totalCount);
 
   const commitSearch = () => {
     const n = Number(searchInput.trim());
@@ -171,16 +184,27 @@ export default function OrdersHistoryPage() {
       </section>}
 
       <section className="mb-2 flex shrink-0 flex-wrap items-center justify-between gap-2" aria-live="polite">
-        <span className="text-xs text-slate-600">{isFetching ? t('orderHistory.loading', { defaultValue: 'Loading orders…' }) : `${data.length ? (page - 1) * pageSize + 1 : 0}-${(page - 1) * pageSize + data.length}`}</span>
-        <div className="flex items-center gap-1"><select aria-label={t('orderHistory.pageSize', { defaultValue: 'Page size' })} value={pageSize} onChange={e => { const next = new URLSearchParams(params); next.set('pageSize', e.target.value); next.set('page', '1'); setParams(next); }} className="rounded border bg-white px-2 py-1">{PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}</select><Button variant="outline" size="sm" aria-label={t('orderHistory.previousPage', { defaultValue: 'Previous page' })} disabled={page <= 1 || isFetching} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button><span className="px-2">{page}</span><Button variant="outline" size="sm" aria-label={t('orderHistory.nextPage', { defaultValue: 'Next page' })} disabled={!hasNext || isFetching} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button></div>
+        <div className="flex flex-wrap items-center gap-2 text-xs text-slate-600">
+          <span>{t('orders.history.results', { count: totalCount, defaultValue: '{{count}} results' })}</span>
+          {hasActiveFilters && <span className="text-slate-400">{t('orders.history.ofTotal', { count: totalOrdersInTenant, defaultValue: 'of {{count}} total' })}</span>}
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="min-w-24 text-end" aria-live="polite">
+            {totalCount === 0 ? '0' : `${range.from}-${range.to} / ${totalCount}`}
+          </span>
+          {totalPages > 0 && <span className="px-1">{t('orders.history.pageOf', { page: resultPage, totalPages, defaultValue: 'Page {{page}} of {{totalPages}}' })}</span>}
+          <select aria-label={t('orderHistory.pageSize', { defaultValue: 'Page size' })} value={pageSize} onChange={e => { const next = new URLSearchParams(params); next.set('pageSize', e.target.value); next.set('page', '1'); setParams(next); }} className="rounded border bg-white px-2 py-1">{PAGE_SIZES.map(s => <option key={s} value={s}>{s}</option>)}</select>
+          <Button variant="outline" size="sm" aria-label={t('orderHistory.previousPage', { defaultValue: 'Previous page' })} disabled={!hasPreviousPage || isFetching} onClick={() => setPage(resultPage - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+          <Button variant="outline" size="sm" aria-label={t('orderHistory.nextPage', { defaultValue: 'Next page' })} disabled={!hasNextPage || isFetching} onClick={() => setPage(resultPage + 1)}><ChevronRight className="h-4 w-4" /></Button>
+        </div>
       </section>
 
-      {isError ? <div role="alert" className="flex min-h-0 flex-1 items-center justify-center rounded border border-red-200 bg-white p-6 text-center text-red-700">{getErrorMessage(error)} <Button variant="link" onClick={() => void refetch()}>{t('orderHistory.retry', { defaultValue: 'Retry' })}</Button></div> : data.length === 0 && !isLoading ? <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded border border-[#D8DADD] bg-white p-10 text-center"><p className="mb-3">{t('orderHistory.empty', { defaultValue: 'No orders match your filters' })}</p><Button variant="outline" onClick={reset}>{t('orderHistory.clearFilters', { defaultValue: 'Clear filters' })}</Button></div> : <OrdersTable rows={data} loading={isLoading} locale={i18n.language} currency={currency} t={t} paginationNote={t('orderHistory.paginationNote', { defaultValue: 'The API does not return a total count; next-page availability is inferred from the page size.' })} />}
+      {isError ? <div role="alert" className="flex min-h-0 flex-1 items-center justify-center rounded border border-red-200 bg-white p-6 text-center text-red-700">{getOrderHistoryErrorMessage(error)} <Button variant="link" onClick={() => void refetch()}>{t('orderHistory.retry', { defaultValue: 'Retry' })}</Button></div> : items.length === 0 && !isFetching ? <div className="flex min-h-0 flex-1 flex-col items-center justify-center rounded border border-[#D8DADD] bg-white p-10 text-center">{totalOrdersInTenant === 0 ? <p>{t('orders.history.noOrdersYet', { defaultValue: 'No orders yet' })}</p> : <><p className="mb-3">{t('orderHistory.empty', { defaultValue: 'No orders match your filters' })}</p><Button variant="outline" onClick={reset}>{t('orderHistory.clearFilters', { defaultValue: 'Clear filters' })}</Button></>}</div> : <OrdersTable rows={items} loading={isLoading} locale={i18n.language} currency={currency} t={t} />}
     </main>
   );
 }
 
-function OrdersTable({ rows, loading, locale, currency, t, paginationNote }: { rows: AdminOrdersHistoryDTO[]; loading: boolean; locale: string; currency: string; t: TFunction; paginationNote: string }) {
+function OrdersTable({ rows, loading, locale, currency, t }: { rows: AdminOrdersHistoryDTO[]; loading: boolean; locale: string; currency: string; t: TFunction }) {
   const headings = ['orderNumber', 'date', 'table', 'orderStatus', 'paymentStatus', 'items', 'subtotal', 'total', 'paidAmount', 'notes'];
   const labels: Record<string, string> = { orderNumber: 'Order Number', date: 'Date', table: 'Table', orderStatus: 'Order Status', paymentStatus: 'Payment Status', items: 'Items', subtotal: 'Subtotal', total: 'Total', paidAmount: 'Paid Amount', notes: 'Notes' };
   return <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded border border-[#D8DADD] bg-white"><div className="hidden min-h-0 flex-1 overflow-auto md:block"><table className="w-full min-w-[1100px] border-collapse text-[13px]"><thead className="sticky top-0 z-10 bg-white"><tr><th className="border-b border-[#D8DADD] px-3 py-2 text-start"><input type="checkbox" aria-label={t('orderHistory.selectRows', { defaultValue: 'Select rows' })} disabled /></th>{headings.map(h => <th key={h} className={`border-b border-[#D8DADD] px-3 py-2 text-start font-semibold ${['items', 'subtotal', 'total', 'paidAmount'].includes(h) ? 'text-end' : ''}`}>{t(`orderHistory.${h}`, { defaultValue: labels[h] })}</th>)}</tr></thead><tbody>
@@ -189,7 +213,7 @@ function OrdersTable({ rows, loading, locale, currency, t, paginationNote }: { r
       const paymentLabel = row.paidAmount > 0 && row.paidAmount < row.total
         ? t('orderHistory.partiallyPaid', { defaultValue: 'Partially paid' })
         : row.paymentStatus;
-      return <tr key={row.orderId} className="hover:bg-[#F7F7F7]"><td className="border-b border-slate-100 px-3 py-2"><input type="checkbox" aria-label={`${t('orderHistory.selectOrder', { defaultValue: 'Select order' })} ${row.orderNumber}`} /></td><td className="border-b border-slate-100 px-3 py-2 font-medium">{row.orderNumber}</td><td className="border-b border-slate-100 px-3 py-2">{format(new Date(row.createdAtURC), 'yyyy-MM-dd HH:mm')}</td><td className="border-b border-slate-100 px-3 py-2">{row.tableId ? row.tableId : '—'}</td><td className="border-b border-slate-100 px-3 py-2"><StatusBadge value={row.orderStatus} kind="order" /></td><td className="border-b border-slate-100 px-3 py-2"><StatusBadge value={paymentLabel} kind="payment" /></td><td className="border-b border-slate-100 px-3 py-2 text-end">{row.totalItems}</td><td className="border-b border-slate-100 px-3 py-2 text-end">{formatMoney(row.subtotal, currency, locale)}</td><td className="border-b border-slate-100 px-3 py-2 text-end">{formatMoney(row.total, currency, locale)}</td><td className="border-b border-slate-100 px-3 py-2 text-end">{formatMoney(row.paidAmount, currency, locale)}</td><td className="max-w-48 truncate border-b border-slate-100 px-3 py-2" title={row.notes || undefined}>{row.notes || '—'}</td></tr>;
+       return <tr key={row.orderId} className="hover:bg-[#F7F7F7]"><td className="border-b border-slate-100 px-3 py-2"><input type="checkbox" aria-label={`${t('orderHistory.selectOrder', { defaultValue: 'Select order' })} ${row.orderNumber}`} /></td><td className="border-b border-slate-100 px-3 py-2 font-medium">{row.orderNumber}</td><td className="border-b border-slate-100 px-3 py-2">{format(new Date(row.createdAtURC), 'yyyy-MM-dd HH:mm')}</td><td className="border-b border-slate-100 px-3 py-2">{row.tableId === null ? <span className="text-slate-400">—</span> : row.tableId}</td><td className="border-b border-slate-100 px-3 py-2"><StatusBadge value={row.orderStatus} kind="order" /></td><td className="border-b border-slate-100 px-3 py-2"><StatusBadge value={paymentLabel} kind="payment" /></td><td className="border-b border-slate-100 px-3 py-2 text-end">{row.totalItems}</td><td className="border-b border-slate-100 px-3 py-2 text-end">{formatMoney(row.subtotal, currency, locale)}</td><td className="border-b border-slate-100 px-3 py-2 text-end">{formatMoney(row.total, currency, locale)}</td><td className="border-b border-slate-100 px-3 py-2 text-end">{formatMoney(row.paidAmount, currency, locale)}</td><td className="max-w-48 truncate border-b border-slate-100 px-3 py-2" title={row.notes || undefined}>{row.notes || '—'}</td></tr>;
     })}
-    </tbody></table></div><div className="min-h-0 flex-1 space-y-2 overflow-auto p-2 md:hidden">{rows.map(row => <article key={`mobile-${row.orderId}`} className="rounded border border-slate-200 p-3"><strong>#{row.orderNumber}</strong><div>{row.orderStatus} · {row.paymentStatus}</div><div>{format(new Date(row.createdAtURC), 'yyyy-MM-dd HH:mm')} · {formatMoney(row.total, currency, locale)}</div><div className="truncate" title={row.notes || undefined}>{row.notes}</div></article>)}</div><div className="shrink-0 border-t border-[#D8DADD] px-3 py-1.5 text-xs text-slate-500">{paginationNote}</div></div>;
+    </tbody></table></div><div className="min-h-0 flex-1 space-y-2 overflow-auto p-2 md:hidden">{rows.map(row => <article key={`mobile-${row.orderId}`} className="rounded border border-slate-200 p-3"><strong>#{row.orderNumber}</strong><div>{row.orderStatus} · {row.paymentStatus}</div><div>{format(new Date(row.createdAtURC), 'yyyy-MM-dd HH:mm')} · {row.tableId === null ? '—' : row.tableId} · {formatMoney(row.total, currency, locale)}</div><div className="truncate" title={row.notes || undefined}>{row.notes}</div></article>)}</div></div>;
 }

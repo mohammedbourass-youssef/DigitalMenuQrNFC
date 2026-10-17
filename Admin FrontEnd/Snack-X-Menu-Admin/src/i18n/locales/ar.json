@@ -236,6 +236,12 @@
         "statusSettingsDescription": "اضبط الحالات المستخدمة لتتبع الطلبات.",
         "historyTitle": "سجل الطلبات",
         "historyDescription": "تصفح الطلبات السابقة وتفاصيلها.",
+        "history": {
+            "results": "{{count}} نتيجة",
+            "ofTotal": "من أصل {{count}} إجمالاً",
+            "pageOf": "الصفحة {{page}} من {{totalPages}}",
+            "noOrdersYet": "لا توجد طلبات بعد"
+        },
         "comingSoon": "هذا القسم قيد الإنشاء وسيكون متاحاً قريباً.",
         "statuses": {
             "total_one": "{{count}} حالة",

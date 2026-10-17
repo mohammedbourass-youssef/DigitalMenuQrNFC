@@ -236,6 +236,12 @@
         "statusSettingsDescription": "Configurez les statuts utilisés pour suivre vos commandes.",
         "historyTitle": "Historique des commandes",
         "historyDescription": "Parcourez les commandes passées et leurs détails.",
+        "history": {
+            "results": "{{count}} résultats",
+            "ofTotal": "sur {{count}} au total",
+            "pageOf": "Page {{page}} sur {{totalPages}}",
+            "noOrdersYet": "Aucune commande pour le moment"
+        },
         "comingSoon": "Cette section est en construction et sera bientôt disponible.",
         "statuses": {
             "total_one": "{{count}} statut",

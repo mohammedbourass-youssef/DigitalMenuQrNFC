@@ -159,7 +159,7 @@ namespace NFC_Backend.Domain.DTOS
     public sealed class AdminOrdersHistoryDTO
     {
         public Guid orderId { get; set; }
-        public Guid? TableId { get; set; }
+        public int? TableId { get; set; }
         public int OrderNumber { get; set; }
         public string OrderStatus { get ; set; } = string.Empty;
         public string PaymentStatus { get ; set; } = string.Empty;

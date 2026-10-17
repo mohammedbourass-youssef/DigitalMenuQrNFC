@@ -236,6 +236,12 @@
         "statusSettingsDescription": "Configure the statuses used to track orders.",
         "historyTitle": "Orders History",
         "historyDescription": "Browse past orders and their details.",
+        "history": {
+            "results": "{{count}} results",
+            "ofTotal": "of {{count}} total",
+            "pageOf": "Page {{page}} of {{totalPages}}",
+            "noOrdersYet": "No orders yet"
+        },
         "comingSoon": "This section is under construction and will be available soon.",
         "statuses": {
             "total_one": "{{count}} status",

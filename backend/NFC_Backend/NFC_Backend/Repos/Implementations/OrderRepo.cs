@@ -400,8 +400,7 @@ namespace NFC_Backend.Repos.Implementations
                 .ToListAsync(ct);
 
 
-
-        public async Task<List<AdminOrdersHistoryDTO>> GetAdminOrdersHistoryAsync(
+        public async Task<PagedResult<AdminOrdersHistoryDTO>> GetAdminOrdersHistoryAsync(
     AdminHistoryFilters f, Guid tenantId, string language, string currency)
         {
             var query = _dbContextContext.Orders
@@ -410,23 +409,21 @@ namespace NFC_Backend.Repos.Implementations
 
             if (f.OrderNumber.HasValue)
                 query = query.Where(o => o.OrderNumber == f.OrderNumber.Value);
-
             if (f.OrderStatus.HasValue)
                 query = query.Where(o => o.StatusId == f.OrderStatus.Value);
-
             if (f.paymentStatus.HasValue)
                 query = query.Where(o => o.PaymentStatusId == f.paymentStatus.Value);
-
             if (f.FromUTC.HasValue)
                 query = query.Where(o => o.CreatedAt >= f.FromUTC.Value);
-
             if (f.ToUTC.HasValue)
                 query = query.Where(o => o.CreatedAt <= f.ToUTC.Value);
 
             var pageSize = Math.Clamp(f.PageCunt, 1, 100);
             var pageNumber = Math.Max(f.PageNumber, 1);
+            // Count BEFORE joins and paging
+            var totalOrders = await query.CountAsync();
 
-            var result =
+            var items = await (
                 from o in query
                 join ps in _dbContextContext.PaymentStatusTranslations
                     on new { o.PaymentStatusId, Lang = language }
@@ -434,11 +431,14 @@ namespace NFC_Backend.Repos.Implementations
                 join os in _dbContextContext.OrderStatusTranslations
                     on new { o.StatusId, Lang = language }
                     equals new { StatusId = os.OrderStatusId, Lang = os.Lang }
-                orderby o.CreatedAt descending
+                join tb in _dbContextContext.Tables
+                    on o.TableId equals (Guid?)tb.Id into tableGroup
+                from tb in tableGroup.DefaultIfEmpty()
+                orderby o.CreatedAt descending, o.OrderNumber descending
                 select new AdminOrdersHistoryDTO
                 {
                     orderId = o.Id,
-                    TableId = o.TableId,
+                    TableId = tb.Number,
                     OrderNumber = o.OrderNumber,
                     OrderStatus = os.Name,
                     PaymentStatus = ps.Name,
@@ -448,16 +448,28 @@ namespace NFC_Backend.Repos.Implementations
                     PaidAtUTC = o.PaidAt,
                     Notes = o.Notes,
                     CreatedAtURC = o.CreatedAt,
-                    TotalItems = o.Items.Count()   // adjust to your navigation property name
-                };
-
-            return await result
+                    TotalItems = o.Items.Count()
+                })
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+
+            return new PagedResult<AdminOrdersHistoryDTO>
+            {
+                Items = items,
+                Page = pageNumber,
+                PageSize = pageSize,
+               TotalCount = totalOrders,
+            };
         }
-
-
+   
+        
+        
+        public Task<int> GetTotalOrdersInTenantByTenantIdAsync(Guid tenantId)
+        => _dbContextContext.Orders
+                .AsNoTracking()
+                .Where(o => o.TenantId == tenantId)
+                 .CountAsync();
 
 
 

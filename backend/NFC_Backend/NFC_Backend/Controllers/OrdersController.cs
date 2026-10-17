@@ -743,7 +743,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("order-history")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
-        public async Task<ActionResult<List<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync(
+        public async Task<ActionResult<PagedResult<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync(
      [FromQuery] AdminHistoryFilters historyFilters)
         {
             try
@@ -755,18 +755,13 @@ namespace NFC_Backend.Controllers
                     return Unauthorized(new { error = "Invalid token." });
                 }
 
-                var data = await _orderRepo.GetAdminOrdersHistoryAsync(
+                var result = await _orderRepo.GetAdminOrdersHistoryAsync(
                     historyFilters,
                     tenantId.Value,
                     _languageAccessor.Current,
                     _CurrencyAccessor.Current);
 
-                if (data.Count == 0)
-                {
-                    return Ok(new List<AdminOrdersHistoryDTO>());   // see note below
-                }
-
-                return Ok(data);
+                return Ok(result);
             }
             catch (Exception ex)
             {

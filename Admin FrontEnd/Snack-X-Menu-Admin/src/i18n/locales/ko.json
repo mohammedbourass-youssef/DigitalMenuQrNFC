@@ -1,4 +1,12 @@
 {
+    "orders": {
+        "history": {
+            "results": "결과 {{count}}개",
+            "ofTotal": "전체 {{count}}개 중",
+            "pageOf": "{{totalPages}}페이지 중 {{page}}페이지",
+            "noOrdersYet": "아직 주문이 없습니다"
+        }
+    },
     "orderPayment": {
         "button": "결제 정보",
         "title": "결제 정보",

@@ -1,4 +1,12 @@
 {
+    "orders": {
+        "history": {
+            "results": "{{count}}件の結果",
+            "ofTotal": "全{{count}}件中",
+            "pageOf": "{{totalPages}}ページ中{{page}}ページ",
+            "noOrdersYet": "注文はまだありません"
+        }
+    },
     "orderPayment": {
         "button": "支払い情報",
         "title": "支払い情報",

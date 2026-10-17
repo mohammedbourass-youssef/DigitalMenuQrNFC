@@ -1,4 +1,12 @@
 {
+    "orders": {
+        "history": {
+            "results": "{{count}} resultados",
+            "ofTotal": "de {{count}} en total",
+            "pageOf": "Página {{page}} de {{totalPages}}",
+            "noOrdersYet": "Todavía no hay pedidos"
+        }
+    },
     "orderPayment": {
         "button": "Información de pago",
         "title": "Información de pago",

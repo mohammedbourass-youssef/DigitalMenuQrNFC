@@ -1,6 +1,7 @@
 ﻿export interface AdminOrdersHistoryDTO {
   orderId: string;
-  tableId: string | null;
+  /** Display table number; null for takeaway/delivery/counter orders. */
+  tableId: number | null;
   orderNumber: number;
   orderStatus: string;
   paymentStatus: string;
@@ -11,6 +12,17 @@
   notes: string | null;
   createdAtURC: string;
   totalItems: number;
+}
+
+export interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalOrdersInTenant: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 export interface AdminHistoryFilters {
