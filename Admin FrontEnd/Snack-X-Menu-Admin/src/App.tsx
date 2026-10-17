@@ -116,7 +116,14 @@ function ProtectedLayout() {
               <Route path="/tables" element={<TablesPage />} />
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/orders/status-settings" element={<OrderStatusSettingsPage />} />
-              <Route path="/orders/history" element={<OrdersHistoryPage />} />
+              <Route
+                path="/orders/history"
+                element={
+                  <ProtectedRoute roles={['TenantOwner']}>
+                    <OrdersHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/nfc-tags" element={<NFCTagsPage />} />
                 <Route path="/payments/invoices" element={<PaymentsInvoicesPage />} />
                 <Route path={PAYMENT_STATUS_ENTRY.href} element={<PaymentStatusPage />} />
