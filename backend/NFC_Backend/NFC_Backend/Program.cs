@@ -29,6 +29,13 @@ var connectionString = builder.Configuration.GetConnectionString("SmartMenuDb")
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.AddMemoryCache();
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+if (!string.IsNullOrWhiteSpace(redisConnectionString)
+    && builder.Configuration.GetValue<bool>("AppSettings:UseRedis"))
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+        options.Configuration = redisConnectionString);
+}
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddJWTBearerToken(builder.Configuration);
 builder.Services.AddDependencyInjection(builder.Configuration);

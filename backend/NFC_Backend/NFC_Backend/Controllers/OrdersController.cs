@@ -743,8 +743,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("order-history")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
-        public async Task<ActionResult<PagedResult<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync(
-     [FromQuery] AdminHistoryFilters historyFilters)
+        public async Task<ActionResult<PagedResult<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync( [FromQuery] AdminHistoryFilters historyFilters)
         {
             try
             {

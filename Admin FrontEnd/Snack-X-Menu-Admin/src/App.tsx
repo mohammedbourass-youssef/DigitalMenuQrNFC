@@ -32,6 +32,7 @@ import SettingsPage from '@/pages/Settings';
 import TablesPage from '@/pages/Tables';
 import NotFound from '@/pages/not-found';
 import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
+import { HR_PAGE_CONFIG } from '@/config/hrNavigation';
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'snackx.sidebar.collapsed';
 
@@ -142,6 +143,9 @@ function ProtectedLayout() {
                 {/* Temporary entry - redirect to payment status. */}
                 <Route path={PAYMENTS_COMING_SOON_ENTRY.href} element={<Navigate to={PAYMENT_STATUS_ENTRY.href} replace />} />
               <Route path="/settings" element={<SettingsPage />} />
+              {HR_PAGE_CONFIG.map(({ path, component: HrPage }) => (
+                <Route key={path} path={path} element={<HrPage />} />
+              ))}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

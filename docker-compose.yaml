@@ -71,6 +71,20 @@ services:
       - seq_data:/data
     networks:
       - app_network
+  redis:
+    image: redis:7-alpine
+    container_name: eByte_Software_redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - app_network
   backend:
     build:
       context: ./backend/NFC_Backend
@@ -84,6 +98,8 @@ services:
         condition: service_healthy
       seq:
         condition: service_started
+      redis:
+        condition: service_healthy
       # migrator:
       #   condition: service_completed_successfully
     ports:
@@ -96,6 +112,7 @@ services:
       Serilog__WriteTo__1__Args__serverUrl: ${SEQ_SERVER_URL:-http://seq:5341}
 
       ConnectionStrings__SmartMenuDb: Host=postgres;Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      ConnectionStrings__Redis: ${REDIS_CONNECTION_STRING:-redis:6379,abortConnect=false}
 
       Jwt__Secret: ${JWT_SECRET}
       Jwt__Issuer: ${JWT_ISSUER}
@@ -112,6 +129,7 @@ services:
       AppSettings__BaseDomain: ${BASE_DOMAIN}
       AppSettings__UseHttps: ${MINIO_USE_SSL}
       AppSettings__DefaultPort : ${DEFAULT_PORT}
+      AppSettings__UseRedis: ${USE_REDIS:-true}
 
       ExchangeRateApi__ApiKey: ${EXCHANGE_RATE_API_KEY}
       GmailSettings__AppPassword: ${GMAIL_APP_PASSWORD}
@@ -191,6 +209,7 @@ volumes:
   pgadmin_data:
   minio_data: 
   seq_data:
+  redis_data:
 
 networks:
   app_network:

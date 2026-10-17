@@ -21,11 +21,13 @@ import { useTranslation } from 'react-i18next';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { DESKTOP_SIDEBAR_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
 import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
+import { HR_SETTINGS_GROUP } from '@/config/hrNavigation';
 
 type SidebarLink = {
   type: 'link';
   href: string;
   labelKey: string;
+  defaultLabel?: string;
   icon: LucideIcon;
   end?: boolean;
 };
@@ -33,8 +35,9 @@ type SidebarLink = {
 type SidebarGroup = {
   type: 'group';
   labelKey: string;
+  defaultLabel?: string;
   icon: LucideIcon;
-  children: Array<Pick<SidebarLink, 'href' | 'labelKey' | 'icon' | 'end'>>;
+  children: Array<Pick<SidebarLink, 'href' | 'labelKey' | 'defaultLabel' | 'icon' | 'end'>>;
 };
 
 type SidebarEntry = SidebarLink | SidebarGroup;
@@ -68,6 +71,7 @@ const navItems: SidebarEntry[] = [
         },
     ],
   },
+  HR_SETTINGS_GROUP,
   { type: 'link', href: '/nfc-tags', labelKey: 'sidebar.nfcTags', icon: Tags },
   { type: 'link', href: '/settings', labelKey: 'sidebar.settings', icon: Settings },
 ];
@@ -110,7 +114,7 @@ export default function Sidebar() {
     setExpanded((prev) => ({ ...prev, [labelKey]: !prev[labelKey] }));
   };
 
-  const label = (key: string) => t(key);
+  const label = (key: string, defaultLabel?: string) => t(key, { defaultValue: defaultLabel ?? key });
 
   const isOutOfView = isDesktop ? collapsed : !mobileOpen;
   const drawerOffset = isRtl ? 'translate-x-full' : '-translate-x-full';
@@ -173,7 +177,7 @@ export default function Sidebar() {
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
                   >
                     <entry.icon className="h-4 w-4 shrink-0" />
-                    <span className="flex-1 text-start">{label(entry.labelKey)}</span>
+                    <span className="flex-1 text-start">{label(entry.labelKey, entry.defaultLabel)}</span>
                     <ChevronDown
                       className={`h-4 w-4 shrink-0 transition-transform ${
                         expanded[entry.labelKey] ? 'rotate-180' : ''
@@ -199,7 +203,7 @@ export default function Sidebar() {
                             }
                           >
                             <child.icon className="h-4 w-4 shrink-0" />
-                            {label(child.labelKey)}
+                            {label(child.labelKey, child.defaultLabel)}
                           </NavLink>
                         ))}
                     </div>
