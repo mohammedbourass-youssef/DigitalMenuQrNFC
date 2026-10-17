@@ -743,22 +743,34 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("order-history")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
-        public async Task<ActionResult<AdminOrdersHistoryDTO>> GetOrderHistoryAsync(AdminHistoryFilters historyFilters)
+        public async Task<ActionResult<List<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync(
+     [FromQuery] AdminHistoryFilters historyFilters)
         {
             try
             {
                 var tenantId = User.GetTenantId();
                 if (tenantId == null)
                 {
-                    _logger.LogWarning("GetPaymentReceipt failed - TenantId claim missing from token");
+                    _logger.LogWarning("GetOrderHistory failed - TenantId claim missing from token");
                     return Unauthorized(new { error = "Invalid token." });
                 }
 
-                var data = await _orderRepo.GetAdminOrdersHistoryAsync(historyFilters);
+                var data = await _orderRepo.GetAdminOrdersHistoryAsync(
+                    historyFilters,
+                    tenantId.Value,
+                    _languageAccessor.Current,
+                    _CurrencyAccessor.Current);
+
+                if (data.Count == 0)
+                {
+                    return Ok(new List<AdminOrdersHistoryDTO>());   // see note below
+                }
+
+                return Ok(data);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "GetPaymentReceipt unexpected error. OrderId: {OrderId}", orderId);
+                _logger.LogError(ex, "GetOrderHistory unexpected error. TenantId: {TenantId}", User.GetTenantId());
                 return StatusCode(500, new { error = "An unexpected error occurred." });
             }
         }
