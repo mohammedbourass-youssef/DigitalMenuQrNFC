@@ -7,16 +7,19 @@ namespace NFC_Backend.Services
 {
     public sealed class CategoryTranslationService : ICategoryTranslationService
     {
-        private readonly ITranslatorAdapter _translator;
+        private readonly ITranslatorAdapter _translator;                  // LibreTranslate — Description
+        private readonly IGeminiLmTranslatorAdapter _nameTransliterator;  // Gemini — Name
         private readonly ILogger<CategoryTranslationService> _logger;
 
         private static readonly string[] TargetLanguages = TranslationLanguages.All;
 
         public CategoryTranslationService(
             ITranslatorAdapter translator,
+            IGeminiLmTranslatorAdapter nameTransliterator,
             ILogger<CategoryTranslationService> logger)
         {
             _translator = translator;
+            _nameTransliterator = nameTransliterator;
             _logger = logger;
         }
         public async Task<IReadOnlyDictionary<string, string>> TranslateStatusNameAsync(
@@ -72,9 +75,10 @@ namespace NFC_Backend.Services
                 "Translating category. Name: {Name} | HasDescription: {HasDesc} | FromLang: {FromLang}",
                 name, !string.IsNullOrWhiteSpace(description), fromLang ?? "auto-detect");
 
-            // Translate name and description independently so a failure in one
-            // field does not discard a successful translation of the other.
-            var nameTask = TranslateFieldOrOriginalAsync(name, fromLang, ct, "category name");
+            // Gemini handles names; LibreTranslate handles descriptions. Keep
+            // failures independent so one service outage doesn't discard the
+            // successful translations from the other service.
+            var nameTask = TransliterateNameOrOriginalAsync(name, ct);
 
             var descriptionTask = !string.IsNullOrWhiteSpace(description)
                 ? TranslateFieldOrOriginalAsync(description, fromLang, ct, "category description")
@@ -82,7 +86,7 @@ namespace NFC_Backend.Services
 
             await Task.WhenAll(nameTask, descriptionTask ?? Task.CompletedTask);
 
-            var nameTranslations = nameTask.Result.Translations;
+            var nameTranslations = nameTask.Result;
             var descriptionTranslations = descriptionTask?.Result.Translations;
 
             _logger.LogInformation(
@@ -125,6 +129,24 @@ namespace NFC_Backend.Services
                     "LibreTranslate failed for {Field}; using the original text for untranslated languages.", fieldName);
                 return new TranslationResult(text, null, null,
                     TargetLanguages.ToDictionary(language => language, _ => text));
+            }
+        }
+
+        private async Task<Dictionary<string, string>> TransliterateNameOrOriginalAsync(
+            string name,
+            CancellationToken ct)
+        {
+            try
+            {
+                return await _nameTransliterator.TransliterateAsync(name, TargetLanguages, ct);
+            }
+            catch (Exception ex) when (!ct.IsCancellationRequested
+                && (ex is HttpRequestException or TaskCanceledException
+                    or InvalidOperationException or System.Text.Json.JsonException))
+            {
+                _logger.LogWarning(ex,
+                    "Gemini name translation failed; using the original name for missing languages.");
+                return TargetLanguages.ToDictionary(language => language, _ => name);
             }
         }
     }
