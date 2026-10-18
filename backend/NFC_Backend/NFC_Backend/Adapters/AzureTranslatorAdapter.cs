@@ -31,8 +31,7 @@ namespace NFC_Backend.Adapters
             _apiKey = options.ApiKey;
             _region = options.Region;
             _endpoint = options.Endpoint.TrimEnd('/');
-            
-            _logger.LogInformation("AzureTranslatorAdapter initialized with endpoint: {Endpoint} , _apiKey: {ApiKey} , _region: {Region}", _endpoint, _apiKey, _region);
+
         }
 
         /// <summary>
@@ -65,6 +64,12 @@ namespace NFC_Backend.Adapters
             request.Headers.Add("Ocp-Apim-Subscription-Region", _region);
 
             var response = await _http.SendAsync(request, ct);
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync(ct);
+                _logger.LogError("Azure Translator failed: {Status} {Body}", (int)response.StatusCode, error);
+                response.EnsureSuccessStatusCode();
+            }
             response.EnsureSuccessStatusCode();
 
             var azureResults = await response.Content.ReadFromJsonAsync<List<AzureResponseItem>>(_json, ct)
