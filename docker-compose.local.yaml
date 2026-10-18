@@ -17,6 +17,10 @@
 # -----------------------------------------------------------------------------
 
 services:
+  libretranslate:
+    ports:
+      - "127.0.0.1:5000:5000"
+
   gateway:
     # `!override` replaces the list from docker-compose.yaml instead of merging
     # it, which is what drops the /etc/ssl/cloudflare/*.pem bind mounts.

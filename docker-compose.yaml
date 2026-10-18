@@ -85,6 +85,17 @@ services:
       retries: 5
     networks:
       - app_network
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: libretranslate
+    restart: unless-stopped
+    command: ["--load-only", "en,fr,ar,es"]
+    environment:
+      LT_DISABLE_WEB_UI: "true"
+    volumes:
+      - libretranslate_models:/home/libretranslate/.local
+    networks:
+      - app_network
   backend:
     build:
       context: ./backend/NFC_Backend
@@ -100,6 +111,8 @@ services:
         condition: service_started
       redis:
         condition: service_healthy
+      libretranslate:
+        condition: service_started
       # migrator:
       #   condition: service_completed_successfully
     ports:
@@ -140,6 +153,8 @@ services:
       AzureTranslator__ApiKey: ${AZURE_TRANSLATOR_API_KEY}
       AzureTranslator__Region : ${AZURE_TRANSLATOR_REGION}
       AzureTranslator__Endpoint : ${AZURE_TRANSLATOR_ENDPOINT}
+      LibreTranslate__Endpoint: http://libretranslate:5000
+      LibreTranslate__ApiKey: ${LIBRETRANSLATE_API_KEY:-}
       Gemini__ApiKey: ${GEMINI_API_KEY}
       Gemini__Model : ${GEMINI_MODEL}
       Variable__FreeTrialDays: ${FREE_TRIAL_DAYS}
@@ -210,6 +225,7 @@ volumes:
   minio_data: 
   seq_data:
   redis_data:
+  libretranslate_models:
 
 networks:
   app_network:

@@ -46,25 +46,14 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IEmailAdapter, GmailSmtpAdapter>();
             services.AddScoped<IVerificationEmailService, VerificationEmailService>();
         
-          services
-    .AddOptions<AzureTranslatorOptions>()
-    .BindConfiguration(AzureTranslatorOptions.Section)
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-           services.AddHttpClient<ITranslatorAdapter, AzureTranslatorAdapter>((sp, client) =>
+            services.Configure<LibreTranslateOptions>(configuration.GetSection(LibreTranslateOptions.Section));
+            services.AddSingleton(sp => sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<LibreTranslateOptions>>().Value);
+            services.AddHttpClient<ITranslatorAdapter, LibreTranslateAdapter>(client =>
             {
-                // HttpClient base address is optional; the adapter builds the full URL itself
-                client.Timeout = TimeSpan.FromSeconds(10);
+                client.Timeout = TimeSpan.FromSeconds(30);
             }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
             {
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2),
-            });
-           services.AddTransient<ITranslatorAdapter>(sp =>
-            {
-                var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureTranslatorAdapter));
-                var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AzureTranslatorOptions>>().Value;
-                var logger = sp.GetRequiredService<ILogger<AzureTranslatorAdapter>>();
-                return new AzureTranslatorAdapter(http, opts , logger);
             });
 
             services.Configure<GeminiOptions>(configuration.GetSection("Gemini"));

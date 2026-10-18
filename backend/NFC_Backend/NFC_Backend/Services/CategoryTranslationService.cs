@@ -34,7 +34,17 @@ namespace NFC_Backend.Services
                 "Translating status name. Name: {Name} | FromLang: {FromLang}",
                 statusName, fromLang ?? "auto-detect");
 
-            var result = await _translator.TranslateAsync(statusName, TargetLanguages, fromLang, ct);
+            TranslationResult result;
+            try
+            {
+                result = await _translator.TranslateAsync(statusName, TargetLanguages, fromLang, ct);
+            }
+            catch (Exception ex) when (!ct.IsCancellationRequested
+                && (ex is HttpRequestException || ex is TaskCanceledException))
+            {
+                _logger.LogWarning(ex, "Status translation failed; using the original text for every language.");
+                return TargetLanguages.ToDictionary(lang => lang, _ => statusName);
+            }
 
             var translations = result.Translations;
 
@@ -72,10 +82,24 @@ namespace NFC_Backend.Services
                 ? _translator.TranslateAsync(description, TargetLanguages, fromLang, ct)
                 : null;
 
-            // Await all running tasks together
-            await Task.WhenAll(
-                nameTask,
-                descriptionTask ?? Task.CompletedTask);   // 👈 no redundant double-await
+            try
+            {
+                await Task.WhenAll(nameTask, descriptionTask ?? Task.CompletedTask);
+            }
+            catch (Exception ex) when (!ct.IsCancellationRequested
+                && (ex is HttpRequestException || ex is TaskCanceledException))
+            {
+                _logger.LogWarning(ex,
+                    "Category translation failed; saving the original name and description for every language.");
+                return new CategoryTranslationResult
+                {
+                    SourceLanguage = fromLang ?? "unknown",
+                    DetectionScore = null,
+                    Translations = TargetLanguages.ToDictionary(
+                        lang => lang,
+                        _ => new LocalizedCategoryText(Name: name, Description: description)),
+                };
+            }
 
             var nameTranslations = nameTask.Result;
             var descriptionTranslations = descriptionTask?.Result.Translations;
