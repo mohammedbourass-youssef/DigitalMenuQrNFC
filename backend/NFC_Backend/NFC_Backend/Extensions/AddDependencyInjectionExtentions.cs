@@ -63,7 +63,8 @@ namespace NFC_Backend.Extensions
             {
                 var http = sp.GetRequiredService<IHttpClientFactory>().CreateClient(nameof(AzureTranslatorAdapter));
                 var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AzureTranslatorOptions>>().Value;
-                return new AzureTranslatorAdapter(http, opts);
+                var logger = sp.GetRequiredService<ILogger<AzureTranslatorAdapter>>();
+                return new AzureTranslatorAdapter(http, opts , logger);
             });
 
             services.Configure<GeminiOptions>(configuration.GetSection("Gemini"));
