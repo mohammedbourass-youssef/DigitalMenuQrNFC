@@ -52,23 +52,34 @@ namespace NFC_Backend.Adapters
             {
                 if (!string.Equals(language, source, StringComparison.OrdinalIgnoreCase))
                 {
-                    var request = new LibreRequest(text, source, language, "text", _apiKey);
-                    using var response = await _http.PostAsJsonAsync("translate", request, JsonOptions, ct);
-                    if (!response.IsSuccessStatusCode)
+                    try
                     {
-                        var error = await response.Content.ReadAsStringAsync(ct);
-                        _logger.LogError("LibreTranslate failed ({Lang}): {Status} {Body}",
-                            language, (int)response.StatusCode, error);
-                        response.EnsureSuccessStatusCode();
-                    }
+                        var request = new LibreRequest(text, source, language, "text", _apiKey);
+                        using var response = await _http.PostAsJsonAsync("translate", request, JsonOptions, ct);
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            var error = await response.Content.ReadAsStringAsync(ct);
+                            _logger.LogError("LibreTranslate failed ({Lang}): {Status} {Body}",
+                                language, (int)response.StatusCode, error);
+                            response.EnsureSuccessStatusCode();
+                        }
 
-                    var result = await response.Content.ReadFromJsonAsync<LibreResponse>(JsonOptions, ct)
-                        ?? throw new InvalidOperationException("LibreTranslate returned an empty response");
-                    return (Language: language, Text: result.TranslatedText,
-                        DetectedLanguage: result.DetectedLanguage?.Language,
-                        Confidence: result.DetectedLanguage is null
-                            ? (double?)null
-                            : result.DetectedLanguage.Confidence / 100d);
+                        var result = await response.Content.ReadFromJsonAsync<LibreResponse>(JsonOptions, ct)
+                            ?? throw new InvalidOperationException("LibreTranslate returned an empty response");
+                        return (Language: language, Text: result.TranslatedText,
+                            DetectedLanguage: result.DetectedLanguage?.Language,
+                            Confidence: result.DetectedLanguage is null
+                                ? (double?)null
+                                : result.DetectedLanguage.Confidence / 100d);
+                    }
+                    catch (Exception ex) when (!ct.IsCancellationRequested
+                        && ex is HttpRequestException or TaskCanceledException or InvalidOperationException or JsonException)
+                    {
+                        _logger.LogWarning(ex,
+                            "LibreTranslate request failed for language {Lang}; keeping the original text for this language.", language);
+                        return (Language: language, Text: text, DetectedLanguage: (string?)null,
+                            Confidence: (double?)null);
+                    }
                 }
 
                 return (Language: language, Text: text, DetectedLanguage: (string?)source,

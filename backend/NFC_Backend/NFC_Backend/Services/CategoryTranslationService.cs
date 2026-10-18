@@ -7,19 +7,16 @@ namespace NFC_Backend.Services
 {
     public sealed class CategoryTranslationService : ICategoryTranslationService
     {
-        private readonly ITranslatorAdapter _translator;                  // Azure  — Description
-        private readonly IGeminiLmTranslatorAdapter _nameTransliterator;  // Gemini — Name
+        private readonly ITranslatorAdapter _translator;
         private readonly ILogger<CategoryTranslationService> _logger;
 
         private static readonly string[] TargetLanguages = TranslationLanguages.All;
 
         public CategoryTranslationService(
             ITranslatorAdapter translator,
-            IGeminiLmTranslatorAdapter nameTransliterator,
             ILogger<CategoryTranslationService> logger)
         {
             _translator = translator;
-            _nameTransliterator = nameTransliterator;
             _logger = logger;
         }
         public async Task<IReadOnlyDictionary<string, string>> TranslateStatusNameAsync(
@@ -75,33 +72,17 @@ namespace NFC_Backend.Services
                 "Translating category. Name: {Name} | HasDescription: {HasDesc} | FromLang: {FromLang}",
                 name, !string.IsNullOrWhiteSpace(description), fromLang ?? "auto-detect");
 
-            // Run both translations in parallel
-            var nameTask = _nameTransliterator.TransliterateAsync(name, TargetLanguages, ct);
+            // Translate name and description independently so a failure in one
+            // field does not discard a successful translation of the other.
+            var nameTask = TranslateFieldOrOriginalAsync(name, fromLang, ct, "category name");
 
             var descriptionTask = !string.IsNullOrWhiteSpace(description)
-                ? _translator.TranslateAsync(description, TargetLanguages, fromLang, ct)
+                ? TranslateFieldOrOriginalAsync(description, fromLang, ct, "category description")
                 : null;
 
-            try
-            {
-                await Task.WhenAll(nameTask, descriptionTask ?? Task.CompletedTask);
-            }
-            catch (Exception ex) when (!ct.IsCancellationRequested
-                && (ex is HttpRequestException || ex is TaskCanceledException))
-            {
-                _logger.LogWarning(ex,
-                    "Category translation failed; saving the original name and description for every language.");
-                return new CategoryTranslationResult
-                {
-                    SourceLanguage = fromLang ?? "unknown",
-                    DetectionScore = null,
-                    Translations = TargetLanguages.ToDictionary(
-                        lang => lang,
-                        _ => new LocalizedCategoryText(Name: name, Description: description)),
-                };
-            }
+            await Task.WhenAll(nameTask, descriptionTask ?? Task.CompletedTask);
 
-            var nameTranslations = nameTask.Result;
+            var nameTranslations = nameTask.Result.Translations;
             var descriptionTranslations = descriptionTask?.Result.Translations;
 
             _logger.LogInformation(
@@ -125,6 +106,26 @@ namespace NFC_Backend.Services
                 DetectionScore = null,
                 Translations = merged,
             };
+        }
+
+        private async Task<TranslationResult> TranslateFieldOrOriginalAsync(
+            string text,
+            string? fromLang,
+            CancellationToken ct,
+            string fieldName)
+        {
+            try
+            {
+                return await _translator.TranslateAsync(text, TargetLanguages, fromLang, ct);
+            }
+            catch (Exception ex) when (!ct.IsCancellationRequested
+                && ex is HttpRequestException or TaskCanceledException or InvalidOperationException or System.Text.Json.JsonException)
+            {
+                _logger.LogWarning(ex,
+                    "LibreTranslate failed for {Field}; using the original text for untranslated languages.", fieldName);
+                return new TranslationResult(text, null, null,
+                    TargetLanguages.ToDictionary(language => language, _ => text));
+            }
         }
     }
 }
