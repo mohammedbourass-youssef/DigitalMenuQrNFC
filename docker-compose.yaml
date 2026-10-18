@@ -89,7 +89,7 @@ services:
     image: libretranslate/libretranslate:latest
     container_name: libretranslate
     restart: unless-stopped
-    command: ["--load-only", "en,fr,ar,es,it,ja,zh,ko,de"]
+    command: ["--load-only", "en,fr,ar,es,de,it,pt,ru,zh,ja,ko,tr,nl,hi,pl,uk"]
     environment:
       LT_DISABLE_WEB_UI: "true"
     volumes:
