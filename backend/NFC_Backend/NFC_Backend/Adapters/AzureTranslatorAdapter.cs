@@ -14,21 +14,25 @@ namespace NFC_Backend.Adapters
         private readonly string _region;
         private readonly string _endpoint;
 
+        private readonly ILogger<AzureTranslatorAdapter> _logger;
         private static readonly JsonSerializerOptions _json = new()
         {
             PropertyNameCaseInsensitive = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         };
 
-        public AzureTranslatorAdapter(HttpClient http, AzureTranslatorOptions options)
+        public AzureTranslatorAdapter(HttpClient http, AzureTranslatorOptions options, ILogger<AzureTranslatorAdapter> logger)
         {
             ArgumentException.ThrowIfNullOrEmpty(options.ApiKey, nameof(options.ApiKey));
             ArgumentException.ThrowIfNullOrEmpty(options.Region, nameof(options.Region));
 
             _http = http;
+            _logger = logger;
             _apiKey = options.ApiKey;
             _region = options.Region;
             _endpoint = options.Endpoint.TrimEnd('/');
+            
+            _logger.LogInformation("AzureTranslatorAdapter initialized with endpoint: {Endpoint} , _apiKey: {ApiKey} , _region: {Region}", _endpoint, _apiKey, _region);
         }
 
         /// <summary>
