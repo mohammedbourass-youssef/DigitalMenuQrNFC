@@ -652,6 +652,60 @@
     },
     "settings": {
         "title": "Paramètres",
+        "navigation": {
+            "systemPreferences": "Préférences système",
+            "restaurantInformation": "Informations du restaurant",
+            "userInformation": "Informations utilisateur",
+            "upgrade": "Améliorez votre expérience"
+        },
+        "upgrade": {
+            "noPlan": "Aucune information sur le forfait trouvée",
+            "loadError": "Impossible de charger les informations du forfait.",
+            "retry": "Réessayer",
+            "comingSoon": "Bientôt disponible",
+            "free": "Gratuit",
+            "monthly": "Mensuel",
+            "yearly": "Annuel",
+            "billingCycle": "Cycle de facturation",
+            "startDate": "Date de début",
+            "expirationDate": "Date de renouvellement / expiration",
+            "usageLimits": "Utilisation et limites",
+            "users": "Utilisateurs",
+            "categories": "Catégories",
+            "menuItems": "Articles du menu",
+            "tables": "Tables",
+            "languages": "Langues",
+            "maxImages": "Nombre maximal d'images par article",
+            "unlimited": "Illimité",
+            "status": {
+                "active": "Actif",
+                "expiringSoon": "Expire bientôt",
+                "expired": "Expiré"
+            },
+            "plansPricing": "Offres et tarifs",
+            "plansDescription": "Choisissez l'offre adaptée à votre restaurant.",
+            "plansError": "Impossible de charger les offres.",
+            "noPlans": "Aucune offre disponible",
+            "saveUpTo": "Économisez jusqu'à {{percent}} %",
+            "savePercent": "Économisez {{percent}} %",
+            "currentPlan": "Offre actuelle",
+            "upgrade": "Changer d'offre",
+            "upgradeDialog": {
+                "title": "Mise à niveau bientôt disponible",
+                "description": "Le processus de mise à niveau vers {{plan}} sera bientôt ajouté.",
+                "close": "Fermer"
+            },
+            "perMonth": "/ mois",
+            "perYear": "/ an",
+            "features": {
+                "users": "{{count}} utilisateurs",
+                "categories": "{{count}} catégories",
+                "menuItems": "{{count}} articles de menu",
+                "tables": "{{count}} tables",
+                "imagesPerMenuItem": "{{count}} images par article",
+                "languages": "{{count}} langues"
+            }
+        },
         "restaurantInfo": "Informations du restaurant",
         "restaurantInfoDesc": "Consultez et gérez les détails de votre restaurant.",
         "edit": "Modifier",

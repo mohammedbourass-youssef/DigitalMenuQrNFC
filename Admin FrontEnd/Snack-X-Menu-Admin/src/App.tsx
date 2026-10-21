@@ -29,6 +29,10 @@ import PaymentsComingSoonPage from '@/pages/PaymentsComingSoon';
 import PaymentsInvoicesPage from '@/pages/PaymentsInvoices';
 import PaymentStatusPage from '@/pages/PaymentsStatus';
 import SettingsPage from '@/pages/Settings';
+import SystemPreferencesPage from '@/pages/settings/system-preferences/SystemPreferences';
+import RestaurantInformationPage from '@/pages/settings/restaurant-information/RestaurantInformation';
+import UserInformationPage from '@/pages/settings/user-information/UserInformation';
+import UpgradePage from '@/pages/settings/upgrade/UpgradePage';
 import TablesPage from '@/pages/Tables';
 import NotFound from '@/pages/not-found';
 import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
@@ -142,7 +146,13 @@ function ProtectedLayout() {
               />
                 {/* Temporary entry - redirect to payment status. */}
                 <Route path={PAYMENTS_COMING_SOON_ENTRY.href} element={<Navigate to={PAYMENT_STATUS_ENTRY.href} replace />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings" element={<SettingsPage />}>
+                <Route index element={<Navigate to="system-preferences" replace />} />
+                <Route path="system-preferences" element={<SystemPreferencesPage />} />
+                <Route path="restaurant-information" element={<RestaurantInformationPage />} />
+                <Route path="user-information" element={<UserInformationPage />} />
+                <Route path="upgrade" element={<UpgradePage />} />
+              </Route>
               {HR_PAGE_CONFIG.map(({ path, component: HrPage }) => (
                 <Route key={path} path={path} element={<HrPage />} />
               ))}

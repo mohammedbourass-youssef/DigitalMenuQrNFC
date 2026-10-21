@@ -652,6 +652,60 @@
     },
     "settings": {
         "title": "Settings",
+        "navigation": {
+            "systemPreferences": "System Preferences",
+            "restaurantInformation": "Restaurant Information",
+            "userInformation": "User Information",
+            "upgrade": "Upgrade Your Experience"
+        },
+        "upgrade": {
+            "noPlan": "No plan information found",
+            "loadError": "Unable to load plan information.",
+            "retry": "Retry",
+            "comingSoon": "Coming soon",
+            "free": "Free",
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "billingCycle": "Billing cycle",
+            "startDate": "Start date",
+            "expirationDate": "Renewal / expiration date",
+            "usageLimits": "Usage & limits",
+            "users": "Users",
+            "categories": "Categories",
+            "menuItems": "Menu items",
+            "tables": "Tables",
+            "languages": "Languages",
+            "maxImages": "Max images per menu item",
+            "unlimited": "Unlimited",
+            "status": {
+                "active": "Active",
+                "expiringSoon": "Expiring soon",
+                "expired": "Expired"
+            },
+            "plansPricing": "Plans & Pricing",
+            "plansDescription": "Choose the plan that fits your restaurant.",
+            "plansError": "Unable to load plans.",
+            "noPlans": "No plans available",
+            "saveUpTo": "Save up to {{percent}}%",
+            "savePercent": "Save {{percent}}%",
+            "currentPlan": "Current plan",
+            "upgrade": "Upgrade",
+            "upgradeDialog": {
+                "title": "Upgrade coming soon",
+                "description": "The upgrade flow for {{plan}} will be added soon.",
+                "close": "Close"
+            },
+            "perMonth": "/ month",
+            "perYear": "/ year",
+            "features": {
+                "users": "{{count}} users",
+                "categories": "{{count}} categories",
+                "menuItems": "{{count}} menu items",
+                "tables": "{{count}} tables",
+                "imagesPerMenuItem": "{{count}} images per menu item",
+                "languages": "{{count}} languages"
+            }
+        },
         "restaurantInfo": "Restaurant Information",
         "restaurantInfoDesc": "View and manage your restaurant details.",
         "edit": "Edit",

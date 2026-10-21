@@ -11,8 +11,12 @@ import {
   LayoutGrid,
   ListOrdered,
   Settings,
+  Building2,
+  Languages,
+  Sparkles,
   Tags,
   UtensilsCrossed,
+  UserRound,
   Wallet,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -73,7 +77,17 @@ const navItems: SidebarEntry[] = [
   },
   HR_SETTINGS_GROUP,
   { type: 'link', href: '/nfc-tags', labelKey: 'sidebar.nfcTags', icon: Tags },
-  { type: 'link', href: '/settings', labelKey: 'sidebar.settings', icon: Settings },
+  {
+    type: 'group',
+    labelKey: 'sidebar.settings',
+    icon: Settings,
+    children: [
+      { href: '/settings/system-preferences', labelKey: 'settings.navigation.systemPreferences', icon: Languages },
+      { href: '/settings/restaurant-information', labelKey: 'settings.navigation.restaurantInformation', icon: Building2 },
+      { href: '/settings/user-information', labelKey: 'settings.navigation.userInformation', icon: UserRound },
+      { href: '/settings/upgrade', labelKey: 'settings.navigation.upgrade', icon: Sparkles },
+    ],
+  },
 ];
 
 export default function Sidebar() {

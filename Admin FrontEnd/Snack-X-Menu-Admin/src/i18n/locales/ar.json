@@ -656,6 +656,60 @@
     },
     "settings": {
         "title": "الإعدادات",
+        "navigation": {
+            "systemPreferences": "تفضيلات النظام",
+            "restaurantInformation": "معلومات المطعم",
+            "userInformation": "معلومات المستخدم",
+            "upgrade": "طوّر تجربتك"
+        },
+        "upgrade": {
+            "noPlan": "لم يتم العثور على معلومات الخطة",
+            "loadError": "تعذر تحميل معلومات الخطة.",
+            "retry": "إعادة المحاولة",
+            "comingSoon": "قريباً",
+            "free": "مجاني",
+            "monthly": "شهرياً",
+            "yearly": "سنوياً",
+            "billingCycle": "دورة الفوترة",
+            "startDate": "تاريخ البدء",
+            "expirationDate": "تاريخ التجديد / الانتهاء",
+            "usageLimits": "الاستخدام والحدود",
+            "users": "المستخدمون",
+            "categories": "الفئات",
+            "menuItems": "عناصر القائمة",
+            "tables": "الطاولات",
+            "languages": "اللغات",
+            "maxImages": "الحد الأقصى للصور لكل عنصر قائمة",
+            "unlimited": "غير محدود",
+            "status": {
+                "active": "نشطة",
+                "expiringSoon": "تنتهي قريباً",
+                "expired": "منتهية"
+            },
+            "plansPricing": "الخطط والأسعار",
+            "plansDescription": "اختر الخطة المناسبة لمطعمك.",
+            "plansError": "تعذر تحميل الخطط.",
+            "noPlans": "لا توجد خطط متاحة",
+            "saveUpTo": "وفّر حتى {{percent}}٪",
+            "savePercent": "وفّر {{percent}}٪",
+            "currentPlan": "الخطة الحالية",
+            "upgrade": "ترقية",
+            "upgradeDialog": {
+                "title": "الترقية قريباً",
+                "description": "ستتم إضافة إمكانية الترقية إلى {{plan}} قريباً.",
+                "close": "إغلاق"
+            },
+            "perMonth": "/ شهرياً",
+            "perYear": "/ سنوياً",
+            "features": {
+                "users": "{{count}} مستخدمين",
+                "categories": "{{count}} فئات",
+                "menuItems": "{{count}} عناصر قائمة",
+                "tables": "{{count}} طاولات",
+                "imagesPerMenuItem": "{{count}} صور لكل عنصر",
+                "languages": "{{count}} لغات"
+            }
+        },
         "restaurantInfo": "معلومات المطعم",
         "restaurantInfoDesc": "عرض وإدارة تفاصيل مطعمك.",
         "edit": "تعديل",
