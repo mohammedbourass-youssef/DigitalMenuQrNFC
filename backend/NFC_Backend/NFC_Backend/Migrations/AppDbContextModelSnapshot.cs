@@ -1531,6 +1531,165 @@ namespace NFC_Backend.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Plan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BillingCycle")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("CurrencyCode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .HasColumnType("character(3)")
+                        .HasDefaultValue("MAD")
+                        .IsFixedLength();
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ExpirationAfterDays")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("IsFree")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxCategories")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxImagesPerMenuItem")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxLanguages")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxMenuItems")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxTables")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MaxUsers")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<decimal>("PricePerMonth")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerYear")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("plans", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Plan_Prices", "\"PricePerMonth\" >= 0 AND \"PricePerYear\" >= 0");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            BillingCycle = "None",
+                            Code = "free",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CurrencyCode = "MAD",
+                            Description = "Basic digital menu to get started.",
+                            DisplayOrder = 1,
+                            IsActive = true,
+                            IsFree = true,
+                            MaxCategories = 5,
+                            MaxImagesPerMenuItem = 1,
+                            MaxLanguages = 2,
+                            MaxMenuItems = 20,
+                            MaxTables = 5,
+                            MaxUsers = 2,
+                            Name = "Free",
+                            PricePerMonth = 0m,
+                            PricePerYear = 0m
+                        },
+                        new
+                        {
+                            Id = 2,
+                            BillingCycle = "Monthly",
+                            Code = "pro",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CurrencyCode = "MAD",
+                            Description = "AI agent and higher limits for growing restaurants.",
+                            DisplayOrder = 2,
+                            ExpirationAfterDays = 30,
+                            IsActive = true,
+                            IsFree = false,
+                            MaxCategories = 20,
+                            MaxImagesPerMenuItem = 3,
+                            MaxLanguages = 5,
+                            MaxMenuItems = 150,
+                            MaxTables = 30,
+                            MaxUsers = 5,
+                            Name = "Pro",
+                            PricePerMonth = 199m,
+                            PricePerYear = 1990m
+                        },
+                        new
+                        {
+                            Id = 3,
+                            BillingCycle = "Monthly",
+                            Code = "professional",
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CurrencyCode = "MAD",
+                            Description = "Data analyst, chatbot, extra users and top limits.",
+                            DisplayOrder = 3,
+                            ExpirationAfterDays = 30,
+                            IsActive = true,
+                            IsFree = false,
+                            MaxCategories = -1,
+                            MaxImagesPerMenuItem = 6,
+                            MaxLanguages = 9,
+                            MaxMenuItems = -1,
+                            MaxTables = -1,
+                            MaxUsers = 15,
+                            Name = "Professional",
+                            PricePerMonth = 499m,
+                            PricePerYear = 4990m
+                        });
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1624,6 +1783,11 @@ namespace NFC_Backend.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<string>("BillingCycle")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<string>("BucketName")
                         .HasMaxLength(63)
                         .HasColumnType("character varying(63)");
@@ -1653,6 +1817,14 @@ namespace NFC_Backend.Migrations
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<int>("PlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(1);
+
+                    b.Property<DateTime?>("PlanStartedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PrimaryColor")
                         .HasMaxLength(20)
@@ -1685,6 +1857,8 @@ namespace NFC_Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CurrencyCode");
+
+                    b.HasIndex("PlanId");
 
                     b.HasIndex("Subdomain")
                         .IsUnique();
@@ -2134,7 +2308,15 @@ namespace NFC_Backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("NFC_Backend.Domain.Entities.Plan", "Plan")
+                        .WithMany("Tenants")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Currency");
+
+                    b.Navigation("Plan");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.TenantPaymentMethod", b =>
@@ -2218,6 +2400,11 @@ namespace NFC_Backend.Migrations
             modelBuilder.Entity("NFC_Backend.Domain.Entities.PaymentStatus", b =>
                 {
                     b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Plan", b =>
+                {
+                    b.Navigation("Tenants");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Table", b =>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
@@ -90,6 +91,7 @@ namespace NFC_Backend.Controllers.Admin
 
         // PATCH api/admin/payment-statuses/5/active?value=false
         [HttpPatch("{id:int}/active")]
+       
         public async Task<IActionResult> SetActive(int id, [FromQuery] bool value, CancellationToken ct)
         {
             var status = await _repo.GetByIdAsync(id, ct);

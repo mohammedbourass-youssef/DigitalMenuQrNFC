@@ -16,6 +16,9 @@ namespace NFC_Backend.Domain.Entities
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
+        public int PlanId { get; set; } = 1;
+        public Plan Plan { get; set; } = null!;
+
         [Required, MaxLength(150)]
         public string RestaurantName { get; set; } = string.Empty;
 
@@ -43,7 +46,8 @@ namespace NFC_Backend.Domain.Entities
         public string? BucketName { get; set; } = string.Empty;
         public DateTime? TrialEndsAt { get; set; }
         public DateTime? SubscriptionEndsAt { get; set; }
-
+        public BillingCycle BillingCycle { get; set; } = BillingCycle.None;
+        public DateTime? PlanStartedAt { get; set; }
         public bool IsActive { get; set; } = true;
 
         [Column(TypeName = "timestamp with time zone")]

@@ -258,7 +258,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpGet("Statuses")]
-        [Authorize]
+        
         public async Task<ActionResult<List<OrderStatusDto>>> GetStatuses(
     [FromQuery] string lang = "en",
     CancellationToken ct = default)

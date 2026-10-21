@@ -12,6 +12,8 @@ namespace NFC_Backend.Infrastructure.Data
 
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Tenant> Tenants { get; set; } = null!;
+        public DbSet<Plan> Plans { get; set; } = null!;
+
         public DbSet<Currency> Currencies { get; set; } = null!;
         public DbSet<ExchangeRate> ExchangeRates { get; set; } = null!;
         public DbSet<VerificationCode> VerificationCodes { get; set; } = null!;
@@ -59,6 +61,9 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany(t => t.Users)
                       .HasForeignKey(u => u.TenantId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+
+
             });
 
             modelBuilder.Entity<Tenant>(entity =>
@@ -80,6 +85,17 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(t => t.CurrencyCode)
                       .OnDelete(DeleteBehavior.Restrict);
+
+
+                entity.Property(t => t.PlanId).HasDefaultValue(1);
+                entity.Property(t => t.BillingCycle).HasConversion<string>().HasMaxLength(20);
+
+                entity.HasOne(t => t.Plan)
+                      .WithMany(p => p.Tenants)
+                      .HasForeignKey(t => t.PlanId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(t => t.PlanId);
             });
 
             modelBuilder.Entity<Currency>(entity =>
@@ -611,14 +627,6 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany(p => p.TenantPaymentMethods)
                       .HasForeignKey(t => t.PaymentMethodId)
                       .OnDelete(DeleteBehavior.Restrict);
-                // ── 1. Add next to the other DbSets ──────────────────────────
-
-
-                // ── 2. Add inside OnModelCreating (after TenantPaymentMethod, before Notification) ──
-                // ═════════════════════════════════════════════════════
-                //  INVOICES
-                // ═════════════════════════════════════════════════════
-
                 modelBuilder.Entity<Invoice>(entity =>
                 {
                     entity.ToTable("invoices", t =>
@@ -666,6 +674,99 @@ namespace NFC_Backend.Infrastructure.Data
                 });
 
 
+                modelBuilder.Entity<Plan>(entity =>
+                {
+                    entity.ToTable("plans", t =>
+                    {
+                        t.HasCheckConstraint("CK_Plan_Prices", "\"PricePerMonth\" >= 0 AND \"PricePerYear\" >= 0");
+                    });
+
+                    entity.HasKey(p => p.Id);
+
+                    entity.Property(p => p.Code).HasMaxLength(30).IsRequired();
+                    entity.Property(p => p.Name).HasMaxLength(100).IsRequired();
+                    entity.Property(p => p.Description).HasMaxLength(500);
+
+                    entity.Property(p => p.CurrencyCode).HasMaxLength(3).IsFixedLength().HasDefaultValue("MAD");
+                    entity.Property(p => p.PricePerMonth).HasColumnType("decimal(18,2)");
+                    entity.Property(p => p.PricePerYear).HasColumnType("decimal(18,2)");
+
+                    entity.Property(p => p.BillingCycle).HasConversion<string>().HasMaxLength(20);
+
+                    entity.Property(p => p.IsActive).HasDefaultValue(true);
+                    entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");
+
+                    entity.HasIndex(p => p.Code).IsUnique();
+
+                    entity.HasData(
+                        new Plan
+                        {
+                            Id = 1,
+                            Code = "free",
+                            Name = "Free",
+                            Description = "Basic digital menu to get started.",
+                            IsFree = true,
+                            CurrencyCode = "MAD",
+                            PricePerMonth = 0m,
+                            PricePerYear = 0m,
+                            BillingCycle = BillingCycle.None,
+                            ExpirationAfterDays = null,
+                            MaxUsers = 2,
+                            MaxCategories = 5,
+                            MaxMenuItems = 20,
+                            MaxTables = 5,
+                            MaxImagesPerMenuItem = 1,
+                            MaxLanguages = 2,
+                            DisplayOrder = 1,
+                            IsActive = true,
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new Plan
+                        {
+                            Id = 2,
+                            Code = "pro",
+                            Name = "Pro",
+                            Description = "AI agent and higher limits for growing restaurants.",
+                            IsFree = false,
+                            CurrencyCode = "MAD",
+                            PricePerMonth = 199m,
+                            PricePerYear = 1990m,
+                            BillingCycle = BillingCycle.Monthly,
+                            ExpirationAfterDays = 30,
+                            MaxUsers = 5,
+                            MaxCategories = 20,
+                            MaxMenuItems = 150,
+                            MaxTables = 30,
+                            MaxImagesPerMenuItem = 3,
+                            MaxLanguages = 5,
+                            DisplayOrder = 2,
+                            IsActive = true,
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new Plan
+                        {
+                            Id = 3,
+                            Code = "professional",
+                            Name = "Professional",
+                            Description = "Data analyst, chatbot, extra users and top limits.",
+                            IsFree = false,
+                            CurrencyCode = "MAD",
+                            PricePerMonth = 499m,
+                            PricePerYear = 4990m,
+                            BillingCycle = BillingCycle.Monthly,
+                            ExpirationAfterDays = 30,
+                            MaxUsers = 15,
+                            MaxCategories = Plan.Unlimited,
+                            MaxMenuItems = Plan.Unlimited,
+                            MaxTables = Plan.Unlimited,
+                            MaxImagesPerMenuItem = 6,
+                            MaxLanguages = 9,
+                            DisplayOrder = 3,
+                            IsActive = true,
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                        }
+                    );
+                });
             });
         }
     }
