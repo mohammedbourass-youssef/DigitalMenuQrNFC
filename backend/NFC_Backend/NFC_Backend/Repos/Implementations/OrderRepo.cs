@@ -155,7 +155,7 @@ namespace NFC_Backend.Repos.Implementations
             return (max ?? 0) + 1;
         }
 
-        public async Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id,int CurrentStatus  ,string lan)
+        public async Task<OrderStatusStepDto?> GetOrderCurrentStatusByOrderIdAsync(Guid Id, int CurrentStatus, string lan)
         {
             return await _dbContextContext.OrderStatusHistories
                 .AsNoTracking()
@@ -225,7 +225,7 @@ namespace NFC_Backend.Repos.Implementations
             return await _dbContextContext.OrderStatusHistories
                 .AsNoTracking()
                 .Where(osh =>
-                    osh.OrderId == orderId 
+                    osh.OrderId == orderId
                     )
                 .Join(
                     _dbContextContext.OrderStatuses,
@@ -284,7 +284,7 @@ namespace NFC_Backend.Repos.Implementations
                     IsSystem = x.IsSystem,
 
                     TotalOrders = _dbContextContext.Orders
-                        .Count(o => o.TenantId == tenantId && o.StatusId == x.Id &&   o.CreatedAt.Date == DateTime.UtcNow.Date),
+                        .Count(o => o.TenantId == tenantId && o.StatusId == x.Id && o.CreatedAt.Date == DateTime.UtcNow.Date),
 
                     Orders = _dbContextContext.Orders
                         .Where(o => o.TenantId == tenantId && o.StatusId == x.Id && o.CreatedAt.Date == DateTime.UtcNow.Date)
@@ -332,10 +332,10 @@ namespace NFC_Backend.Repos.Implementations
                 .ToListAsync(ct);
 
 
-        public Task<Order?> GetOrderByIdAsync(Guid orderId, Guid TenantId , CancellationToken ct)
+        public Task<Order?> GetOrderByIdAsync(Guid orderId, Guid TenantId, CancellationToken ct)
         =>
               _dbContextContext.Orders
-                .FirstOrDefaultAsync(o => o.Id == orderId && o.TenantId == TenantId , ct);
+                .FirstOrDefaultAsync(o => o.Id == orderId && o.TenantId == TenantId, ct);
 
         public async Task<ChangeStatusResult> ChangeStatusAsync(
       Guid tenantId, Guid orderId, int statusId, Guid? userId, CancellationToken ct)
@@ -372,8 +372,8 @@ namespace NFC_Backend.Repos.Implementations
 
 
 
-        public  Task<List<OrderLineItemDto>> GetTrackingInfo(Guid order , string lan ,string ToCurrency ,CancellationToken ct)
-        
+        public Task<List<OrderLineItemDto>> GetTrackingInfo(Guid order, string lan, string ToCurrency, CancellationToken ct)
+
             => _dbContextContext.OrderItems
                 .Where(o => o.OrderId == order)
                 .AsNoTracking()
@@ -435,7 +435,7 @@ namespace NFC_Backend.Repos.Implementations
                     on o.TableId equals (Guid?)tb.Id into tableGroup
                 from tb in tableGroup.DefaultIfEmpty()
                 orderby o.CreatedAt descending, o.OrderNumber descending
-                select e new AdminOrdersHistoryDTO
+                select new AdminOrdersHistoryDTO
                 {
                     orderId = o.Id,
                     TableId = tb.Number,
@@ -459,12 +459,12 @@ namespace NFC_Backend.Repos.Implementations
                 Items = items,
                 Page = pageNumber,
                 PageSize = pageSize,
-               TotalCount = totalOrders,
+                TotalCount = totalOrders,
             };
         }
-   
-        
-        
+
+
+
         public Task<int> GetTotalOrdersInTenantByTenantIdAsync(Guid tenantId)
         => _dbContextContext.Orders
                 .AsNoTracking()
