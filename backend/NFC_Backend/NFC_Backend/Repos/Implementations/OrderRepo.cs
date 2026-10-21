@@ -435,7 +435,7 @@ namespace NFC_Backend.Repos.Implementations
                     on o.TableId equals (Guid?)tb.Id into tableGroup
                 from tb in tableGroup.DefaultIfEmpty()
                 orderby o.CreatedAt descending, o.OrderNumber descending
-                select new AdminOrdersHistoryDTO
+                select e new AdminOrdersHistoryDTO
                 {
                     orderId = o.Id,
                     TableId = tb.Number,
