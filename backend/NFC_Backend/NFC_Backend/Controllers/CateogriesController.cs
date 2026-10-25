@@ -26,8 +26,9 @@ namespace NFC_Backend.Controllers
         private readonly IFileStorageService _fileStorageService;
         private readonly ICategoryRepo _categoryRepo;
         private readonly ICategoryTranslationService _translation; 
-        public CateogriesController(ITenantRepo tenantRepo , IUserRepo userRepo ,
-            ILogger<CateogriesController> logger , IFileStorageService fileStorageService , ICategoryRepo  categoryRepo, ICategoryTranslationService translation)
+        private readonly IPlanRepo _PlanRepo;
+        public CateogriesController(ITenantRepo tenantRepo , IUserRepo userRepo,
+            ILogger<CateogriesController> logger,IFileStorageService fileStorageService, ICategoryRepo categoryRepo, ICategoryTranslationService translation, IPlanRepo planRepo)
         {
             _tenantRepo = tenantRepo;
             _userRepo = userRepo;
@@ -35,6 +36,7 @@ namespace NFC_Backend.Controllers
             _fileStorageService = fileStorageService;
             _categoryRepo = categoryRepo;
             _translation = translation;
+            _PlanRepo = planRepo;
         }
 
         [HttpPost]
@@ -65,12 +67,40 @@ namespace NFC_Backend.Controllers
                 }
 
                 Tenant? tenant = await _tenantRepo.GetByID(tenantId.Value);
+
+
+
                 if (tenant == null)
                 {
                     _logger.LogWarning("CreateCategory failed - tenant not found. TenantId: {TenantId}", tenantId);
                     return NotFound(new { error = "Restaurant not found." });
                 }
 
+                var quota = await _PlanRepo.GetPlanQuotaAsync(tenant.PlanId, tenantId.Value);
+
+                if (quota is null)
+                {
+                    _logger.LogWarning(
+                        "Create category failed - active plan not found. TenantId: {TenantId}, PlanId: {PlanId}",
+                        tenantId, tenant.PlanId);
+
+                    return NotFound(new { code = "PLAN_NOT_FOUND", message = "Active plan not found." });   // 404
+                }
+
+                if (!quota.Categories.CanAdd)
+                {
+                    _logger.LogInformation(
+                        "Create category blocked - limit reached. TenantId: {TenantId}, Plan: {Plan}, Used: {Used}, Max: {Max}",
+                        tenantId, quota.Name, quota.Categories.Used, quota.Categories.Max);
+
+                    return StatusCode(StatusCodes.Status403Forbidden, new                                    // 403
+                    {
+                        code = "CATEGORY_LIMIT_REACHED",
+                        message = "Category limit reached for your plan.",
+                        current = quota.Categories.Used,
+                        limit = quota.Categories.Max
+                    });
+                }
                 //if (user.TenantId != tenantId)
                 //{
                 //    _logger.LogWarning(
@@ -371,8 +401,10 @@ namespace NFC_Backend.Controllers
                     _logger.LogWarning("DisactiveCategory failed - tenant not found. TenantId: {TenantId}", tenantId);
                     return NotFound(new { error = "Restaurant not found." });
                 }
+                var quota = await _PlanRepo.GetPlanQuotaAsync(tenant.PlanId, tenantId.Value);
 
                 Category? category = await _categoryRepo.GetCategoryByIDAsync(id , tenant.Id);
+                
                 if (category == null)
                 {
                     _logger.LogWarning("DisactiveCategory failed - category not found. CategoryId: {CategoryId}", id);
@@ -430,16 +462,53 @@ namespace NFC_Backend.Controllers
                 }
 
                 Category? category = await _categoryRepo.GetCategoryByIDIncludingInactiveAsync(id , tenant.Id); // see note below
+                
                 if (category == null)
                     return NotFound(new { error = "Category not found." });
-
+               
                 if (category.TenantId != tenantId)
                     return Forbid();
+                if (category.IsActive)
+                {
+                    var quota = await _PlanRepo.GetPlanQuotaAsync(tenant.PlanId, tenantId.Value);
 
-                await _categoryRepo.ActiveCategory(id);
+                    if (quota is null)
+                    {
+                        _logger.LogWarning(
+                            "Activate category failed - active plan not found. TenantId: {TenantId}, PlanId: {PlanId}",
+                            tenantId, tenant.PlanId);
+                        return NotFound(new { code = "PLAN_NOT_FOUND", message = "Active plan not found." });
+                    }
 
-                _logger.LogInformation("ActiveCategory succeeded for CategoryId: {CategoryId}, TenantId: {TenantId}", id, tenantId);
-                return Ok(new { message = "Category enabled successfully." });
+                    if (!quota.Categories.CanAdd)
+                    {
+                        _logger.LogInformation(
+                            "Activate category blocked - limit reached. TenantId: {TenantId}, CategoryId: {CategoryId}, Plan: {Plan}, Used: {Used}, Max: {Max}",
+                            tenantId, category.Id, quota.Name, quota.Categories.Used, quota.Categories.Max);
+                        return StatusCode(StatusCodes.Status403Forbidden, new
+                        {
+                            code = "CATEGORY_LIMIT_REACHED",
+                            message = "Category limit reached for your plan.",
+                            current = quota.Categories.Used,
+                            limit = quota.Categories.Max
+                        });
+                    }
+                    await _categoryRepo.ActiveCategory(id);
+
+                    _logger.LogInformation("ActiveCategory succeeded for CategoryId: {CategoryId}, TenantId: {TenantId}", id, tenantId);
+                    return Ok(new { message = "Category enabled successfully." });
+                }
+
+                _logger.LogInformation(
+      "Activate category skipped - already active. TenantId: {TenantId}, CategoryId: {CategoryId}",
+      tenantId, category.Id);
+
+                return Conflict(new                                                      // 409
+                {
+                    code = "CATEGORY_ALREADY_ACTIVE",
+                    message = "This category is already active."
+                });
+              
             }
             catch (NotFoundException ex)
             {

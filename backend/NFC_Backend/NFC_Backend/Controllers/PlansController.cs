@@ -116,5 +116,24 @@ namespace NFC_Backend.Controllers
             }
         }
 
+
+        [HttpGet("Quota")]
+        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        public async Task<ActionResult<PlanQuotaDTo>> GetPlanQuota(CancellationToken ct)
+        {
+            var tenantId = User.GetTenantId();
+            if (tenantId is null)
+                return Unauthorized(new { error = "Invalid token." });
+
+            var tenant = await _tenantRepo.GetByID(tenantId.Value);
+            if (tenant is null)
+                return NotFound(new { error = "Restaurant not found." });
+
+            var quota = await _repo.GetPlanQuotaAsync(tenant.PlanId, tenantId.Value, ct);
+            if (quota is null)
+                return NotFound(new { error = "Active plan not found." });
+
+            return Ok(quota);
+        }
     }
 }

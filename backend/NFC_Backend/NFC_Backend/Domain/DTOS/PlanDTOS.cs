@@ -58,4 +58,24 @@ namespace NFC_Backend.Domain.DTOS
         public bool IsUnlimited { get; set; }
     }
 
+
+    public class QuotaItemDto
+    {
+        public int Used { get; set; }
+        public int? Max { get; set; }          // null = unlimited
+        public bool CanAdd => Max is null || Used < Max;
+        public string Display => Max is null ? $"{Used} / Unlimited" : $"{Used} / {Max}";
+    }
+
+    public class PlanQuotaDTo
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+        public QuotaItemDto Categories { get; set; } = new();
+        public QuotaItemDto MenuItems { get; set; } = new();
+        public QuotaItemDto Tables { get; set; } = new();
+        public QuotaItemDto Users { get; set; } = new();
+        public int MaxImagesPerMenuItem { get; set; }
+    }
+
 }

@@ -936,5 +936,19 @@
             "error": "Payment failed. Please try again."
         },
         "generateReceipt": "Generate Receipt"
+    },
+    "planQuota": {
+        "usage": "Usage",
+        "upgrade": "Upgrade your plan",
+        "limitReached": "You reached your limit ({{display}}). Upgrade your plan.",
+        "menuItemLimitReached": "Menu item limit reached ({{display}}).",
+        "menuItemLimitToast": "You reached your menu item limit ({{current}} / {{limit}}). Upgrade your plan.",
+        "tableLimitReached": "Table limit reached ({{display}}).",
+        "tableLimitToast": "You reached your table limit ({{current}} / {{limit}}). Upgrade your plan.",
+        "imagesPerItem": "Images {{count}} / {{max}}",
+        "imagesMaxReached": "This plan allows {{max}} images per menu item.",
+        "imagesRemaining": "You can add only {{count}} more image(s).",
+        "itemImagesLimitReached": "This item has {{current}} / {{limit}} images. You tried to add {{attempted}}. Remove some or upgrade your plan.",
+        "planNotFound": "Your plan could not be found. Contact support."
     }
 }

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, FolderInput, ImageOff, Power } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { formatRelativeTime } from "@/lib/date";
 import type { AdminCategoryItem } from "@/types";
@@ -26,9 +26,11 @@ interface CategoryCardProps {
   createdLabel: (time: string) => string;
   onDeactivate: (category: AdminCategoryItem) => Promise<void>;
   onActivate: (category: AdminCategoryItem) => Promise<void>;
+  canActivate: boolean;
+  quotaDisplay: string;
 }
 
-export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabel, onDeactivate, onActivate }: CategoryCardProps) {
+export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabel, onDeactivate, onActivate, canActivate, quotaDisplay }: CategoryCardProps) {
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const [imageFailed, setImageFailed] = useState(false);
@@ -100,11 +102,19 @@ export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabe
               <Power />{t("categories.deactivate.button")}
             </Button>
           ) : (
-            <Button variant="outline" size="sm" className="flex-1 border-emerald-200 text-emerald-600 hover:bg-emerald-50" disabled={isActivating} onClick={() => void handleActivate()}>
+            <Button variant="outline" size="sm" className="flex-1 border-emerald-200 text-emerald-600 hover:bg-emerald-50" disabled={isActivating || !canActivate} title={!canActivate ? t("categories.quota.activateBlocked", { display: quotaDisplay, defaultValue: `Category limit reached (${quotaDisplay}). Upgrade your plan.` }) : undefined} onClick={() => void handleActivate()}>
               {isActivating && <Spinner className="h-4 w-4" />}<Power />{t("categories.activate.button")}
             </Button>
           )}
         </div>
+        {!category.isActive && !canActivate && (
+          <p className="text-xs text-amber-800" role="status">
+            {t("categories.quota.activateBlocked", { display: quotaDisplay, defaultValue: `Category limit reached (${quotaDisplay}). Upgrade your plan.` })}{" "}
+            <Link to="/settings/upgrade" className="font-semibold text-[#714B67] underline underline-offset-2">
+              {t("planQuota.upgrade", { defaultValue: "Upgrade your plan" })}
+            </Link>
+          </p>
+        )}
       </CardContent>
 
       <AlertDialog open={confirmOpen} onOpenChange={(open) => { if (!isDeactivating) setConfirmOpen(open); }}>

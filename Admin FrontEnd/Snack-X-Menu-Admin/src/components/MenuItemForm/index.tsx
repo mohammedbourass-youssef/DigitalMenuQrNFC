@@ -17,12 +17,15 @@ import { NoCategoryMessage } from './NoCategoryMessage';
 import { StepIndicator } from './StepIndicator';
 
 import type { CategoryOption } from '@/types/menuItem';
+import { usePlanQuota } from '@/hooks/usePlanQuota';
+import { QuotaUsage } from '@/components/plan/QuotaUsage';
 
 type Stage = 'gate' | 'main';
 
 export function MenuItemForm() {
   const { t } = useTranslation();
   const queryClient = useQueryClient();
+  const { data: quota } = usePlanQuota();
 
   const [stage, setStage] = useState<Stage>('gate');
   const [step, setStep] = useState<1 | 2>(1);
@@ -41,6 +44,25 @@ export function MenuItemForm() {
     setMenuId(id);
     setStep(2);
   };
+
+  if (stage === 'gate' && quota?.menuItems.canAdd === false) {
+    return (
+      <div className="mx-auto w-full max-w-3xl rounded-lg border border-amber-200 bg-white p-6">
+        <h1 className="text-2xl font-bold text-foreground">{t('menuItemForm.pageTitle')}</h1>
+        <div className="mt-4">
+          <QuotaUsage
+            resource="menuItems"
+            label={t('menuItems.title')}
+            showLimitMessage
+            limitMessage={t('planQuota.menuItemLimitReached', {
+              display: quota.menuItems.display,
+              defaultValue: `Menu item limit reached (${quota.menuItems.display}).`,
+            })}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const reset = () => {
     setSearch('');

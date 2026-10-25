@@ -13,6 +13,8 @@ import { Spinner } from '@/components/ui/spinner';
 import { friendlyErrorMessage } from '@/lib/apiErrors';
 import { useUploadMenuImages } from '@/hooks/useUploadMenuImages';
 import { cn } from '@/lib/utils';
+import { usePlanQuota } from '@/hooks/usePlanQuota';
+import { getPlanQuotaApiError } from '@/lib/planQuotaErrors';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -24,12 +26,18 @@ interface ImageUploadStepProps {
 export function ImageUploadStep({ menuId, onReset }: ImageUploadStepProps) {
   const { t } = useTranslation();
   const upload = useUploadMenuImages();
+  const { data: quota } = usePlanQuota();
 
   const [cover, setCover] = useState<File | null>(null);
   const [additional, setAdditional] = useState<File[]>([]);
   const [coverMissing, setCoverMissing] = useState(false);
   const [dropError, setDropError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const maxImages = quota?.maxImagesPerMenuItem;
+  const galleryImageCount = additional.length;
+  const remainingImageSlots = maxImages === undefined
+    ? undefined
+    : Math.max(0, maxImages - galleryImageCount);
 
   const tooLargeMessage = t('menuItemForm.images.fileTooLarge');
   const invalidTypeMessage = t('menuItemForm.images.invalidFileType');
@@ -54,13 +62,29 @@ export function ImageUploadStep({ menuId, onReset }: ImageUploadStepProps) {
     accept: { 'image/*': [] },
     maxSize: MAX_IMAGE_SIZE,
     multiple: true,
-    disabled: upload.isPending,
+    disabled: upload.isPending || remainingImageSlots === 0,
+    ...(remainingImageSlots === undefined ? {} : { maxFiles: remainingImageSlots }),
     onDropAccepted: (files) => {
+      if (remainingImageSlots !== undefined && files.length > remainingImageSlots) {
+        setDropError(t('planQuota.imagesRemaining', {
+          count: remainingImageSlots,
+          defaultValue: `You can add only ${remainingImageSlots} more image(s).`,
+        }));
+        setAdditional((prev) => [...prev, ...files.slice(0, remainingImageSlots)]);
+        return;
+      }
       setAdditional((prev) => [...prev, ...files]);
       setDropError(null);
     },
     onDropRejected: (rejections) => {
       const reason = rejections[0]?.errors[0]?.code;
+      if (reason === 'too-many-files') {
+        setDropError(t('planQuota.imagesRemaining', {
+          count: remainingImageSlots ?? 0,
+          defaultValue: `You can add only ${remainingImageSlots ?? 0} more image(s).`,
+        }));
+        return;
+      }
       setDropError(reason === 'file-too-large' ? tooLargeMessage : invalidTypeMessage);
     },
   });
@@ -88,6 +112,13 @@ export function ImageUploadStep({ menuId, onReset }: ImageUploadStepProps) {
   };
 
   const handleSubmit = async () => {
+    if (maxImages !== undefined && galleryImageCount > maxImages) {
+      setDropError(t('planQuota.imagesMaxReached', {
+        max: maxImages,
+        defaultValue: `This plan allows ${maxImages} images per menu item.`,
+      }));
+      return;
+    }
     if (!cover) {
       setCoverMissing(true);
       setDropError(null);
@@ -99,6 +130,22 @@ export function ImageUploadStep({ menuId, onReset }: ImageUploadStepProps) {
       toast.success(t('menuItemForm.images.createdToast'));
       setDone(true);
     } catch (error) {
+      const apiError = getPlanQuotaApiError(error);
+      if (apiError?.code === 'IMAGE_LIMIT_REACHED') {
+        setDropError(t('planQuota.itemImagesLimitReached', {
+          current: apiError.current ?? 0,
+          limit: apiError.limit ?? maxImages ?? 0,
+          attempted: apiError.attempted ?? galleryImageCount,
+          defaultValue: `This item has ${apiError.current ?? 0} / ${apiError.limit ?? maxImages ?? 0} images. You tried to add ${apiError.attempted ?? galleryImageCount}. Remove some or upgrade your plan.`,
+        }));
+        return;
+      }
+      if (apiError?.code === 'PLAN_NOT_FOUND') {
+        setDropError(t('planQuota.planNotFound', {
+          defaultValue: 'Your plan could not be found. Contact support.',
+        }));
+        return;
+      }
       setDropError(friendlyErrorMessage(error, t('menuItemForm.images.uploadError')));
     }
   };
@@ -141,6 +188,26 @@ if (done) {
       </CardHeader>
 
       <CardContent className="space-y-8">
+        {maxImages !== undefined && (
+          <p className="text-xs text-slate-500">
+            {t('planQuota.imagesPerItem', {
+              count: galleryImageCount,
+              max: maxImages,
+              defaultValue: `Images ${galleryImageCount} / ${maxImages}`,
+            })}
+            {remainingImageSlots === 0 && (
+              <span className="ms-2 text-amber-800">
+                {t('planQuota.imagesMaxReached', {
+                  max: maxImages,
+                  defaultValue: `This plan allows ${maxImages} images per menu item.`,
+                })}{' '}
+                <Link to="/settings/upgrade" className="font-semibold text-[#714B67] underline">
+                  {t('planQuota.upgrade', { defaultValue: 'Upgrade your plan' })}
+                </Link>
+              </span>
+            )}
+          </p>
+        )}
         {upload.isError && upload.error && (
           <div
             role="alert"
@@ -229,6 +296,7 @@ if (done) {
             icon={<ImagePlus />}
             message={t('menuItemForm.images.extraDropText')}
             submessage={t('menuItemForm.images.extraDropSub')}
+            disabled={remainingImageSlots === 0 || upload.isPending}
           />
 
           {additional.length > 0 && (
@@ -302,6 +370,7 @@ interface DropzoneAreaProps {
   message: string;
   submessage?: string;
   icon?: React.ReactNode;
+  disabled?: boolean;
 }
 
 function DropzoneArea({
@@ -309,6 +378,7 @@ function DropzoneArea({
   message,
   submessage,
   icon,
+  disabled = false,
 }: DropzoneAreaProps) {
   const { t } = useTranslation();
 
@@ -317,7 +387,8 @@ function DropzoneArea({
       {...rootProps}
       className={cn(
         'flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed px-6 py-8 text-center transition',
-        'border-border bg-muted/30 hover:border-primary/60 hover:bg-muted/50'
+        'border-border bg-muted/30 hover:border-primary/60 hover:bg-muted/50',
+        disabled && 'cursor-not-allowed opacity-60 hover:border-border hover:bg-muted/30'
       )}
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">

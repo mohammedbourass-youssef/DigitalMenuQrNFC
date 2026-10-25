@@ -8,7 +8,7 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/hooks/use-toast";
+import { usePlanQuota } from "@/hooks/usePlanQuota";
 import axiosInstance from "@/lib/axios";
+import { getPlanQuotaApiError } from "@/lib/planQuotaErrors";
+import { cn } from "@/lib/utils";
 import { getMenuItemInfoAdmin } from "@/services/menuService";
 import type { AdminMenuItem } from "@/types/menuItem";
 
@@ -25,6 +28,8 @@ export default function MenuItemImagesPage() {
   const { t } = useTranslation();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { data: quota } = usePlanQuota();
+  const maxImages = quota?.maxImagesPerMenuItem;
 
   const [item, setItem] = useState<AdminMenuItem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,6 +40,12 @@ export default function MenuItemImagesPage() {
   const [additionalFiles, setAdditionalFiles] = useState<File[]>([]);
   const [additionalPreviews, setAdditionalPreviews] = useState<string[]>([]);
   const [imageOrders, setImageOrders] = useState<Record<string, number>>({});
+
+  const existingImageCount = item?.images?.length ?? 0;
+  const galleryImageCount = existingImageCount + additionalFiles.length;
+  const remainingImageSlots =
+    maxImages === undefined ? undefined : Math.max(0, maxImages - galleryImageCount);
+  const galleryUploadDisabled = isSaving || remainingImageSlots === 0;
 
   const loadItem = async () => {
     if (!menuId) return;
@@ -71,6 +82,7 @@ export default function MenuItemImagesPage() {
 
   const handleAdditionalFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    e.target.value = "";
     const validFiles = files.filter((f) => {
       if (f.size > 5 * 1024 * 1024) {
         toast({ variant: "destructive", title: `${f.name} is too large (> 5MB).` });
@@ -78,8 +90,29 @@ export default function MenuItemImagesPage() {
       }
       return true;
     });
-    setAdditionalFiles((prev) => [...prev, ...validFiles]);
-    setAdditionalPreviews((prev) => [...prev, ...validFiles.map((f) => URL.createObjectURL(f))]);
+
+    if (validFiles.length === 0) return;
+
+    if (remainingImageSlots === undefined) {
+      setAdditionalFiles((prev) => [...prev, ...validFiles]);
+      setAdditionalPreviews((prev) => [...prev, ...validFiles.map((f) => URL.createObjectURL(f))]);
+      return;
+    }
+
+    if (remainingImageSlots <= 0) {
+      toast({
+        variant: "destructive",
+        title: `This plan allows ${maxImages} images per menu item.`,
+      });
+      return;
+    }
+
+    const accepted = validFiles.slice(0, remainingImageSlots);
+    if (validFiles.length > remainingImageSlots) {
+      toast({ title: `You can add only ${remainingImageSlots} more image(s).` });
+    }
+    setAdditionalFiles((prev) => [...prev, ...accepted]);
+    setAdditionalPreviews((prev) => [...prev, ...accepted.map((f) => URL.createObjectURL(f))]);
   };
 
   const handleDeleteExistingImage = async (imageId: string) => {
@@ -95,6 +128,15 @@ export default function MenuItemImagesPage() {
 
   const handleSaveAll = async () => {
     if (!menuId) return;
+
+    if (maxImages !== undefined && galleryImageCount > maxImages) {
+      toast({
+        variant: "destructive",
+        title: `This plan allows ${maxImages} images per menu item.`,
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       // 1. Upload new cover or additional images if provided
@@ -126,7 +168,23 @@ export default function MenuItemImagesPage() {
       setAdditionalFiles([]);
       setAdditionalPreviews([]);
       await loadItem();
-    } catch {
+    } catch (error) {
+      const apiError = getPlanQuotaApiError(error);
+      if (apiError?.code === "IMAGE_LIMIT_REACHED") {
+        toast({
+          variant: "destructive",
+          title: `This item has ${apiError.current ?? existingImageCount} / ${apiError.limit ?? maxImages ?? 0} images. You tried to add ${apiError.attempted ?? additionalFiles.length}. Remove some or upgrade your plan.`,
+        });
+        await loadItem();
+        return;
+      }
+      if (apiError?.code === "PLAN_NOT_FOUND") {
+        toast({
+          variant: "destructive",
+          title: "Your plan could not be found. Contact support.",
+        });
+        return;
+      }
       toast({ variant: "destructive", title: "Failed to update images." });
     } finally {
       setIsSaving(false);
@@ -253,8 +311,32 @@ export default function MenuItemImagesPage() {
           <CardTitle className="text-lg">Add New Gallery Images</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Label htmlFor="additional-upload" className="cursor-pointer block">
-            <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 p-8 text-center hover:bg-slate-50">
+          {maxImages !== undefined && (
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
+                Images {galleryImageCount} / {maxImages}
+              </span>
+              {remainingImageSlots === 0 && (
+                <p className="text-xs text-amber-800" role="status">
+                  This plan allows {maxImages} images per menu item.{" "}
+                  <Link to="/settings/upgrade" className="font-semibold text-[#714B67] underline underline-offset-2">
+                    Upgrade your plan
+                  </Link>
+                </p>
+              )}
+            </div>
+          )}
+
+          <Label
+            htmlFor="additional-upload"
+            className={cn("block", galleryUploadDisabled ? "cursor-not-allowed" : "cursor-pointer")}
+          >
+            <div
+              className={cn(
+                "flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 p-8 text-center",
+                galleryUploadDisabled ? "cursor-not-allowed opacity-60" : "hover:bg-slate-50"
+              )}
+            >
               <ImageIcon className="h-8 w-8 text-slate-400" />
               <span className="text-sm font-medium text-slate-700">Click to upload additional gallery images</span>
               <span className="text-xs text-slate-450">PNG, JPG, WEBP up to 5MB each</span>
@@ -265,6 +347,7 @@ export default function MenuItemImagesPage() {
               accept="image/*"
               multiple
               className="hidden"
+              disabled={galleryUploadDisabled}
               onChange={handleAdditionalFilesChange}
             />
           </Label>

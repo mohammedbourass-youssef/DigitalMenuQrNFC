@@ -50,14 +50,19 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { friendlyErrorMessage } from "@/lib/apiErrors";
 import { cn } from "@/lib/utils";
-import { useCreateTable, useDeleteTable, useTables, useUpdateTable } from "@/hooks/useTables";
+import { tablesQueryKey, useCreateTable, useDeleteTable, useTables, useUpdateTable } from "@/hooks/useTables";
 import { TableFormSheet, type TableFormValues } from "@/components/tables/TableFormSheet";
 import type { TableItem } from "@/types";
+import { usePlanQuota } from "@/hooks/usePlanQuota";
+import { QuotaUsage } from "@/components/plan/QuotaUsage";
+import { handlePlanQuotaLimitError } from "@/lib/planQuotaErrors";
 
 export default function TablesPage() {
   const { i18n, t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: quota } = usePlanQuota();
+  const canAddTable = quota?.tables.canAdd !== false;
   const dir = i18n.language === "ar" ? "rtl" : "ltr";
 
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -84,15 +89,22 @@ export default function TablesPage() {
   };
 
   const handleSheetSubmit = async (values: TableFormValues) => {
-    if (editing) {
-      await updateMut.mutateAsync({ id: editing.id, ...values });
-      toast({ title: t("tables.toast.updateSuccess") });
-    } else {
-      await createMut.mutateAsync(values);
-      toast({ title: t("tables.toast.createSuccess") });
+    if (!editing && !canAddTable) return;
+
+    try {
+      if (editing) {
+        await updateMut.mutateAsync({ id: editing.id, ...values });
+        toast({ title: t("tables.toast.updateSuccess") });
+      } else {
+        await createMut.mutateAsync(values);
+        toast({ title: t("tables.toast.createSuccess") });
+      }
+      setSheetOpen(false);
+      setEditing(null);
+    } catch (error) {
+      if (handlePlanQuotaLimitError(error, "tables", quota, queryClient, t)) return;
+      throw error;
     }
-    setSheetOpen(false);
-    setEditing(null);
   };
 
   const handleToggle = (table: TableItem) => {
@@ -101,7 +113,7 @@ export default function TablesPage() {
       { id: table.id, number: table.number, name: table.name, isAvailable: !table.isAvailable },
       {
         onSuccess: () => {
-          queryClient.setQueryData<TableItem[]>(query.queryKey, (old) =>
+          queryClient.setQueryData<TableItem[]>(tablesQueryKey, (old) =>
             old?.map((row) =>
               row.id === table.id ? { ...row, isAvailable: !row.isAvailable } : row
             )
@@ -127,13 +139,22 @@ export default function TablesPage() {
   return (
     <div dir={dir} className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-2xl font-bold text-slate-900">{t("tables.title")}</h1>
           {query.data && (
             <Badge variant="secondary">{t("tables.total", { count: query.data.length })}</Badge>
           )}
+          <QuotaUsage
+            resource="tables"
+            label={t("tables.title")}
+            showLimitMessage
+            limitMessage={t("planQuota.tableLimitReached", {
+              display: quota?.tables.display ?? "—",
+              defaultValue: `Table limit reached (${quota?.tables.display ?? "—"}).`,
+            })}
+          />
         </div>
-        <Button onClick={openCreate}>
+        <Button onClick={openCreate} disabled={!canAddTable}>
           <Plus />
           {t("tables.add")}
         </Button>
@@ -168,7 +189,7 @@ export default function TablesPage() {
                 <EmptyDescription>{t("tables.empty_sub")}</EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Button onClick={openCreate}>
+                <Button onClick={openCreate} disabled={!canAddTable}>
                   <Plus />
                   {t("tables.add")}
                 </Button>

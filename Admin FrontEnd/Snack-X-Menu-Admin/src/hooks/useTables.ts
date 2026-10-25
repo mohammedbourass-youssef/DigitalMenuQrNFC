@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { createTable, deleteTable, getTables, updateTable } from "@/services/tableService";
 import type { CreateTablePayload, UpdateTablePayload } from "@/types";
+import { PLAN_QUOTA_QUERY_KEY } from "@/hooks/usePlanQuota";
 
 export const tablesQueryKey = ["admin-tables"] as const;
 
@@ -20,6 +21,7 @@ export function useCreateTable() {
     mutationFn: createTable,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: tablesQueryKey });
+      void queryClient.invalidateQueries({ queryKey: PLAN_QUOTA_QUERY_KEY });
     },
   });
 }
@@ -40,6 +42,7 @@ export function useDeleteTable() {
     mutationFn: deleteTable,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: tablesQueryKey });
+      void queryClient.invalidateQueries({ queryKey: PLAN_QUOTA_QUERY_KEY });
     },
   });
 }

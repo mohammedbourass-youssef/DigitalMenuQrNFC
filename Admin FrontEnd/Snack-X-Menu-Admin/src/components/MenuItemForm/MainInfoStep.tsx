@@ -18,6 +18,10 @@ import { Spinner } from '@/components/ui/spinner';
 import { friendlyErrorMessage } from '@/lib/apiErrors';
 import { CURRENCIES, DEFAULT_CURRENCY_CODE } from '@/lib/currencies';
 import { useCreateMenuItem } from '@/hooks/useCreateMenuItem';
+import { usePlanQuota } from '@/hooks/usePlanQuota';
+import { QuotaUsage } from '@/components/plan/QuotaUsage';
+import { handlePlanQuotaLimitError } from '@/lib/planQuotaErrors';
+import { useQueryClient } from '@tanstack/react-query';
 import { useRestaurantInfos } from '@/hooks/useRestaurantInfos';
 import type { CategoryOption, MainInfoFormValues } from '@/types/menuItem';
 
@@ -90,6 +94,9 @@ interface MainInfoStepProps {
 export function MainInfoStep({ category, onCreated }: MainInfoStepProps) {
   const { t, i18n } = useTranslation();
   const createMenu = useCreateMenuItem(category.id);
+  const queryClient = useQueryClient();
+  const { data: quota } = usePlanQuota();
+  const canAddMenuItem = quota?.menuItems.canAdd !== false;
   const { data: restaurant } = useRestaurantInfos();
 
   const restaurantCurrency = (restaurant?.currencyCode ?? '').trim().toUpperCase();
@@ -138,9 +145,14 @@ export function MainInfoStep({ category, onCreated }: MainInfoStepProps) {
   }, [defaultCurrency, dirtyFields.currencyCode, getValues, setValue]);
 
   const onSubmit = async (values: MainInfoFormValues) => {
-    const result = await createMenu.mutateAsync(values);
-    toast.success(t('menuItemForm.basicInfo.createSuccess'));
-    onCreated(result.menuId);
+    if (!canAddMenuItem) return;
+    try {
+      const result = await createMenu.mutateAsync(values);
+      toast.success(t('menuItemForm.basicInfo.createSuccess'));
+      onCreated(result.menuId);
+    } catch (error) {
+      handlePlanQuotaLimitError(error, 'menuItems', quota, queryClient, t);
+    }
   };
 
   const v = (key: string) => t(`menuItemForm.basicInfo.fields.${key}`);
@@ -162,6 +174,15 @@ export function MainInfoStep({ category, onCreated }: MainInfoStepProps) {
           </span>
         </div>
         <CardDescription>{t('menuItemForm.basicInfo.hint')}</CardDescription>
+        <QuotaUsage
+          resource="menuItems"
+          label={t('menuItems.title')}
+          showLimitMessage
+          limitMessage={t('planQuota.menuItemLimitReached', {
+            display: quota?.menuItems.display ?? '—',
+            defaultValue: `Menu item limit reached (${quota?.menuItems.display ?? '—'}).`,
+          })}
+        />
       </CardHeader>
 
       <CardContent>
@@ -405,7 +426,7 @@ export function MainInfoStep({ category, onCreated }: MainInfoStepProps) {
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit" disabled={createMenu.isPending} className="min-w-40">
+            <Button type="submit" disabled={createMenu.isPending || !canAddMenuItem} className="min-w-40">
               {createMenu.isPending && <Spinner />}
               {createMenu.isPending
                 ? t('menuItemForm.basicInfo.creating')

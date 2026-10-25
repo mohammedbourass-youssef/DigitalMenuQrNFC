@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2, Sparkles, Globe, Check, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,9 @@ import { DisplayOrderStepper } from "./DisplayOrderStepper";
 import { CategoryTranslationsEditor, type EditedTranslations } from "./CategoryTranslationsEditor";
 import { createCategory } from "@/services/categoryService";
 import type { CreateCategoryResponse } from "@/types";
+import { QuotaUsage } from "@/components/plan/QuotaUsage";
+import { PLAN_QUOTA_QUERY_KEY, usePlanQuota } from "@/hooks/usePlanQuota";
+import { categoryLimitReachedMessage, getCategoryApiError, refreshCategoryQuotaAndList } from "@/lib/categoryQuotaErrors";
 
 type SubmitStatus = "idle" | "submitting" | "success" | "error";
 
@@ -44,6 +48,9 @@ export function AddCategorySheet({
   onCategoryCreated,
 }: AddCategorySheetProps) {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
+  const { data: quota } = usePlanQuota();
+  const canAddCategory = quota?.categories.canAdd !== false;
 
   // ── Form fields ──
   const [name, setName] = useState("");
@@ -73,7 +80,7 @@ export function AddCategorySheet({
 
   const isNameValid = name.trim().length > 0 && name.trim().length <= NAME_MAX_LENGTH;
   const isSubmitting = submitStatus === "submitting";
-  const canSubmit = isNameValid && !isSubmitting;
+  const canSubmit = isNameValid && !isSubmitting && canAddCategory;
 
   // Sync image preview with file
   useEffect(() => {
@@ -167,28 +174,33 @@ export function AddCategorySheet({
       setServerTranslations(result);
 
       setSubmitStatus("success");
+      void queryClient.invalidateQueries({ queryKey: PLAN_QUOTA_QUERY_KEY });
       toast.success(t("categories.toast.createSuccess"));
       onCreated?.();
       onCategoryCreated?.(result.categoryId);
     } catch (err: unknown) {
       if (err instanceof DOMException && err.name === "AbortError") return;
 
+      const apiError = getCategoryApiError(err);
       let message = t("categories.toast.createError");
-      if (
-        err instanceof Object &&
-        "response" in err &&
-        err.response instanceof Object &&
-        "data" in err.response &&
-        err.response.data instanceof Object &&
-        "error" in err.response.data &&
-        typeof err.response.data.error === "string"
-      ) {
-        message = err.response.data.error;
+      let infoMessage = false;
+      if (apiError?.code === "CATEGORY_LIMIT_REACHED") {
+        refreshCategoryQuotaAndList(queryClient);
+        onCreated?.();
+        message = categoryLimitReachedMessage(apiError.current, apiError.limit);
+      } else if (apiError?.code === "CATEGORY_ALREADY_ACTIVE") {
+        refreshCategoryQuotaAndList(queryClient);
+        onCreated?.();
+        message = t("categories.activate.alreadyActive", { defaultValue: "This category is already active." });
+        infoMessage = true;
+      } else if (apiError?.code === "PLAN_NOT_FOUND") {
+        message = t("categories.planNotFound", { defaultValue: "Your plan could not be found. Contact support." });
       }
 
       setErrorMessage(message);
       setSubmitStatus("error");
-      toast.error(message);
+      if (infoMessage) toast.info(message);
+      else toast.error(message);
     } finally {
       abortRef.current = null;
     }
@@ -202,6 +214,8 @@ export function AddCategorySheet({
     t,
     onCreated,
     onCategoryCreated,
+    queryClient,
+    quota,
   ]);
 
   const handleReviewDone = useCallback(() => {
@@ -275,9 +289,10 @@ export function AddCategorySheet({
               <SheetTitle className="text-xl font-bold">
                 {t("categories.form.title")}
               </SheetTitle>
-              <SheetDescription>
-                {t("categories.form.description")}
-              </SheetDescription>
+            <SheetDescription>
+              {t("categories.form.description")}
+            </SheetDescription>
+            <QuotaUsage resource="categories" showLimitMessage label={t("categories.title")} limitMessage={t("categories.quota.limitReached", { display: quota?.categories.display ?? "—", defaultValue: `Category limit reached (${quota?.categories.display ?? "—"}). Upgrade your plan.` })} />
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-6 pb-6">

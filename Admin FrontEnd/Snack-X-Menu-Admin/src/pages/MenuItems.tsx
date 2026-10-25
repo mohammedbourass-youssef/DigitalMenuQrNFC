@@ -15,7 +15,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { Badge } from "@/components/ui/badge";
@@ -68,6 +68,8 @@ import { setCurrency } from "@/lib/preferences";
 import { cn } from "@/lib/utils";
 import { activateMenuItem, deactivateMenuItem, getMenuItemInfoAdmin } from "@/services/menuService";
 import type { AdminMenuItem, PagedResult } from "@/types/menuItem";
+import { usePlanQuota } from "@/hooks/usePlanQuota";
+import { QuotaUsage } from "@/components/plan/QuotaUsage";
 
 const PAGE_SIZES = [10, 20, 50, 100] as const;
 
@@ -96,6 +98,8 @@ export default function MenuItemsPage() {
   const { i18n, t } = useTranslation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { data: quota } = usePlanQuota();
+  const canAddMenuItem = quota?.menuItems.canAdd !== false;
   const navigate = useNavigate();
   const { data: restaurant, isLoading: restaurantPending } = useRestaurantInfos();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -227,19 +231,26 @@ export default function MenuItemsPage() {
   return (
     <div dir={language === "ar" ? "rtl" : "ltr"} className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h1 className="font-display text-2xl font-bold text-slate-900">{t("menuItems.title")}</h1>
           {query.data && (
             <Badge variant="secondary">{t("menuItems.totalResults", { count: totalCount })}</Badge>
           )}
+          <QuotaUsage
+            resource="menuItems"
+            label={t("menuItems.title")}
+            showLimitMessage
+            limitMessage={t("planQuota.menuItemLimitReached", {
+              display: quota?.menuItems.display ?? "—",
+              defaultValue: `Menu item limit reached (${quota?.menuItems.display ?? "—"}).`,
+            })}
+          />
         </div>
-        <Button asChild>
-          <Link to="/menu-items/new">
+         <Button onClick={() => navigate("/menu-items/new")} disabled={!canAddMenuItem}>
             <Plus />
             {t("menuItems.addItem")}
-          </Link>
-        </Button>
-      </div>
+         </Button>
+        </div>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-end gap-3">
@@ -313,11 +324,9 @@ export default function MenuItemsPage() {
                 <EmptyDescription>{t("menuItems.noItemsDescription")}</EmptyDescription>
               </EmptyHeader>
               <EmptyContent>
-                <Button asChild>
-                  <Link to="/menu-items/new">
+                <Button onClick={() => navigate("/menu-items/new")} disabled={!canAddMenuItem}>
                     <Plus />
                     {t("menuItems.addItem")}
-                  </Link>
                 </Button>
               </EmptyContent>
             </Empty>

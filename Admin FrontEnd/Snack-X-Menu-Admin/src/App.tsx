@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 
 import Sidebar from '@/components/layout/Sidebar';
@@ -36,6 +37,8 @@ import UpgradePage from '@/pages/settings/upgrade/UpgradePage';
 import TablesPage from '@/pages/Tables';
 import NotFound from '@/pages/not-found';
 import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
+import { useAuth } from '@/contexts/AuthContext';
+import { PLAN_QUOTA_QUERY_KEY, usePlanQuota } from '@/hooks/usePlanQuota';
 import { HR_PAGE_CONFIG } from '@/config/hrNavigation';
 
 const SIDEBAR_COLLAPSED_STORAGE_KEY = 'snackx.sidebar.collapsed';
@@ -50,6 +53,9 @@ function readStoredSidebarCollapsed(): boolean {
 
 function ProtectedLayout() {
   const location = useLocation();
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  usePlanQuota();
   const [sidebarState, setSidebarState] = useState<SidebarNavState>(() => ({
     collapsed: readStoredSidebarCollapsed(),
     saved: null,
@@ -79,6 +85,14 @@ function ProtectedLayout() {
   useEffect(() => {
     setMobileOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (user?.role !== 'TenantOwner') return;
+    const quotaRoutes = ['/users', '/hr/users', '/categories', '/menu-items', '/tables'];
+    if (quotaRoutes.some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`))) {
+      void queryClient.invalidateQueries({ queryKey: PLAN_QUOTA_QUERY_KEY });
+    }
+  }, [location.pathname, queryClient, user?.role]);
 
   const collapsed = sidebarState.collapsed;
   const isBoardRoute = isFullscreenBoardRoute(location.pathname);

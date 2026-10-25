@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import axiosInstance, { getAuthHeaders } from '@/lib/axios';
 import type {
@@ -6,6 +6,7 @@ import type {
   CreateMenuResponse,
   MainInfoFormValues,
 } from '@/types/menuItem';
+import { PLAN_QUOTA_QUERY_KEY } from '@/hooks/usePlanQuota';
 
 const toCreateMenuPayload = (values: MainInfoFormValues, categoryId: string): CreateMenuPayload => ({
   name: values.name.trim(),
@@ -41,8 +42,12 @@ const createMainInfo = async (
 };
 
 export function useCreateMenuItem(categoryId: string) {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (values: MainInfoFormValues) =>
       createMainInfo(toCreateMenuPayload(values, categoryId)),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: PLAN_QUOTA_QUERY_KEY });
+    },
   });
 }

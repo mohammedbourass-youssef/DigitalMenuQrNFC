@@ -5,6 +5,7 @@ using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
+using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
 using System.Security.Claims;
@@ -23,6 +24,7 @@ namespace NFC_Backend.Controllers
         private readonly IMenuItemRepo _menuRepo;
         private readonly ICategoryTranslationService _translation;
         private readonly IExchangeRateRepo _exchangeRateRepo;
+        private readonly IPlanRepo _planRepo;
 
         public MenuItemsController(
             ITenantRepo tenantRepo,
@@ -31,6 +33,7 @@ namespace NFC_Backend.Controllers
             IFileStorageService fileStorageService,
             ICategoryRepo categoryRepo,
             IMenuItemRepo menuRepo,
+            IPlanRepo planRepo,
             ICategoryTranslationService translation , IExchangeRateRepo exchangeRateRepo)  
         {
             _tenantRepo = tenantRepo;
@@ -41,6 +44,7 @@ namespace NFC_Backend.Controllers
             _menuRepo = menuRepo;
             _translation = translation;
             _exchangeRateRepo = exchangeRateRepo;
+            _planRepo = planRepo;
         }
 
         [HttpPost("main")]
@@ -56,7 +60,30 @@ namespace NFC_Backend.Controllers
 
                 var (tenant, error) = await ResolveTenantAsync();
                 if (error != null) return error;
+                var quota = await _planRepo.GetPlanQuotaAsync(tenant!.PlanId, tenant.Id);
+                if (quota is null)
+                {
+                    _logger.LogWarning(
+                        "CreateNewMenuItem failed - active plan not found. TenantId: {TenantId}, PlanId: {PlanId}",
+                        tenant.Id, tenant.PlanId);
 
+                    return NotFound(new { code = "PLAN_NOT_FOUND", message = "Active plan not found." });          // 404
+                }
+
+                if (!quota.MenuItems.CanAdd)
+                {
+                    _logger.LogInformation(
+                        "CreateNewMenuItem blocked - limit reached. TenantId: {TenantId}, Plan: {Plan}, Used: {Used}, Max: {Max}",
+                        tenant.Id, quota.Name, quota.MenuItems.Used, quota.MenuItems.Max);
+
+                    return StatusCode(StatusCodes.Status403Forbidden, new                                           // 403
+                    {
+                        code = "MENUITEM_LIMIT_REACHED",
+                        message = "Menu item limit reached for your plan.",
+                        current = quota.MenuItems.Used,
+                        limit = quota.MenuItems.Max
+                    });
+                }
                 Category? category = await _categoryRepo.GetCategoryByIDAsync(request.CategoryId, tenant!.Id);
                 if (category == null)
                 {
@@ -138,7 +165,39 @@ namespace NFC_Backend.Controllers
                     _logger.LogWarning("UploadImages failed - menu item not found. CategoryId: {CategoryId}", id);
                     return NotFound(new { error = "Menu item not found." });
                 }
+                var newImagesCount = request.Images?.Count(i => i != null) ?? 0;
 
+                if (newImagesCount > 0)
+                {
+                    var quota = await _planRepo.GetPlanQuotaAsync(tenant.PlanId, tenant.Id);
+                    if (quota is null)
+                    {
+                        _logger.LogWarning(
+                            "UploadImages failed - active plan not found. TenantId: {TenantId}, PlanId: {PlanId}",
+                            tenant.Id, tenant.PlanId);
+
+                        return NotFound(new { code = "PLAN_NOT_FOUND", message = "Active plan not found." });      // 404
+                    }
+
+                    var existing = menu.Images.Count;
+                    var max = quota.MaxImagesPerMenuItem;
+
+                    if (existing + newImagesCount > max)
+                    {
+                        _logger.LogInformation(
+                            "UploadImages blocked - image limit reached. TenantId: {TenantId}, MenuItemId: {MenuItemId}, Existing: {Existing}, New: {New}, Max: {Max}",
+                            tenant.Id, id, existing, newImagesCount, max);
+
+                        return StatusCode(StatusCodes.Status403Forbidden, new                                       // 403
+                        {
+                            code = "IMAGE_LIMIT_REACHED",
+                            message = $"This plan allows {max} images per menu item.",
+                            current = existing,
+                            attempted = newImagesCount,
+                            limit = max
+                        });
+                    }
+                }
                 // Replace cover image if a new one is provided
                 string? coverImageUrl = menu.CoverImage;
                 if (request.CoverImage != null)

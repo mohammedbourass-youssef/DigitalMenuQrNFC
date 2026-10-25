@@ -3,6 +3,7 @@ using Microsoft.Extensions.Caching.Distributed;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Infrastructure.Data;
+using NFC_Backend.Infrastructure.Tools;
 using NFC_Backend.Repos.Interfaces;
 using System.Text.Json;
 
@@ -150,12 +151,9 @@ namespace NFC_Backend.Repos.Implementations
             }).ToList();
         }
 
-
-        private static string PlanKey(int id) => $"plan:{id}";
-
         public async Task<Plan?> GetPlanByIdNoTrackingAsync(int planId, CancellationToken ct = default)
         {
-            var key = PlanKey(planId);
+            var key = RedisKeysHelpers.PlanKey(planId);
 
             // 1) Try Redis (fail open: if Redis is down, fall back to the DB)
             try
@@ -190,13 +188,82 @@ namespace NFC_Backend.Repos.Implementations
         }
 
         /// Call this whenever a plan is created, updated, deactivated or deleted (SuperAdmin side).
-        public Task InvalidatePlanCacheAsync(int planId, CancellationToken ct = default)
-            => _cache.RemoveAsync(PlanKey(planId), ct);
+        public Task InvalidatePlanCacheAsync(int planId ,CancellationToken ct = default)
+            => _cache.RemoveAsync(RedisKeysHelpers.PlanKey(planId), ct);
+
+        public async Task<PlanQuotaDTo?> GetPlanQuotaAsync(int planId, Guid tenantId, CancellationToken ct = default)
+        {
+            var raw = await _db.Plans
+                .AsNoTracking()
+                .Where(p => p.Id == planId && p.IsActive)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.MaxCategories,
+                    p.MaxMenuItems,
+                    p.MaxTables,
+                    p.MaxUsers,
+                    p.MaxImagesPerMenuItem,
+                    Categories = _db.Categories.Count(c => c.TenantId == tenantId),
+                    MenuItems = _db.MenuItems.Count(m => m.TenantId == tenantId),
+                    Tables = _db.Tables.Count(t => t.TenantId == tenantId),
+                    Users = _db.Users.Count(u => u.TenantId == tenantId),
+                })
+                .FirstOrDefaultAsync(ct);                       // <-- ct was missing
+
+            if (raw is null) return null;
+
+            return new PlanQuotaDTo
+            {
+                Id = raw.Id,
+                Name = raw.Name,
+                Categories = new() { Used = raw.Categories, Max = raw.MaxCategories },
+                MenuItems = new() { Used = raw.MenuItems, Max = raw.MaxMenuItems },
+                Tables = new() { Used = raw.Tables, Max = raw.MaxTables },
+                Users = new() { Used = raw.Users, Max = raw.MaxUsers },
+                MaxImagesPerMenuItem = raw.MaxImagesPerMenuItem,
+            };
+        }
 
 
 
+        //public async Task<PlanQuotaDTo?> GetPlanQuotaAsync(int planId, Guid tenantId, CancellationToken ct = default)
+        //{
+        //    var key =RedisKeysHelpers.QuotaKey(tenantId);
 
+        //    try
+        //    {
+        //        var cached = await _cache.GetStringAsync(key, ct);
+        //        if (cached is not null)
+        //            return JsonSerializer.Deserialize<PlanQuotaDTo>(cached);
+        //    }
+        //    catch (Exception ex) when (ex is not OperationCanceledException)
+        //    {
+        //        _logger.LogWarning(ex, "Redis read failed for {Key}, falling back to DB.", key);
+        //    }
 
+        //    var quota = await LoadQuotaFromDbAsync(planId, tenantId, ct);
+        //    if (quota is null) return null;
+
+        //    try
+        //    {
+        //        await _cache.SetStringAsync(key, JsonSerializer.Serialize(quota),
+        //            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) }, ct);
+        //    }
+        //    catch (Exception ex) when (ex is not OperationCanceledException)
+        //    {
+        //        _logger.LogWarning(ex, "Redis write failed for {Key}.", key);
+        //    }
+
+        //    return quota;
+        //}
+
+        public async Task InvalidateQuotaAsync(Guid tenantId)
+        {
+            try { await _cache.RemoveAsync(RedisKeysHelpers.QuotaKey(tenantId)); }
+            catch (Exception ex) { _logger.LogWarning(ex, "Redis invalidate failed for tenant {TenantId}.", tenantId); }
+        }
 
         //private static string FormatUsage(int used, int max)
         //    => max == Plan.Unlimited ? $"{used}/∞" : $"{used}/{max}";

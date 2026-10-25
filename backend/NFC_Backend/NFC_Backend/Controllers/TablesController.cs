@@ -5,6 +5,7 @@ using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
+using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 
 namespace NFC_Backend.Controllers
@@ -15,11 +16,15 @@ namespace NFC_Backend.Controllers
     {
         private readonly ITableRepo _tableRepo;
         private readonly ILogger<TablesController> _logger;
+        private readonly IPlanRepo _PlanRepo;
+        private readonly ITenantRepo _tenantRepo;
 
-        public TablesController(ITableRepo tableRepo, ILogger<TablesController> logger)
+        public TablesController(ITableRepo tableRepo, ILogger<TablesController> logger , IPlanRepo planRepo , ITenantRepo tenantRepo)
         {
             _tableRepo = tableRepo;
             _logger = logger;
+            _PlanRepo = planRepo;
+            _tenantRepo = tenantRepo;
         }
 
         [HttpGet]
@@ -111,6 +116,41 @@ namespace NFC_Backend.Controllers
 
                 _logger.LogInformation("Create table started for TenantId: {TenantId}", tenantId);
 
+                var tenant = await _tenantRepo.GetByID(tenantId.Value);
+                if (tenant == null)
+                {
+                    _logger.LogWarning("Create table failed - tenant not found. TenantId: {TenantId}", tenantId);
+                    return NotFound(new { code = "TENANT_NOT_FOUND", message = "Restaurant not found." });      // 404
+                }
+                var quota = await _PlanRepo.GetPlanQuotaAsync(tenant.PlanId, tenantId.Value);
+                if (quota is null)
+                {
+                    _logger.LogWarning(
+                        "Create table failed - active plan not found. TenantId: {TenantId}, PlanId: {PlanId}",
+                        tenantId, tenant.PlanId);
+
+                    return NotFound(new { code = "PLAN_NOT_FOUND", message = "Active plan not found." });      // 404
+                }
+
+                if (!quota.Tables.CanAdd)
+                {
+                    _logger.LogInformation(
+                        "Create table blocked - limit reached. TenantId: {TenantId}, Plan: {Plan}, Used: {Used}, Max: {Max}",
+                        tenantId, quota.Name, quota.Tables.Used, quota.Tables.Max);
+
+                    return StatusCode(StatusCodes.Status403Forbidden, new                                       // 403
+                    {
+                        code = "TABLE_LIMIT_REACHED",
+                        message = "Table limit reached for your plan.",
+                        current = quota.Tables.Used,
+                        limit = quota.Tables.Max
+                    });
+                }
+
+                if (await _tableRepo.NumberExistsAsync(tenantId.Value, dto.Number))
+                {
+                    return BadRequest(new { error = "A table with this number already exists." });
+                }
                 if (await _tableRepo.NumberExistsAsync(tenantId.Value, dto.Number))
                 {
                     return BadRequest(new { error = "A table with this number already exists." });
