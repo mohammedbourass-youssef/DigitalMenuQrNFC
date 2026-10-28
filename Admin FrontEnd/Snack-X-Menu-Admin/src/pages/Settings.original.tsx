@@ -335,6 +335,8 @@ export default function SettingsPage() {
   };
 
   const handleVerifyEmail = () => {
+    if (!profile) return;
+
     navigate('/confirm-email', { state: { email: profile.email } });
   };
 

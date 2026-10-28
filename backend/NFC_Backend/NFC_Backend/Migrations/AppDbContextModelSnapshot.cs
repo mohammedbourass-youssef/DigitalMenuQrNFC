@@ -227,6 +227,205 @@ namespace NFC_Backend.Migrations
                     b.ToTable("ExchangeRates");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Feature", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("features", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000001"),
+                            Code = "Menu",
+                            Name = "Menu",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000002"),
+                            Code = "Categories",
+                            Name = "Categories",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000003"),
+                            Code = "Tables",
+                            Name = "Tables",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000004"),
+                            Code = "Orders",
+                            Name = "Orders",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000005"),
+                            Code = "Invoices",
+                            Name = "Invoices",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000006"),
+                            Code = "Users",
+                            Name = "Users",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000007"),
+                            Code = "Roles",
+                            Name = "Roles",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000008"),
+                            Code = "AiAgent",
+                            Name = "AI Agent",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000009"),
+                            Code = "DataAnalyst",
+                            Name = "Data Analyst",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-00000000000a"),
+                            Code = "Chatbot",
+                            Name = "Chatbot",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-00000000000b"),
+                            Code = "Notifications",
+                            Name = "Notifications",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-00000000000c"),
+                            Code = "PaymentMethods",
+                            Name = "Payment Methods",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-00000000000d"),
+                            Code = "PaymentStatuses",
+                            Name = "Payment Statuses",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-00000000000e"),
+                            Code = "NfcTags",
+                            Name = "NFC Tags",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-00000000000f"),
+                            Code = "Settings",
+                            Name = "Settings",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000010"),
+                            Code = "Subscription",
+                            Name = "Subscription",
+                            Status = "Available"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000011"),
+                            Code = "Employees",
+                            Name = "Employees",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000012"),
+                            Code = "Departments",
+                            Name = "Departments",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000013"),
+                            Code = "JobTitles",
+                            Name = "Job Titles",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000014"),
+                            Code = "LeaveManagement",
+                            Name = "Leave Management",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000015"),
+                            Code = "Attendance",
+                            Name = "Attendance",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000016"),
+                            Code = "Payroll",
+                            Name = "Payroll",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000017"),
+                            Code = "AuditLog",
+                            Name = "Audit Log",
+                            Status = "ComingSoon"
+                        },
+                        new
+                        {
+                            Id = new Guid("a1000000-0000-0000-0000-000000000018"),
+                            Code = "HRGeneralSettings",
+                            Name = "HR General Settings",
+                            Status = "ComingSoon"
+                        });
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Invoice", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1690,6 +1889,374 @@ namespace NFC_Backend.Migrations
                         });
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PlanFeature", b =>
+                {
+                    b.Property<int>("PlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("FeatureId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("PlanId", "FeatureId");
+
+                    b.HasIndex("FeatureId");
+
+                    b.ToTable("plan_features", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000001")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000002")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000003")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000004")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000006")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000001")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000002")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000003")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000004")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000006")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000001")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000002")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000003")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000004")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000006")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000005")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000007")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000008")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000005")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000007")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000008")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000009")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000a")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000b")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000f")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000010")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000011")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000012")
+                        },
+                        new
+                        {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000013")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000b")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000f")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000010")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000011")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000012")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000013")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000b")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000f")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000010")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000011")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000012")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000013")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000c")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000d")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000e")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000014")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000015")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000016")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000c")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000d")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000e")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000014")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000015")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000016")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000017")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000018")
+                        });
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid?>("TenantId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Role_Name_Platform")
+                        .HasFilter("\"TenantId\" IS NULL");
+
+                    b.HasIndex("TenantId");
+
+                    b.HasIndex("TenantId", "Name")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_Role_Name_PerTenant")
+                        .HasFilter("\"TenantId\" IS NOT NULL");
+
+                    b.ToTable("roles", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("FeatureId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("CanAdd")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("CanDelete")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("CanEdit")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("CanRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.HasKey("RoleId", "FeatureId");
+
+                    b.HasIndex("FeatureId");
+
+                    b.ToTable("role_permissions", (string)null);
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1913,6 +2480,21 @@ namespace NFC_Backend.Migrations
                         .HasDatabaseName("UQ_TenantPaymentMethod");
 
                     b.ToTable("tenant_payment_methods", (string)null);
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.TenantUserRole", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("user_roles", (string)null);
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
@@ -2273,6 +2855,54 @@ namespace NFC_Backend.Migrations
                     b.Navigation("PaymentStatus");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.PlanFeature", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Feature", "Feature")
+                        .WithMany("PlanFeatures")
+                        .HasForeignKey("FeatureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Plan", "Plan")
+                        .WithMany("PlanFeatures")
+                        .HasForeignKey("PlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Feature");
+
+                    b.Navigation("Plan");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Role", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Feature", "Feature")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("FeatureId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.Role", "Role")
+                        .WithMany("Permissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Feature");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Table", "Table")
@@ -2338,6 +2968,25 @@ namespace NFC_Backend.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.TenantUserRole", b =>
+                {
+                    b.HasOne("NFC_Backend.Domain.Entities.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NFC_Backend.Domain.Entities.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
                     b.HasOne("NFC_Backend.Domain.Entities.Tenant", "Tenant")
@@ -2369,6 +3018,13 @@ namespace NFC_Backend.Migrations
                     b.Navigation("BaseRates");
 
                     b.Navigation("TargetRates");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Feature", b =>
+                {
+                    b.Navigation("PlanFeatures");
+
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.MenuItem", b =>
@@ -2404,7 +3060,16 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Plan", b =>
                 {
+                    b.Navigation("PlanFeatures");
+
                     b.Navigation("Tenants");
+                });
+
+            modelBuilder.Entity("NFC_Backend.Domain.Entities.Role", b =>
+                {
+                    b.Navigation("Permissions");
+
+                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Table", b =>
@@ -2421,6 +3086,8 @@ namespace NFC_Backend.Migrations
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.User", b =>
                 {
+                    b.Navigation("UserRoles");
+
                     b.Navigation("VerificationCodes");
                 });
 #pragma warning restore 612, 618

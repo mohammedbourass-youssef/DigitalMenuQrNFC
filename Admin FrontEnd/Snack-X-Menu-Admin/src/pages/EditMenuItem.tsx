@@ -235,7 +235,7 @@ export default function EditMenuItemPage() {
                 type="number"
                 step="0.01"
                 min="0"
-                value={discountedPrice}
+                value={discountedPrice ?? ''}
                 onChange={(e) => setDiscountedPrice(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="None"
               />

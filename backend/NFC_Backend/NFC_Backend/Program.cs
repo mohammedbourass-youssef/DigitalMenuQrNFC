@@ -24,6 +24,7 @@ builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfig
 
 var connectionString = builder.Configuration.GetConnectionString("SmartMenuDb")
     ?? throw new InvalidOperationException("Connection string 'SmartMenuDb' not found.");
+builder.Services.AddMemoryCache();
 
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -35,6 +36,11 @@ if (!string.IsNullOrWhiteSpace(redisConnectionString)
 {
     builder.Services.AddStackExchangeRedisCache(options =>
         options.Configuration = redisConnectionString);
+}
+else
+{
+    // Local dev / design-time (dotnet ef): in-process fallback so IDistributedCache always exists
+    builder.Services.AddDistributedMemoryCache();
 }
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddJWTBearerToken(builder.Configuration);

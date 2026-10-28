@@ -68,5 +68,7 @@ namespace NFC_Backend.Domain.Entities
 
         // Navigation
         public ICollection<Tenant> Tenants { get; set; } = new List<Tenant>();
+        public ICollection<PlanFeature> PlanFeatures { get; set; } = new List<PlanFeature>();
+
     }
 }

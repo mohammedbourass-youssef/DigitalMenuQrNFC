@@ -5,9 +5,9 @@ namespace NFC_Backend.Domain.Entities
 {
     public enum UserRole
     {
-        SuperAdmin = 0,   // eByte platform-level admin
-        TenantOwner = 1,  // Restaurant owner
-        TenantStaff = 2   // Restaurant staff/manager
+        SuperAdmin = 0,   
+        TenantOwner = 1,  
+        TenantStaff = 2 
     }
 
     public class User
@@ -48,5 +48,6 @@ namespace NFC_Backend.Domain.Entities
         // Navigation
         public Tenant? Tenant { get; set; }
         public ICollection<VerificationCode> VerificationCodes { get; set; } = new List<VerificationCode>();
+        public ICollection<TenantUserRole> UserRoles { get; set; } = new List<TenantUserRole>();
     }
 }

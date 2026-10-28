@@ -8,7 +8,9 @@ import TopBar from '@/components/layout/TopBar';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import { PermissionsProvider } from '@/contexts/PermissionsContext';
 import { SidebarProvider } from '@/contexts/SidebarContext';
+import { FeatureRoute } from '@/features/FeatureRoute';
 import { isFullscreenBoardRoute, isFullWidthContentRoute, transitionSidebarOnNav, type SidebarNavState } from '@/lib/sidebarFullscreen';
 import CategoriesPage from '@/pages/Categories';
 import CategoryDetailsPage from '@/pages/CategoryDetails';
@@ -126,52 +128,54 @@ function ProtectedLayout() {
                 : 'mx-auto w-full max-w-7xl p-6'
             }
           >
-            <Routes>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/menu-items" element={<MenuItemsPage />} />
-              <Route path="/menu-items/new" element={<NewMenuItemPage />} />
-              <Route path="/menu-items/:menuId/images" element={<MenuItemImagesPage />} />
-              <Route path="/menu-items/:menuId/translations" element={<MenuItemTranslationsPage />} />
-              <Route path="/menu-items/:menuId/edit" element={<EditMenuItemPage />} />
-              <Route path="/categories" element={<CategoriesPage />} />
-              <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
-              <Route path="/tables" element={<TablesPage />} />
-              <Route path="/orders" element={<OrdersPage />} />
-              <Route path="/orders/status-settings" element={<OrderStatusSettingsPage />} />
-              <Route
-                path="/orders/history"
-                element={
-                  <ProtectedRoute roles={['TenantOwner']}>
-                    <OrdersHistoryPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/nfc-tags" element={<NFCTagsPage />} />
+            <FeatureRoute>
+              <Routes>
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/menu-items" element={<MenuItemsPage />} />
+                <Route path="/menu-items/new" element={<NewMenuItemPage />} />
+                <Route path="/menu-items/:menuId/images" element={<MenuItemImagesPage />} />
+                <Route path="/menu-items/:menuId/translations" element={<MenuItemTranslationsPage />} />
+                <Route path="/menu-items/:menuId/edit" element={<EditMenuItemPage />} />
+                <Route path="/categories" element={<CategoriesPage />} />
+                <Route path="/categories/:categoryId" element={<CategoryDetailsPage />} />
+                <Route path="/tables" element={<TablesPage />} />
+                <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/orders/status-settings" element={<OrderStatusSettingsPage />} />
+                <Route
+                  path="/orders/history"
+                  element={
+                    <ProtectedRoute roles={['TenantOwner']}>
+                      <OrdersHistoryPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/nfc-tags" element={<NFCTagsPage />} />
                 <Route path="/payments/invoices" element={<PaymentsInvoicesPage />} />
                 <Route path={PAYMENT_STATUS_ENTRY.href} element={<PaymentStatusPage />} />
-              {/* Owner-only: every PaymentMethods endpoint but /Enabled is. */}
-              <Route
-                path="/payments/methods"
-                element={
-                  <ProtectedRoute roles={['TenantOwner']}>
-                    <PaymentMethodsPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Owner-only: every PaymentMethods endpoint but /Enabled is. */}
+                <Route
+                  path="/payments/methods"
+                  element={
+                    <ProtectedRoute roles={['TenantOwner']}>
+                      <PaymentMethodsPage />
+                    </ProtectedRoute>
+                  }
+                />
                 {/* Temporary entry - redirect to payment status. */}
                 <Route path={PAYMENTS_COMING_SOON_ENTRY.href} element={<Navigate to={PAYMENT_STATUS_ENTRY.href} replace />} />
-              <Route path="/settings" element={<SettingsPage />}>
-                <Route index element={<Navigate to="system-preferences" replace />} />
-                <Route path="system-preferences" element={<SystemPreferencesPage />} />
-                <Route path="restaurant-information" element={<RestaurantInformationPage />} />
-                <Route path="user-information" element={<UserInformationPage />} />
-                <Route path="upgrade" element={<UpgradePage />} />
-              </Route>
-              {HR_PAGE_CONFIG.map(({ path, component: HrPage }) => (
-                <Route key={path} path={path} element={<HrPage />} />
-              ))}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+                <Route path="/settings" element={<SettingsPage />}>
+                  <Route index element={<Navigate to="system-preferences" replace />} />
+                  <Route path="system-preferences" element={<SystemPreferencesPage />} />
+                  <Route path="restaurant-information" element={<RestaurantInformationPage />} />
+                  <Route path="user-information" element={<UserInformationPage />} />
+                  <Route path="upgrade" element={<UpgradePage />} />
+                </Route>
+                {HR_PAGE_CONFIG.map(({ path, component: HrPage }) => (
+                  <Route key={path} path={path} element={<HrPage />} />
+                ))}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </FeatureRoute>
           </div>
         </main>
       </div>
@@ -183,23 +187,25 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <NotificationProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/confirm-email" element={<ConfirmEmailPage />} />
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <ProtectedLayout />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-          <Toaster position="top-right" richColors closeButton visibleToasts={4} />
-        </NotificationProvider>
+        <PermissionsProvider>
+          <NotificationProvider>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/confirm-email" element={<ConfirmEmailPage />} />
+              <Route
+                path="/*"
+                element={
+                  <ProtectedRoute>
+                    <ProtectedLayout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+            <Toaster position="top-right" richColors closeButton visibleToasts={4} />
+          </NotificationProvider>
+        </PermissionsProvider>
       </AuthProvider>
     </BrowserRouter>
   );

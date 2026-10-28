@@ -36,7 +36,8 @@
         "admin": "Admin",
         "operations": "Operations",
         "operationsDesc": "Keep menu, categories, and NFC tags aligned with what's on the floor.",
-        "paymentStatus": "Payment Status"
+        "paymentStatus": "Payment Status",
+        "hrMyPermissions": "Discover My Permissions"
     },
     "topBar": {
         "searchPlaceholder": "Search menu, tags, or items",
@@ -936,6 +937,37 @@
             "error": "Payment failed. Please try again."
         },
         "generateReceipt": "Generate Receipt"
+    },
+    "permissions": {
+        "eyebrow": "Access control",
+        "title": "Discover My Permissions",
+        "subtitle": "Review what your role can access on your current plan, and see which features are available on an upgrade.",
+        "currentPlan": "Current plan",
+        "currentPlanFallback": "current",
+        "free": "Free",
+        "roles": "Roles",
+        "features": "Features",
+        "summary": "{{included}} of {{total}} features included in your plan",
+        "empty": "No features are available yet.",
+        "notInPlan": "Not in plan",
+        "noAccess": "Your role does not have access to this feature.",
+        "upgradeHint": "This feature is not included in your {{plan}} plan. Upgrade to unlock this page.",
+        "upgrade": "Upgrade to unlock this page",
+        "notFound": "We could not find your restaurant or user account.",
+        "loadError": "We could not load your permissions. Please try again.",
+        "retry": "Try again",
+        "actions": {
+            "label": "Your permissions",
+            "read": "View",
+            "add": "Create",
+            "edit": "Edit",
+            "delete": "Delete"
+        },
+        "status": {
+            "Available": "Available",
+            "ComingSoon": "Coming soon",
+            "UnderMaintenance": "Under maintenance"
+        }
     },
     "planQuota": {
         "usage": "Usage",

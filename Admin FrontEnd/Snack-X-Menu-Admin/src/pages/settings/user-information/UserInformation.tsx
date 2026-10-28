@@ -101,6 +101,8 @@ export default function UserInformationPage() {
   };
 
   const handleVerifyEmail = () => {
+    if (!profile) return;
+
     navigate('/confirm-email', { state: { email: profile.email } });
   };
 

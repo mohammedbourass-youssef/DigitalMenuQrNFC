@@ -22,10 +22,12 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
+import { usePermissions } from '@/contexts/PermissionsContext';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { DESKTOP_SIDEBAR_QUERY, useMediaQuery } from '@/hooks/useMediaQuery';
 import { PAYMENTS_COMING_SOON_ENTRY, PAYMENT_STATUS_ENTRY } from '@/components/layout/paymentsNav';
 import { HR_SETTINGS_GROUP } from '@/config/hrNavigation';
+import { featureForPath } from '@/features/routes';
 
 type SidebarLink = {
   type: 'link';
@@ -94,8 +96,14 @@ export default function Sidebar() {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const { collapsed, mobileOpen, closeMobile } = useSidebar();
+  const { can } = usePermissions();
   const isDesktop = useMediaQuery(DESKTOP_SIDEBAR_QUERY);
   const isRtl = i18n.dir() === 'rtl';
+
+  const isVisible = (href: string) => {
+    const route = featureForPath(href);
+    return !route || can(route.feature, route.action);
+  };
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
@@ -163,25 +171,34 @@ export default function Sidebar() {
           </div>
 
           <nav className="space-y-1">
-            {navItems.map((entry) =>
-              entry.type === 'link' ? (
-                <NavLink
-                  key={entry.href}
-                  to={entry.href}
-                  end={entry.end ?? false}
-                  onClick={closeMobile}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
-                      isActive
-                        ? 'bg-orange-50 text-orange-600 shadow-sm'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                    }`
-                  }
-                >
-                  <entry.icon className="h-4 w-4 shrink-0" />
-                  {label(entry.labelKey)}
-                </NavLink>
-              ) : (
+            {navItems.map((entry) => {
+              if (entry.type === 'link') {
+                if (!isVisible(entry.href)) return null;
+
+                return (
+                  <NavLink
+                    key={entry.href}
+                    to={entry.href}
+                    end={entry.end ?? false}
+                    onClick={closeMobile}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+                        isActive
+                          ? 'bg-orange-50 text-orange-600 shadow-sm'
+                          : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                      }`
+                    }
+                  >
+                    <entry.icon className="h-4 w-4 shrink-0" />
+                    {label(entry.labelKey)}
+                  </NavLink>
+                );
+              }
+
+              const children = entry.children.filter((child) => isVisible(child.href));
+              if (children.length === 0) return null;
+
+              return (
                 <div key={entry.labelKey}>
                   <button
                     type="button"
@@ -201,30 +218,29 @@ export default function Sidebar() {
 
                   {expanded[entry.labelKey] && (
                     <div id={`sidebar-group-${entry.labelKey}`} className="mt-1 space-y-1 ps-6">
-                      {entry.children.length > 0 &&
-                        entry.children.map((child) => (
-                          <NavLink
-                            key={child.href}
-                            to={child.href}
-                            end={child.end ?? false}
-                            onClick={closeMobile}
-                            className={({ isActive }) =>
-                              `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                                isActive
-                                  ? 'bg-orange-50 text-orange-600 shadow-sm'
-                                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-                              }`
-                            }
-                          >
-                            <child.icon className="h-4 w-4 shrink-0" />
-                            {label(child.labelKey, child.defaultLabel)}
-                          </NavLink>
-                        ))}
+                      {children.map((child) => (
+                        <NavLink
+                          key={child.href}
+                          to={child.href}
+                          end={child.end ?? false}
+                          onClick={closeMobile}
+                          className={({ isActive }) =>
+                            `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
+                              isActive
+                                ? 'bg-orange-50 text-orange-600 shadow-sm'
+                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                            }`
+                          }
+                        >
+                          <child.icon className="h-4 w-4 shrink-0" />
+                          {label(child.labelKey, child.defaultLabel)}
+                        </NavLink>
+                      ))}
                     </div>
                   )}
                 </div>
-              )
-            )}
+              );
+            })}
           </nav>
 
           <div className="mt-auto rounded-2xl bg-slate-100 p-4">

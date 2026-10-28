@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.Entities;
 
 namespace NFC_Backend.Infrastructure.Data
@@ -38,6 +39,11 @@ namespace NFC_Backend.Infrastructure.Data
         public DbSet<PaymentMethod> PaymentMethods { get; set; } = null!;
         public DbSet<PaymentMethodTranslation> PaymentMethodTranslations { get; set; } = null!;
         public DbSet<TenantPaymentMethod> TenantPaymentMethods { get; set; } = null!;
+        public DbSet<Feature> Features { get; set; } = null!;
+        public DbSet<PlanFeature> PlanFeatures { get; set; } = null!;
+        public DbSet<Role> Roles { get; set; } = null!;
+        public DbSet<RolePermission> RolePermissions { get; set; } = null!;
+        public DbSet<TenantUserRole> UserRoles { get; set; } = null!;
 
         public DbSet<Invoice> Invoices { get; set; } = null!;
 
@@ -768,6 +774,172 @@ namespace NFC_Backend.Infrastructure.Data
                     );
                 });
             });
+
+            // ═════════════════════════════════════════════════════
+            //  ACCESS CONTROL  (Features, Plan features, Roles)
+            // ═════════════════════════════════════════════════════
+            modelBuilder.Entity<Feature>(entity =>
+            {
+                entity.ToTable("features");
+                entity.HasKey(f => f.Id);
+
+                entity.Property(f => f.Code).HasMaxLength(50).IsRequired();
+                entity.Property(f => f.Name).HasMaxLength(100).IsRequired();
+                entity.Property(f => f.Status).HasConversion<string>().HasMaxLength(20);
+
+                entity.HasIndex(f => f.Code).IsUnique();
+            });
+
+            modelBuilder.Entity<PlanFeature>(entity =>
+            {
+                entity.ToTable("plan_features");
+                entity.HasKey(x => new { x.PlanId, x.FeatureId });
+
+                entity.HasOne(x => x.Plan)
+                      .WithMany(p => p.PlanFeatures)
+                      .HasForeignKey(x => x.PlanId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Feature)
+                      .WithMany(f => f.PlanFeatures)
+                      .HasForeignKey(x => x.FeatureId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => x.FeatureId);
+            });
+
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("roles");
+                entity.HasKey(r => r.Id);
+
+                entity.Property(r => r.Name).HasMaxLength(100).IsRequired();
+                entity.Property(r => r.IsSystem).HasDefaultValue(false);
+                entity.Property(r => r.CreatedAt).HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(r => r.TenantId);
+
+                // PostgreSQL treats NULLs as distinct, so two filtered indexes are needed
+                entity.HasIndex(r => new { r.TenantId, r.Name })
+                      .IsUnique()
+                      .HasFilter("\"TenantId\" IS NOT NULL")
+                      .HasDatabaseName("UQ_Role_Name_PerTenant");
+
+                entity.HasIndex(r => r.Name)
+                      .IsUnique()
+                      .HasFilter("\"TenantId\" IS NULL")
+                      .HasDatabaseName("UQ_Role_Name_Platform");
+
+                entity.HasOne(r => r.Tenant)
+                      .WithMany()
+                      .HasForeignKey(r => r.TenantId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RolePermission>(entity =>
+            {
+                entity.ToTable("role_permissions");
+                entity.HasKey(x => new { x.RoleId, x.FeatureId });
+
+                entity.Property(x => x.CanRead).HasDefaultValue(false);
+                entity.Property(x => x.CanAdd).HasDefaultValue(false);
+                entity.Property(x => x.CanEdit).HasDefaultValue(false);
+                entity.Property(x => x.CanDelete).HasDefaultValue(false);
+
+                entity.HasOne(x => x.Role)
+                      .WithMany(r => r.Permissions)
+                      .HasForeignKey(x => x.RoleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Feature)
+                      .WithMany(f => f.RolePermissions)
+                      .HasForeignKey(x => x.FeatureId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(x => x.FeatureId);
+            });
+
+            modelBuilder.Entity<TenantUserRole>(entity =>
+            {
+                entity.ToTable("user_roles");
+                entity.HasKey(x => new { x.UserId, x.RoleId });
+
+                entity.HasOne(x => x.User)
+                      .WithMany(u => u.UserRoles)
+                      .HasForeignKey(x => x.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(x => x.Role)
+                      .WithMany(r => r.UserRoles)
+                      .HasForeignKey(x => x.RoleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => x.RoleId);
+            });
+
+            SeedAccessControl(modelBuilder);
+        }
+
+        private static void SeedAccessControl(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Feature>().HasData(
+                new Feature { Id = FeatureIds.Menu, Code = FeatureCodes.Menu, Name = "Menu", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.Categories, Code = FeatureCodes.Categories, Name = "Categories", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.Tables, Code = FeatureCodes.Tables, Name = "Tables", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.Orders, Code = FeatureCodes.Orders, Name = "Orders", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.Invoices, Code = FeatureCodes.Invoices, Name = "Invoices", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Users, Code = FeatureCodes.Users, Name = "Users", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Roles, Code = FeatureCodes.Roles, Name = "Roles", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.AiAgent, Code = FeatureCodes.AiAgent, Name = "AI Agent", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.DataAnalyst, Code = FeatureCodes.DataAnalyst, Name = "Data Analyst", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Chatbot, Code = FeatureCodes.Chatbot, Name = "Chatbot", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Notifications, Code = FeatureCodes.Notifications, Name = "Notifications", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.PaymentMethods, Code = FeatureCodes.PaymentMethods, Name = "Payment Methods", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.PaymentStatuses, Code = FeatureCodes.PaymentStatuses, Name = "Payment Statuses", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.NfcTags, Code = FeatureCodes.NfcTags, Name = "NFC Tags", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Settings, Code = FeatureCodes.Settings, Name = "Settings", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.Subscription, Code = FeatureCodes.Subscription, Name = "Subscription", Status = FeatureStatus.Available },
+                new Feature { Id = FeatureIds.Employees, Code = FeatureCodes.Employees, Name = "Employees", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Departments, Code = FeatureCodes.Departments, Name = "Departments", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.JobTitles, Code = FeatureCodes.JobTitles, Name = "Job Titles", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.LeaveManagement, Code = FeatureCodes.LeaveManagement, Name = "Leave Management", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Attendance, Code = FeatureCodes.Attendance, Name = "Attendance", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.Payroll, Code = FeatureCodes.Payroll, Name = "Payroll", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.AuditLog, Code = FeatureCodes.AuditLog, Name = "Audit Log", Status = FeatureStatus.ComingSoon },
+                new Feature { Id = FeatureIds.HRGeneralSettings, Code = FeatureCodes.HRGeneralSettings, Name = "HR General Settings", Status = FeatureStatus.ComingSoon }
+            );
+
+            var planFeatures = new List<PlanFeature>();
+
+            void Add(int planId, Guid featureId)
+            {
+                planFeatures.Add(new PlanFeature { PlanId = planId, FeatureId = featureId });
+            }
+
+            void AddFor(IReadOnlyList<int> planIds, params Guid[] featureIds)
+            {
+                foreach (var planId in planIds)
+                {
+                    foreach (var featureId in featureIds)
+                    {
+                        Add(planId, featureId);
+                    }
+                }
+            }
+
+            var allPlans = new[] { 1, 2, 3 };
+            var proPlans = new[] { 2, 3 };
+            var professionalPlan = new[] { 3 };
+
+            AddFor(allPlans, FeatureIds.Menu, FeatureIds.Categories, FeatureIds.Tables, FeatureIds.Orders, FeatureIds.Users);
+            AddFor(proPlans, FeatureIds.Invoices, FeatureIds.Roles, FeatureIds.AiAgent);
+            AddFor(professionalPlan, FeatureIds.DataAnalyst, FeatureIds.Chatbot);
+
+            AddFor(allPlans, FeatureIds.Notifications, FeatureIds.Settings, FeatureIds.Subscription, FeatureIds.Employees, FeatureIds.Departments, FeatureIds.JobTitles);
+            AddFor(proPlans, FeatureIds.PaymentMethods, FeatureIds.PaymentStatuses, FeatureIds.NfcTags, FeatureIds.LeaveManagement, FeatureIds.Attendance, FeatureIds.Payroll);
+            AddFor(professionalPlan, FeatureIds.AuditLog, FeatureIds.HRGeneralSettings);
+
+            modelBuilder.Entity<PlanFeature>().HasData(planFeatures.ToArray());
         }
     }
 }
