@@ -9,11 +9,17 @@ import {
 } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import axiosInstance from '@/lib/axios';
-import { login, logout, register } from '@/services/authService';
+import { getCurrentUser, login, logout, register } from '@/services/authService';
 import type { AuthState, LoginDTO, RegisterDTO, UserResponseDto } from '@/types';
 
 const USER_STORAGE_KEY = 'smartmenu-user';
+
+function normalizeUser(user: UserResponseDto): UserResponseDto {
+  return {
+    ...user,
+    features: Array.isArray(user.features) ? user.features : [],
+  };
+}
 
 function saveUserToStorage(user: UserResponseDto) {
   localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
@@ -27,7 +33,7 @@ function getStoredUser(): UserResponseDto | null {
   try {
     const stored = localStorage.getItem(USER_STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored) as UserResponseDto;
+      return normalizeUser(JSON.parse(stored) as UserResponseDto);
     }
   } catch {
     localStorage.removeItem(USER_STORAGE_KEY);
@@ -35,10 +41,17 @@ function getStoredUser(): UserResponseDto | null {
   return null;
 }
 
+async function fetchCurrentUser(): Promise<UserResponseDto> {
+  const currentUser = normalizeUser(await getCurrentUser());
+  saveUserToStorage(currentUser);
+  return currentUser;
+}
+
 interface AuthContextValue extends AuthState {
   login: (data: LoginDTO) => Promise<void>;
   register: (data: RegisterDTO) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const defaultState: AuthState = {
@@ -53,6 +66,7 @@ const AuthContext = createContext<AuthContextValue>({
   login: async () => undefined,
   register: async () => undefined,
   logout: async () => undefined,
+  refreshUser: async () => undefined,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -65,10 +79,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        const response = await axiosInstance.get('/auth/me');
-        setUser(response.data);
+        const currentUser = await fetchCurrentUser();
+        setUser(currentUser);
         setIsAuthenticated(true);
       } catch {
+        clearUserFromStorage();
         setUser(null);
         setIsAuthenticated(false);
       } finally {
@@ -79,16 +94,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession();
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const currentUser = await fetchCurrentUser();
+    setUser(currentUser);
+    setIsAuthenticated(true);
+  }, []);
+
   const handleLogin = useCallback(
     async (data: LoginDTO) => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const currentUser = await login(data);
+        const loginUser = normalizeUser(await login(data));
+        let currentUser = loginUser;
+
+        try {
+          currentUser = await fetchCurrentUser();
+        } catch {
+          saveUserToStorage(loginUser);
+        }
+
         setUser(currentUser);
         setIsAuthenticated(true);
-        saveUserToStorage(currentUser);
         navigate('/');
       } catch (err: any) {
         const message =
@@ -110,10 +138,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(null);
 
       try {
-        const currentUser = await register(data);
+        const registeredUser = normalizeUser(await register(data));
+        let currentUser = registeredUser;
+
+        try {
+          currentUser = await fetchCurrentUser();
+        } catch {
+          saveUserToStorage(registeredUser);
+        }
+
         setUser(currentUser);
         setIsAuthenticated(true);
-        saveUserToStorage(currentUser);
         navigate('/');
       } catch (err: any) {
         const message =
@@ -154,8 +189,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login: handleLogin,
       register: handleRegister,
       logout: handleLogout,
+      refreshUser,
     }),
-    [error, handleLogin, handleLogout, handleRegister, isAuthenticated, isLoading, user],
+    [error, handleLogin, handleLogout, handleRegister, isAuthenticated, isLoading, refreshUser, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

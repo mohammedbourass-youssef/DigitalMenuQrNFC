@@ -46,6 +46,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import {
   useAddPaymentMethod,
   useDeletePaymentMethod,
@@ -64,6 +65,8 @@ import type { SystemPaymentMethod, TenantPaymentMethod } from "@/types/paymentMe
 export default function PaymentMethodsPage() {
   const { i18n, t } = useTranslation();
   const { user } = useAuth();
+  const { can } = usePermissions();
+  const canCreate = can("PaymentMethods", "create");
   const dir = i18n.language?.startsWith("ar") ? "rtl" : "ltr";
 
   // The read endpoint is TenantOwner-only too, so a non-owner never queries it.
@@ -274,7 +277,7 @@ export default function PaymentMethodsPage() {
           </h1>
           <p className="text-sm text-slate-500">{t("paymentsMethods.subtitle")}</p>
         </div>
-        {isOwner && methods.length > 0 && (
+        {isOwner && canCreate && methods.length > 0 && (
           <Button onClick={openCreate} className="w-full sm:w-auto">
             <Plus />
             {t("paymentsMethods.add")}
@@ -354,7 +357,7 @@ export default function PaymentMethodsPage() {
               <EmptyContent className="flex-col gap-3 sm:flex-row sm:justify-center">
                 <Button
                   onClick={() => void handleQuickSetup()}
-                  disabled={quickSetupRunning || systemQuery.isPending}
+                  disabled={!canCreate || quickSetupRunning || systemQuery.isPending}
                   className="w-full bg-orange-500 hover:bg-orange-600 sm:w-auto"
                 >
                   {quickSetupRunning ? (
@@ -364,7 +367,7 @@ export default function PaymentMethodsPage() {
                   )}
                   {t("paymentsMethods.quickSetup.label")}
                 </Button>
-                <Button variant="outline" onClick={openCreate} className="w-full sm:w-auto">
+                <Button variant="outline" onClick={openCreate} disabled={!canCreate} className="w-full sm:w-auto">
                   <Plus />
                   {t("paymentsMethods.empty.cta")}
                 </Button>

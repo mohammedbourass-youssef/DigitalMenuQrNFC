@@ -1,4 +1,4 @@
-export type FeatureAction = 'read' | 'add' | 'edit' | 'delete';
+export type FeatureAction = 'read' | 'create' | 'edit' | 'delete';
 
 export const FEATURES = {
   Menu: { id: 'a1000000-0000-0000-0000-000000000001', code: 'Menu' },
@@ -28,3 +28,7 @@ export const FEATURES = {
 } as const;
 
 export type FeatureCode = keyof typeof FEATURES;
+
+export function isFeatureCode(value: string): value is FeatureCode {
+  return Object.prototype.hasOwnProperty.call(FEATURES, value);
+}

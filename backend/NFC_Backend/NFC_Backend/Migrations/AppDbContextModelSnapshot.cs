@@ -2220,6 +2220,15 @@ namespace NFC_Backend.Migrations
                         .HasFilter("\"TenantId\" IS NOT NULL");
 
                     b.ToTable("roles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsSystem = true,
+                            Name = "TenantAdmin"
+                        });
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.RolePermission", b =>
@@ -2255,6 +2264,107 @@ namespace NFC_Backend.Migrations
                     b.HasIndex("FeatureId");
 
                     b.ToTable("role_permissions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000001"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000002"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000003"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000004"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000006"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000b"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-00000000000f"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000010"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000011"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000012"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000013"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        });
                 });
 
             modelBuilder.Entity("NFC_Backend.Domain.Entities.Session", b =>

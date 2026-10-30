@@ -3,9 +3,9 @@
     public class Role
     {
         public Guid Id { get; set; }
-        public Guid? TenantId { get; set; }      // null = platform role / template
+        public Guid? TenantId { get; set; }  
         public string Name { get; set; } = default!;
-        public bool IsSystem { get; set; }       // protected: tenants cannot edit or delete it
+        public bool IsSystem { get; set; }      
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public Tenant? Tenant { get; set; }

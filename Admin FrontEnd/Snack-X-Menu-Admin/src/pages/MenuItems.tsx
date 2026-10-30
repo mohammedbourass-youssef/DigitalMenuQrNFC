@@ -59,6 +59,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { useAdminMenuItems } from "@/hooks/useAdminMenuItems";
 import { useRestaurantInfos } from "@/hooks/useRestaurantInfos";
 import { useToast } from "@/hooks/use-toast";
@@ -99,7 +100,9 @@ export default function MenuItemsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: quota } = usePlanQuota();
-  const canAddMenuItem = quota?.menuItems.canAdd !== false;
+  const { can } = usePermissions();
+  const canCreateMenuItem = can("Menu", "create");
+  const canAddMenuItem = canCreateMenuItem && quota?.menuItems.canAdd !== false;
   const navigate = useNavigate();
   const { data: restaurant, isLoading: restaurantPending } = useRestaurantInfos();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -411,6 +414,8 @@ function MenuItemsTable({
   onEdit: (item: AdminMenuItem) => void;
 }) {
   const { t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Menu", "edit");
 
   return (
     <Table className="min-w-[820px] [&_th]:text-start">
@@ -497,23 +502,27 @@ function MenuItemsTable({
                     <Languages className="mr-2 h-4 w-4" />
                     {t("menuItems.actions.translations")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onEdit(item)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    {t("menuItems.actions.update")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onToggleActive(item)}>
-                    {item.isActive ? (
-                      <>
-                        <XCircle className="mr-2 h-4 w-4 text-red-600" />
-                        <span className="text-red-600">{t("menuItems.actions.deactivate")}</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" />
-                        <span className="text-emerald-600">{t("menuItems.actions.activate")}</span>
-                      </>
-                    )}
-                  </DropdownMenuItem>
+                  {canEdit && (
+                    <DropdownMenuItem onClick={() => onEdit(item)}>
+                      <Edit className="mr-2 h-4 w-4" />
+                      {t("menuItems.actions.update")}
+                    </DropdownMenuItem>
+                  )}
+                  {canEdit && (
+                    <DropdownMenuItem onClick={() => onToggleActive(item)}>
+                      {item.isActive ? (
+                        <>
+                          <XCircle className="mr-2 h-4 w-4 text-red-600" />
+                          <span className="text-red-600">{t("menuItems.actions.deactivate")}</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="mr-2 h-4 w-4 text-emerald-600" />
+                          <span className="text-emerald-600">{t("menuItems.actions.activate")}</span>
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>

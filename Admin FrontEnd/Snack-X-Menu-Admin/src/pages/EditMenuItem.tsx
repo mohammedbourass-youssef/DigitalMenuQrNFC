@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +21,8 @@ import type { AdminMenuItem } from "@/types/menuItem";
 export default function EditMenuItemPage() {
   const { menuId } = useParams<{ menuId: string }>();
   const { t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Menu", "edit");
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -75,7 +78,7 @@ export default function EditMenuItemPage() {
   }, [menuId]);
 
   const handleSave = async () => {
-    if (!menuId || isSaving) return;
+    if (!menuId || isSaving || !canEdit) return;
     setIsSaving(true);
     try {
       await axiosInstance.put(`MenuItems/${menuId}/details`, {
@@ -96,7 +99,7 @@ export default function EditMenuItemPage() {
   };
 
   const handleMove = async () => {
-    if (!menuId || !selectedCategoryId || selectedCategoryId === currentCategoryId || isMoving) return;
+    if (!menuId || !canEdit || !selectedCategoryId || selectedCategoryId === currentCategoryId || isMoving) return;
     setIsMoving(true);
     try {
       await moveMenuItemToCategory(menuId, selectedCategoryId);
@@ -143,10 +146,12 @@ export default function EditMenuItemPage() {
             <Languages className="mr-2 h-4 w-4" />
             Manage Translations
           </Button>
-          <Button onClick={handleSave} disabled={isSaving} className="bg-orange-500 hover:bg-orange-600">
-            {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save
-          </Button>
+          {canEdit && (
+            <Button onClick={handleSave} disabled={isSaving} className="bg-orange-500 hover:bg-orange-600">
+              {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Save
+            </Button>
+          )}
         </div>
       </div>
 
@@ -188,7 +193,7 @@ export default function EditMenuItemPage() {
               type="button"
               variant="outline"
               onClick={handleMove}
-              disabled={!canMove || isMoving}
+              disabled={!canEdit || !canMove || isMoving}
               size="sm"
             >
               {isMoving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <MoveRight className="mr-2 h-4 w-4" />}
@@ -214,6 +219,7 @@ export default function EditMenuItemPage() {
               <Input
                 value={sku}
                 onChange={(e) => setSku(e.target.value)}
+                disabled={!canEdit}
                 placeholder="e.g. BURG-01"
               />
             </div>
@@ -226,6 +232,7 @@ export default function EditMenuItemPage() {
                 min="0"
                 value={price}
                 onChange={(e) => setPrice(Number(e.target.value))}
+                disabled={!canEdit}
               />
             </div>
 
@@ -237,6 +244,7 @@ export default function EditMenuItemPage() {
                 min="0"
                 value={discountedPrice ?? ''}
                 onChange={(e) => setDiscountedPrice(e.target.value === "" ? "" : Number(e.target.value))}
+                disabled={!canEdit}
                 placeholder="None"
               />
             </div>
@@ -248,6 +256,7 @@ export default function EditMenuItemPage() {
                 min="0"
                 value={prepTime}
                 onChange={(e) => setPrepTime(Number(e.target.value))}
+                disabled={!canEdit}
               />
             </div>
           </div>
@@ -257,7 +266,7 @@ export default function EditMenuItemPage() {
               <Label className="text-sm font-medium text-slate-900">Available (in stock)</Label>
               <p className="text-xs text-slate-500">Whether customers can order this item</p>
             </div>
-            <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
+            <Switch checked={isAvailable} onCheckedChange={setIsAvailable} disabled={!canEdit} />
           </div>
 
           <div className="flex flex-wrap items-center justify-between rounded-xl border border-slate-200 p-4">
@@ -265,7 +274,7 @@ export default function EditMenuItemPage() {
               <Label className="text-sm font-medium text-slate-900">Featured (Chef's Pick)</Label>
               <p className="text-xs text-slate-500">Highlight this item prominently on the menu</p>
             </div>
-            <Switch checked={isFeatured} onCheckedChange={setIsFeatured} />
+            <Switch checked={isFeatured} onCheckedChange={setIsFeatured} disabled={!canEdit} />
           </div>
         </CardContent>
       </Card>

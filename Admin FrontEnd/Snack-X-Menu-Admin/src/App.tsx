@@ -23,6 +23,7 @@ import NewMenuItemPage from '@/pages/NewMenuItem';
 import MenuItemImagesPage from '@/pages/MenuItemImages';
 import MenuItemTranslationsPage from '@/pages/MenuItemTranslations';
 import EditMenuItemPage from '@/pages/EditMenuItem';
+import ForbiddenPage from '@/pages/Forbidden';
 import NFCTagsPage from '@/pages/NFCTags';
 import OrdersPage from '@/pages/Orders';
 import OrderStatusSettingsPage from '@/pages/OrderStatusSettings';
@@ -173,6 +174,7 @@ function ProtectedLayout() {
                 {HR_PAGE_CONFIG.map(({ path, component: HrPage }) => (
                   <Route key={path} path={path} element={<HrPage />} />
                 ))}
+                <Route path="/forbidden" element={<ForbiddenPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </FeatureRoute>

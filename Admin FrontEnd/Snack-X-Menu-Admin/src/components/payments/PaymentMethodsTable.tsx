@@ -12,6 +12,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { PaymentMethodBadge } from "@/components/payments/PaymentMethodBadge";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,6 +59,9 @@ export function PaymentMethodsTable({
   onMoveDown,
 }: PaymentMethodsTableProps) {
   const { t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("PaymentMethods", "edit");
+  const canDelete = can("PaymentMethods", "delete");
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
   const firstId = methods[0]?.id;
   const lastId = methods[methods.length - 1]?.id;
@@ -91,6 +95,8 @@ export function PaymentMethodsTable({
                   busy={busyIds.has(method.id)}
                   isFirst={isFirst(method)}
                   isLast={isLast(method)}
+                  canEdit={canEdit}
+                  canDelete={canDelete}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   onToggleEnabled={onToggleEnabled}
@@ -111,6 +117,8 @@ export function PaymentMethodsTable({
               busy={busyIds.has(method.id)}
               isFirst={isFirst(method)}
               isLast={isLast(method)}
+              canEdit={canEdit}
+              canDelete={canDelete}
               onEdit={onEdit}
               onDelete={onDelete}
               onToggleEnabled={onToggleEnabled}
@@ -144,6 +152,8 @@ interface RowProps
   busy: boolean;
   isFirst: boolean;
   isLast: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
 }
 
 function SortableDesktopRow({ method, ...props }: RowProps) {
@@ -155,7 +165,7 @@ function SortableDesktopRow({ method, ...props }: RowProps) {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: method.id });
+  } = useSortable({ id: method.id, disabled: !props.canEdit });
 
   return (
     <TableRow
@@ -172,11 +182,13 @@ function SortableDesktopRow({ method, ...props }: RowProps) {
       {...attributes}
     >
       <TableCell className="ps-2">
-        <DragHandle
-          label={method.label}
-          activatorRef={setActivatorNodeRef}
-          listeners={listeners}
-        />
+        {props.canEdit && (
+          <DragHandle
+            label={method.label}
+            activatorRef={setActivatorNodeRef}
+            listeners={listeners}
+          />
+        )}
       </TableCell>
       <TableCell>
         <MethodIdentity method={method} />
@@ -185,10 +197,20 @@ function SortableDesktopRow({ method, ...props }: RowProps) {
         <span className="font-mono text-sm text-slate-500">{method.code}</span>
       </TableCell>
       <TableCell>
-        <DefaultCell method={method} busy={props.busy} onSetDefault={props.onSetDefault} />
+        <DefaultCell
+          method={method}
+          busy={props.busy}
+          canEdit={props.canEdit}
+          onSetDefault={props.onSetDefault}
+        />
       </TableCell>
       <TableCell>
-        <EnableCell method={method} busy={props.busy} onToggleEnabled={props.onToggleEnabled} />
+        <EnableCell
+          method={method}
+          busy={props.busy}
+          canEdit={props.canEdit}
+          onToggleEnabled={props.onToggleEnabled}
+        />
       </TableCell>
       <TableCell className="text-end">
         <RowActions method={method} {...props} />
@@ -208,7 +230,7 @@ function SortableMobileCard({ method, ...props }: RowProps) {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: method.id });
+  } = useSortable({ id: method.id, disabled: !props.canEdit });
 
   return (
     <li
@@ -226,23 +248,30 @@ function SortableMobileCard({ method, ...props }: RowProps) {
     >
       <div className="flex items-start gap-3">
         <span className="mt-1 flex h-8 w-6 shrink-0 items-center justify-center">
-          <DragHandle
-            label={method.label}
-            activatorRef={setActivatorNodeRef}
-            listeners={listeners}
-          />
+          {props.canEdit && (
+            <DragHandle
+              label={method.label}
+              activatorRef={setActivatorNodeRef}
+              listeners={listeners}
+            />
+          )}
         </span>
         <MethodIdentity method={method} />
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-3">
-        <EnableCell method={method} busy={busy} onToggleEnabled={props.onToggleEnabled} />
+        <EnableCell
+          method={method}
+          busy={busy}
+          canEdit={props.canEdit}
+          onToggleEnabled={props.onToggleEnabled}
+        />
         <div className="flex items-center gap-1">
           <RowActions method={method} {...props} />
         </div>
       </div>
 
-      {!method.isDefault && (
+      {props.canEdit && !method.isDefault && (
         <Button
           variant="outline"
           size="sm"
@@ -323,10 +352,12 @@ function MethodIdentity({ method }: { method: TenantPaymentMethod }) {
 function DefaultCell({
   method,
   busy,
+  canEdit,
   onSetDefault,
 }: {
   method: TenantPaymentMethod;
   busy: boolean;
+  canEdit: boolean;
   onSetDefault: (method: TenantPaymentMethod) => void;
 }) {
   const { t } = useTranslation();
@@ -341,6 +372,8 @@ function DefaultCell({
       </span>
     );
   }
+
+  if (!canEdit) return <span className="text-slate-400">—</span>;
 
   return (
     <Tooltip>
@@ -365,10 +398,12 @@ function DefaultCell({
 function EnableCell({
   method,
   busy,
+  canEdit,
   onToggleEnabled,
 }: {
   method: TenantPaymentMethod;
   busy: boolean;
+  canEdit: boolean;
   onToggleEnabled: (method: TenantPaymentMethod, next: boolean) => void;
 }) {
   const { t } = useTranslation();
@@ -383,7 +418,7 @@ function EnableCell({
           method.isEnabled ? "paymentsMethods.disableNamed" : "paymentsMethods.enableNamed",
           { name: method.label }
         )}
-        disabled={busy}
+        disabled={busy || !canEdit}
         onClick={() => onToggleEnabled(method, !method.isEnabled)}
         className={cn(
           "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full",
@@ -409,35 +444,43 @@ function EnableCell({
 }
 
 /** Up/down are the keyboard and touch equivalent of dragging the grip. */
-function RowActions({ method, busy, isFirst, isLast, onEdit, onDelete, onMoveUp, onMoveDown }: RowProps) {
+function RowActions({ method, busy, isFirst, isLast, canEdit, canDelete, onEdit, onDelete, onMoveUp, onMoveDown }: RowProps) {
   const { t } = useTranslation();
 
   const actions: { icon: LucideIcon; label: string; disabled: boolean; onClick: () => void; danger?: boolean }[] = [
-    {
-      icon: ArrowUp,
-      label: t("paymentsMethods.moveUpNamed", { name: method.label }),
-      disabled: busy || isFirst,
-      onClick: () => onMoveUp(method),
-    },
-    {
-      icon: ArrowDown,
-      label: t("paymentsMethods.moveDownNamed", { name: method.label }),
-      disabled: busy || isLast,
-      onClick: () => onMoveDown(method),
-    },
-    {
-      icon: Pencil,
-      label: t("paymentsMethods.editNamed", { name: method.label }),
-      disabled: busy,
-      onClick: () => onEdit(method),
-    },
-    {
-      icon: Trash2,
-      label: t("paymentsMethods.deleteNamed", { name: method.label }),
-      disabled: busy,
-      onClick: () => onDelete(method),
-      danger: true,
-    },
+    ...(canEdit
+      ? [
+          {
+            icon: ArrowUp,
+            label: t("paymentsMethods.moveUpNamed", { name: method.label }),
+            disabled: busy || isFirst,
+            onClick: () => onMoveUp(method),
+          },
+          {
+            icon: ArrowDown,
+            label: t("paymentsMethods.moveDownNamed", { name: method.label }),
+            disabled: busy || isLast,
+            onClick: () => onMoveDown(method),
+          },
+          {
+            icon: Pencil,
+            label: t("paymentsMethods.editNamed", { name: method.label }),
+            disabled: busy,
+            onClick: () => onEdit(method),
+          },
+        ]
+      : []),
+    ...(canDelete
+      ? [
+          {
+            icon: Trash2,
+            label: t("paymentsMethods.deleteNamed", { name: method.label }),
+            disabled: busy,
+            onClick: () => onDelete(method),
+            danger: true,
+          },
+        ]
+      : []),
   ];
 
   return (

@@ -13,8 +13,6 @@ using Serilog.Debugging;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Surface Serilog's internal errors (e.g. a Seq ingestion failure) on stderr,
-// so they show up in `docker logs nfc_backend` instead of being swallowed.
 SelfLog.Enable(Console.Error);
 
 builder.Host.UseSerilog((context, services, loggerConfiguration) => loggerConfiguration
@@ -39,7 +37,6 @@ if (!string.IsNullOrWhiteSpace(redisConnectionString)
 }
 else
 {
-    // Local dev / design-time (dotnet ef): in-process fallback so IDistributedCache always exists
     builder.Services.AddDistributedMemoryCache();
 }
 builder.Services.AddHttpContextAccessor();
@@ -130,10 +127,11 @@ app.UseWhen(
 app.UseMiddleware<LanguageMiddleware>();
 app.UseMiddleware<CurrencyMiddleware>();
 app.UseAuthorization();
-
+app.UseMiddleware<PermissionMiddleware>();   // handles [HasPermission]
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHub<OrderLiveChangesHub>("/hubs/order-live-changes");
+
 
 
 app.Run();

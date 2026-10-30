@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { getNFCTags } from "@/services/nfcService";
 import { formatLocalDateTime } from "@/lib/date";
 import type { NFCTag } from "@/types";
 
 export default function NFCTagsPage() {
   const { t } = useTranslation();
+  const { can } = usePermissions();
   const [tags, setTags] = useState<NFCTag[]>([]);
 
   useEffect(() => {
@@ -22,7 +24,9 @@ export default function NFCTagsPage() {
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">{t('nfcTags.title')}</h1>
-        <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">{t('nfcTags.addTag')}</button>
+        {can("NfcTags", "create") && (
+          <button className="rounded-xl bg-orange-500 px-3 py-2 text-sm font-semibold text-white">{t('nfcTags.addTag')}</button>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-slate-200">

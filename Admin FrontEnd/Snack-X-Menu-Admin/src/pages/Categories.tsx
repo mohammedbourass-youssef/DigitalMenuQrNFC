@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast as sonnerToast } from "sonner";
 import { Link } from "react-router-dom";
 
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { useAdminCategories } from "@/hooks/useAdminCategories";
 import { useToast } from "@/hooks/use-toast";
 import { deactivateCategory, activateCategory } from "@/services/categoryService";
@@ -30,7 +31,8 @@ export default function CategoriesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: quota } = usePlanQuota();
-  const canAddCategory = quota?.categories.canAdd !== false;
+  const { can } = usePermissions();
+  const canAddCategory = can("Categories", "create") && quota?.categories.canAdd !== false;
   const [searchParams, setSearchParams] = useSearchParams();
   const [showAddSheet, setShowAddSheet] = useState(false);
   const lang = searchParams.get("lang") || i18n.language || "en";

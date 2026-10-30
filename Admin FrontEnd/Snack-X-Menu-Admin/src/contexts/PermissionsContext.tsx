@@ -1,38 +1,72 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   type ReactNode,
 } from 'react';
 
-import type { FeatureAction, FeatureCode } from '@/features/catalog';
-import type { MeAccessResponse } from '@/types/access';
+import { useAuth } from '@/contexts/AuthContext';
+import { isFeatureCode, type FeatureAction, type FeatureCode } from '@/features/catalog';
+import type { UserPermission } from '@/types';
+
+const ACTION_PERMISSION_KEYS = {
+  read: 'canRead',
+  create: 'canWrite',
+  edit: 'canEdit',
+  delete: 'canDelete',
+} as const satisfies Record<FeatureAction, keyof UserPermission>;
 
 interface PermissionsContextValue {
-  access: MeAccessResponse | null;
+  isLoading: boolean;
   can: (feature: FeatureCode, action: FeatureAction) => boolean;
+  isFeatureInPlan: (feature: FeatureCode) => boolean;
+  isFeatureLocked: (feature: FeatureCode) => boolean;
 }
 
 const PermissionsContext = createContext<PermissionsContextValue | null>(null);
 
-interface PermissionsProviderProps {
-  children: ReactNode;
-  access?: MeAccessResponse | null;
-}
+export function PermissionsProvider({ children }: { children: ReactNode }) {
+  const { user, isLoading } = useAuth();
 
-export function PermissionsProvider({ children, access = null }: PermissionsProviderProps) {
-  // TODO: Feed `access` from GET /api/permissions/me once tenant role data exists.
+  const featurePermissions = useMemo(() => {
+    const permissions = new Map<FeatureCode, UserPermission>();
+
+    for (const permission of user?.features ?? []) {
+      if (isFeatureCode(permission.featureCode)) {
+        permissions.set(permission.featureCode, permission);
+      }
+    }
+
+    return permissions;
+  }, [user]);
+
+  const can = useCallback(
+    (feature: FeatureCode, action: FeatureAction) => {
+      const permission = featurePermissions.get(feature);
+      return Boolean(permission?.inPlan && permission[ACTION_PERMISSION_KEYS[action]]);
+    },
+    [featurePermissions]
+  );
+
+  const isFeatureInPlan = useCallback(
+    (feature: FeatureCode) => featurePermissions.get(feature)?.inPlan === true,
+    [featurePermissions]
+  );
+
+  const isFeatureLocked = useCallback(
+    (feature: FeatureCode) => featurePermissions.get(feature)?.inPlan !== true,
+    [featurePermissions]
+  );
+
   const value = useMemo<PermissionsContextValue>(
     () => ({
-      access,
-      can: (feature, action) => {
-        if (!access) return true;
-
-        const featureAccess = access.features.find((item) => item.code === feature);
-        return featureAccess?.actions.includes(action) ?? false;
-      },
+      isLoading,
+      can,
+      isFeatureInPlan,
+      isFeatureLocked,
     }),
-    [access]
+    [can, isFeatureInPlan, isFeatureLocked, isLoading]
   );
 
   return (

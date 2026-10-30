@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { getCategoryInfoAdmin, updateCategoryDisplay } from "@/services/categoryService";
 import type { CategoryAdminInfo } from "@/types";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +60,8 @@ const serverErrorMessage = (err: unknown, fallback: string): string => {
 
 export default function CategoryDetailsPage() {
   const { i18n, t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Categories", "edit");
   const { categoryId } = useParams<{ categoryId: string }>();
   const queryClient = useQueryClient();
   const [imageFailed, setImageFailed] = useState(false);
@@ -174,10 +177,12 @@ export default function CategoryDetailsPage() {
     <div dir={dir} className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button variant="outline" asChild><Link to="/categories"><ArrowLeft />{t("categories.details.back")}</Link></Button>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button variant="outline" onClick={openColorOrder}><Palette />{t("categories.details.updateColorOrder")}</Button>
-          <Button variant="outline" onClick={() => setTranslationsOpen(true)}><Globe />{t("categories.details.updateLanguages")}</Button>
-        </div>
+        {canEdit && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button variant="outline" onClick={openColorOrder}><Palette />{t("categories.details.updateColorOrder")}</Button>
+            <Button variant="outline" onClick={() => setTranslationsOpen(true)}><Globe />{t("categories.details.updateLanguages")}</Button>
+          </div>
+        )}
       </div>
 
       <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">

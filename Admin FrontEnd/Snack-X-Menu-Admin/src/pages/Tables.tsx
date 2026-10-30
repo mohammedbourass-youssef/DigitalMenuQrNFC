@@ -47,6 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { useToast } from "@/hooks/use-toast";
 import { friendlyErrorMessage } from "@/lib/apiErrors";
 import { cn } from "@/lib/utils";
@@ -62,7 +63,8 @@ export default function TablesPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: quota } = usePlanQuota();
-  const canAddTable = quota?.tables.canAdd !== false;
+  const { can } = usePermissions();
+  const canAddTable = can("Tables", "create") && quota?.tables.canAdd !== false;
   const dir = i18n.language === "ar" ? "rtl" : "ltr";
 
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -262,6 +264,9 @@ function TablesTable({
   onToggle: (table: TableItem) => void;
 }) {
   const { t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Tables", "edit");
+  const canDelete = can("Tables", "delete");
 
   return (
     <Table className="min-w-[640px] [&_th]:text-start">
@@ -296,6 +301,7 @@ function TablesTable({
                 <Switch
                   checked={table.isAvailable}
                   onCheckedChange={() => onToggle(table)}
+                  disabled={!canEdit}
                   aria-label={t("tables.columns.status")}
                 />
                 <Badge
@@ -311,26 +317,32 @@ function TablesTable({
               </div>
             </TableCell>
             <TableCell className="text-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onClick={() => onEdit(table)}>
-                    <Pencil className="mr-2 h-4 w-4" />
-                    {t("common.edit")}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => onDelete(table)}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4 text-red-600" />
-                    {t("common.delete")}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {(canEdit || canDelete) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-40">
+                    {canEdit && (
+                      <DropdownMenuItem onClick={() => onEdit(table)}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        {t("common.edit")}
+                      </DropdownMenuItem>
+                    )}
+                    {canDelete && (
+                      <DropdownMenuItem
+                        onClick={() => onDelete(table)}
+                        className="text-red-600 focus:text-red-600"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4 text-red-600" />
+                        {t("common.delete")}
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </TableCell>
           </TableRow>
         ))}

@@ -18,6 +18,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { BoardSearchBar } from "@/components/orders/board/BoardSearchBar";
 import { OrderCardSkeleton } from "@/components/orders/board/OrderCardSkeleton";
 import { OrderCardView } from "@/components/orders/board/OrderCard";
@@ -40,6 +41,8 @@ interface OrderBoardProps {
 
 export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
   const { t, i18n } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Orders", "edit");
   const language = i18n.language;
   const currency = getCurrency();
 
@@ -221,9 +224,11 @@ export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
       <div className="flex min-h-0 w-full flex-1 flex-col gap-3">
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
         <BoardSearchBar value={search} onValueChange={setSearch} />
-        <p className="text-xs text-slate-400" aria-hidden>
-          {t("orders.board.dragHint")}
-        </p>
+        {canEdit && (
+          <p className="text-xs text-slate-400" aria-hidden>
+            {t("orders.board.dragHint")}
+          </p>
+        )}
       </div>
 
       <DndContext
@@ -246,6 +251,7 @@ export function OrderBoard({ board, onOpenPayment }: OrderBoardProps) {
               activeOrderId={activeOrderId}
               pendingOrderIds={pendingOrderIds}
               newOrderIds={newOrderIds}
+              canEdit={canEdit}
               onOpenPayment={onOpenPayment}
             />
           ))}

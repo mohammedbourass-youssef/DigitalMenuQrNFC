@@ -67,9 +67,6 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany(t => t.Users)
                       .HasForeignKey(u => u.TenantId)
                       .OnDelete(DeleteBehavior.Cascade);
-
-
-
             });
 
             modelBuilder.Entity<Tenant>(entity =>
@@ -91,7 +88,6 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany()
                       .HasForeignKey(t => t.CurrencyCode)
                       .OnDelete(DeleteBehavior.Restrict);
-
 
                 entity.Property(t => t.PlanId).HasDefaultValue(1);
                 entity.Property(t => t.BillingCycle).HasConversion<string>().HasMaxLength(20);
@@ -419,8 +415,8 @@ namespace NFC_Backend.Infrastructure.Data
                 entity.HasIndex(s => s.Code).IsUnique();
 
                 entity.HasData(
-                    new PaymentStatus { Id = 1, Code = PaymentStatusCodes.NotPaid,IsSystem = true , Color = "#EF4444", DisplayOrder = 1, IsActive = true },
-                    new PaymentStatus { Id = 2, Code = PaymentStatusCodes.Paid,IsSystem = true ,Color = "#10B981", DisplayOrder = 3, IsActive = true }
+                    new PaymentStatus { Id = 1, Code = PaymentStatusCodes.NotPaid, IsSystem = true, Color = "#EF4444", DisplayOrder = 1, IsActive = true },
+                    new PaymentStatus { Id = 2, Code = PaymentStatusCodes.Paid, IsSystem = true, Color = "#10B981", DisplayOrder = 3, IsActive = true }
                 );
             });
 
@@ -557,6 +553,7 @@ namespace NFC_Backend.Infrastructure.Data
                 e.Property(n => n.Type).HasConversion<string>().HasMaxLength(50);
                 e.HasIndex(n => n.CreatedAt);
             });
+
             // ═════════════════════════════════════════════════════
             //  PAYMENT METHODS  (Cash, Card, Bank transfer, Mobile)
             // ═════════════════════════════════════════════════════
@@ -633,146 +630,150 @@ namespace NFC_Backend.Infrastructure.Data
                       .WithMany(p => p.TenantPaymentMethods)
                       .HasForeignKey(t => t.PaymentMethodId)
                       .OnDelete(DeleteBehavior.Restrict);
-                modelBuilder.Entity<Invoice>(entity =>
+            });
+
+            // ═════════════════════════════════════════════════════
+            //  INVOICES
+            // ═════════════════════════════════════════════════════
+            modelBuilder.Entity<Invoice>(entity =>
+            {
+                entity.ToTable("invoices", t =>
+                    t.HasCheckConstraint("CK_Invoice_Amounts", "\"OrderTotal\" >= 0 AND \"PaidAmount\" >= 0"));
+
+                entity.HasKey(i => i.Id);
+
+                entity.Property(i => i.CurrencyCode)
+                      .HasMaxLength(3)
+                      .IsFixedLength()
+                      .IsRequired()
+                      .HasDefaultValue("MAD");
+                entity.Property(i => i.OrderTotal).HasColumnType("decimal(18,2)");
+                entity.Property(i => i.PaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
+                entity.Property(i => i.Notes).HasMaxLength(500);
+                entity.Property(i => i.CreatedAtUtc).HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(i => i.OrderId);
+                entity.HasIndex(i => i.UserId);
+                entity.HasIndex(i => i.TenantPaymentMethodId);
+                entity.HasIndex(i => i.CurrencyCode);
+                entity.HasIndex(i => i.CreatedAtUtc);
+
+                entity.HasOne(i => i.Order)
+                      .WithMany()
+                      .HasForeignKey(i => i.OrderId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(i => i.User)
+                      .WithMany()
+                      .HasForeignKey(i => i.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(i => i.Method)
+                      .WithMany()
+                      .HasForeignKey(i => i.TenantPaymentMethodId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(i => i.Currency)
+                      .WithMany()
+                      .HasForeignKey(i => i.CurrencyCode)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ═════════════════════════════════════════════════════
+            //  PLANS
+            // ═════════════════════════════════════════════════════
+            modelBuilder.Entity<Plan>(entity =>
+            {
+                entity.ToTable("plans", t =>
                 {
-                    entity.ToTable("invoices", t =>
-                        t.HasCheckConstraint("CK_Invoice_Amounts", "\"OrderTotal\" >= 0 AND \"PaidAmount\" >= 0"));
-
-                    entity.HasKey(i => i.Id);
-
-                    entity.Property(i => i.CurrencyCode)
-      .HasMaxLength(3)
-      .IsFixedLength()
-      .IsRequired()
-      .HasDefaultValue("MAD");
-                    entity.Property(i => i.OrderTotal).HasColumnType("decimal(18,2)");
-                    entity.Property(i => i.PaidAmount).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
-                    entity.Property(i => i.Notes).HasMaxLength(500);
-                    entity.Property(i => i.CreatedAtUtc).HasDefaultValueSql("NOW()");
-
-                    entity.HasIndex(i => i.OrderId);
-                    entity.HasIndex(i => i.UserId);
-                    entity.HasIndex(i => i.TenantPaymentMethodId);
-                    entity.HasIndex(i => i.CurrencyCode);
-                    entity.HasIndex(i => i.CreatedAtUtc);
-
-                    entity.HasOne(i => i.Order)
-                          .WithMany()
-                          .HasForeignKey(i => i.OrderId)
-                          .OnDelete(DeleteBehavior.Restrict);
-
-                    entity.HasOne(i => i.User)
-                          .WithMany()
-                          .HasForeignKey(i => i.UserId)
-                          .OnDelete(DeleteBehavior.Restrict);
-
-                    entity.HasOne(i => i.Method)
-                          .WithMany()
-                          .HasForeignKey(i => i.TenantPaymentMethodId)
-                          .OnDelete(DeleteBehavior.Restrict);
-                     
-                    // NEW
-                    entity.HasOne(i => i.Currency)
-                       
-                          .WithMany()
-                          .HasForeignKey(i => i.CurrencyCode)
-                          .OnDelete(DeleteBehavior.Restrict);
+                    t.HasCheckConstraint("CK_Plan_Prices", "\"PricePerMonth\" >= 0 AND \"PricePerYear\" >= 0");
                 });
 
+                entity.HasKey(p => p.Id);
 
-                modelBuilder.Entity<Plan>(entity =>
-                {
-                    entity.ToTable("plans", t =>
+                entity.Property(p => p.Code).HasMaxLength(30).IsRequired();
+                entity.Property(p => p.Name).HasMaxLength(100).IsRequired();
+                entity.Property(p => p.Description).HasMaxLength(500);
+
+                entity.Property(p => p.CurrencyCode).HasMaxLength(3).IsFixedLength().HasDefaultValue("MAD");
+                entity.Property(p => p.PricePerMonth).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.PricePerYear).HasColumnType("decimal(18,2)");
+
+                entity.Property(p => p.BillingCycle).HasConversion<string>().HasMaxLength(20);
+
+                entity.Property(p => p.IsActive).HasDefaultValue(true);
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");
+
+                entity.HasIndex(p => p.Code).IsUnique();
+
+                entity.HasData(
+                    new Plan
                     {
-                        t.HasCheckConstraint("CK_Plan_Prices", "\"PricePerMonth\" >= 0 AND \"PricePerYear\" >= 0");
-                    });
-
-                    entity.HasKey(p => p.Id);
-
-                    entity.Property(p => p.Code).HasMaxLength(30).IsRequired();
-                    entity.Property(p => p.Name).HasMaxLength(100).IsRequired();
-                    entity.Property(p => p.Description).HasMaxLength(500);
-
-                    entity.Property(p => p.CurrencyCode).HasMaxLength(3).IsFixedLength().HasDefaultValue("MAD");
-                    entity.Property(p => p.PricePerMonth).HasColumnType("decimal(18,2)");
-                    entity.Property(p => p.PricePerYear).HasColumnType("decimal(18,2)");
-
-                    entity.Property(p => p.BillingCycle).HasConversion<string>().HasMaxLength(20);
-
-                    entity.Property(p => p.IsActive).HasDefaultValue(true);
-                    entity.Property(p => p.CreatedAt).HasDefaultValueSql("NOW()");
-
-                    entity.HasIndex(p => p.Code).IsUnique();
-
-                    entity.HasData(
-                        new Plan
-                        {
-                            Id = 1,
-                            Code = "free",
-                            Name = "Free",
-                            Description = "Basic digital menu to get started.",
-                            IsFree = true,
-                            CurrencyCode = "MAD",
-                            PricePerMonth = 0m,
-                            PricePerYear = 0m,
-                            BillingCycle = BillingCycle.None,
-                            ExpirationAfterDays = null,
-                            MaxUsers = 2,
-                            MaxCategories = 5,
-                            MaxMenuItems = 20,
-                            MaxTables = 5,
-                            MaxImagesPerMenuItem = 1,
-                            MaxLanguages = 2,
-                            DisplayOrder = 1,
-                            IsActive = true,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new Plan
-                        {
-                            Id = 2,
-                            Code = "pro",
-                            Name = "Pro",
-                            Description = "AI agent and higher limits for growing restaurants.",
-                            IsFree = false,
-                            CurrencyCode = "MAD",
-                            PricePerMonth = 199m,
-                            PricePerYear = 1990m,
-                            BillingCycle = BillingCycle.Monthly,
-                            ExpirationAfterDays = 30,
-                            MaxUsers = 5,
-                            MaxCategories = 20,
-                            MaxMenuItems = 150,
-                            MaxTables = 30,
-                            MaxImagesPerMenuItem = 3,
-                            MaxLanguages = 5,
-                            DisplayOrder = 2,
-                            IsActive = true,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                        },
-                        new Plan
-                        {
-                            Id = 3,
-                            Code = "professional",
-                            Name = "Professional",
-                            Description = "Data analyst, chatbot, extra users and top limits.",
-                            IsFree = false,
-                            CurrencyCode = "MAD",
-                            PricePerMonth = 499m,
-                            PricePerYear = 4990m,
-                            BillingCycle = BillingCycle.Monthly,
-                            ExpirationAfterDays = 30,
-                            MaxUsers = 15,
-                            MaxCategories = Plan.Unlimited,
-                            MaxMenuItems = Plan.Unlimited,
-                            MaxTables = Plan.Unlimited,
-                            MaxImagesPerMenuItem = 6,
-                            MaxLanguages = 9,
-                            DisplayOrder = 3,
-                            IsActive = true,
-                            CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-                        }
-                    );
-                });
+                        Id = 1,
+                        Code = "free",
+                        Name = "Free",
+                        Description = "Basic digital menu to get started.",
+                        IsFree = true,
+                        CurrencyCode = "MAD",
+                        PricePerMonth = 0m,
+                        PricePerYear = 0m,
+                        BillingCycle = BillingCycle.None,
+                        ExpirationAfterDays = null,
+                        MaxUsers = 2,
+                        MaxCategories = 5,
+                        MaxMenuItems = 20,
+                        MaxTables = 5,
+                        MaxImagesPerMenuItem = 1,
+                        MaxLanguages = 2,
+                        DisplayOrder = 1,
+                        IsActive = true,
+                        CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Plan
+                    {
+                        Id = 2,
+                        Code = "pro",
+                        Name = "Pro",
+                        Description = "AI agent and higher limits for growing restaurants.",
+                        IsFree = false,
+                        CurrencyCode = "MAD",
+                        PricePerMonth = 199m,
+                        PricePerYear = 1990m,
+                        BillingCycle = BillingCycle.Monthly,
+                        ExpirationAfterDays = 30,
+                        MaxUsers = 5,
+                        MaxCategories = 20,
+                        MaxMenuItems = 150,
+                        MaxTables = 30,
+                        MaxImagesPerMenuItem = 3,
+                        MaxLanguages = 5,
+                        DisplayOrder = 2,
+                        IsActive = true,
+                        CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    },
+                    new Plan
+                    {
+                        Id = 3,
+                        Code = "professional",
+                        Name = "Professional",
+                        Description = "Data analyst, chatbot, extra users and top limits.",
+                        IsFree = false,
+                        CurrencyCode = "MAD",
+                        PricePerMonth = 499m,
+                        PricePerYear = 4990m,
+                        BillingCycle = BillingCycle.Monthly,
+                        ExpirationAfterDays = 30,
+                        MaxUsers = 15,
+                        MaxCategories = Plan.Unlimited,
+                        MaxMenuItems = Plan.Unlimited,
+                        MaxTables = Plan.Unlimited,
+                        MaxImagesPerMenuItem = 6,
+                        MaxLanguages = 9,
+                        DisplayOrder = 3,
+                        IsActive = true,
+                        CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                    }
+                );
             });
 
             // ═════════════════════════════════════════════════════
@@ -940,6 +941,30 @@ namespace NFC_Backend.Infrastructure.Data
             AddFor(professionalPlan, FeatureIds.AuditLog, FeatureIds.HRGeneralSettings);
 
             modelBuilder.Entity<PlanFeature>().HasData(planFeatures.ToArray());
+
+            // ── Role: TenantAdmin (platform template, protected) ─────────────
+            modelBuilder.Entity<Role>().HasData(new Role
+            {
+                Id = RoleIds.TenantAdmin,
+                TenantId = null,                       // null = platform role / template
+                Name = "TenantAdmin",
+                IsSystem = true,                       // tenants cannot edit or delete it
+                CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)   // fixed, not UtcNow
+            });
+            var tenantAdminPermissions = planFeatures
+                .Where(pf => pf.PlanId == 1)        
+                .Select(pf => new RolePermission
+                {
+                    RoleId = RoleIds.TenantAdmin,
+                    FeatureId = pf.FeatureId,
+                    CanRead = true,
+                    CanAdd = true,
+                    CanEdit = true,
+                    CanDelete = true
+                })
+                .ToArray();
+
+            modelBuilder.Entity<RolePermission>().HasData(tenantAdminPermissions);
         }
     }
 }

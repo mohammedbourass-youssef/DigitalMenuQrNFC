@@ -18,6 +18,7 @@ export interface OrderColumnProps {
   activeOrderId: string | null;
   pendingOrderIds: ReadonlySet<string>;
   newOrderIds: ReadonlySet<string>;
+  canEdit: boolean;
   onOpenPayment: (order: OrderSummaryDto) => void;
 }
 
@@ -29,6 +30,7 @@ export const OrderColumn = memo(function OrderColumn({
   activeOrderId,
   pendingOrderIds,
   newOrderIds,
+  canEdit,
   onOpenPayment,
 }: OrderColumnProps) {
   const { t } = useTranslation();
@@ -74,9 +76,9 @@ export const OrderColumn = memo(function OrderColumn({
               currency={currency}
               statusId={column.statusId}
               isDragging={activeOrderId === order.orderId}
-              disabled={pendingOrderIds.has(order.orderId)}
+              disabled={!canEdit || pendingOrderIds.has(order.orderId)}
               isNew={newOrderIds.has(order.orderId)}
-              onOpenPayment={onOpenPayment}
+              onOpenPayment={canEdit ? onOpenPayment : undefined}
             />
           ))}
         </SortableContext>

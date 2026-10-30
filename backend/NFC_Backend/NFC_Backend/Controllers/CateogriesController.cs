@@ -7,6 +7,7 @@ using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
 using System;
@@ -199,6 +200,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPut("category-languages")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        
         public async Task<ActionResult> UpdatesCategoryLanguages(UpdateCateogryRequest updateCateogry)
         {
             try

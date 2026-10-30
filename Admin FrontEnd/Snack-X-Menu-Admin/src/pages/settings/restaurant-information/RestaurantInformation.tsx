@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { useRestaurantInfos } from "@/hooks/useRestaurantInfos";
 import { useRestaurantUpdate } from "@/hooks/useRestaurantUpdate";
 import { formatLocalDate } from "@/lib/date";
@@ -102,6 +103,8 @@ function SettingsShimmer() {
 }
 export default function RestaurantInformationPage() {
   const { t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Settings", "edit");
   const { data: restaurant, isLoading, error, refetch } = useRestaurantInfos();
   const { update, isLoading: isSaving } = useRestaurantUpdate();
   const [isEditing, setIsEditing] = useState(false);
@@ -243,7 +246,7 @@ export default function RestaurantInformationPage() {
             </CardTitle>
             <p className="text-sm text-slate-500">{t("settings.restaurantInfoDesc")}</p>
           </div>
-          {!isEditing ? (
+          {canEdit && (!isEditing ? (
             <Button variant="outline" size="sm" onClick={handleEdit} disabled={isLoading}>
               <Pencil className="mr-2 h-4 w-4" />
               {t("settings.edit")}
@@ -264,7 +267,7 @@ export default function RestaurantInformationPage() {
                 {t("settings.save")}
               </Button>
             </div>
-          )}
+          ))}
         </CardHeader>
         <CardContent className="space-y-6">
           {isLoading ? (

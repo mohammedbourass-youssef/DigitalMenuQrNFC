@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Spinner } from '@/components/ui/spinner';
+import { usePermissions } from '@/contexts/PermissionsContext';
 import { friendlyErrorMessage } from '@/lib/apiErrors';
 import { CURRENCIES, DEFAULT_CURRENCY_CODE } from '@/lib/currencies';
 import { useCreateMenuItem } from '@/hooks/useCreateMenuItem';
@@ -93,10 +94,11 @@ interface MainInfoStepProps {
 
 export function MainInfoStep({ category, onCreated }: MainInfoStepProps) {
   const { t, i18n } = useTranslation();
+  const { can } = usePermissions();
   const createMenu = useCreateMenuItem(category.id);
   const queryClient = useQueryClient();
   const { data: quota } = usePlanQuota();
-  const canAddMenuItem = quota?.menuItems.canAdd !== false;
+  const canAddMenuItem = can('Menu', 'create') && quota?.menuItems.canAdd !== false;
   const { data: restaurant } = useRestaurantInfos();
 
   const restaurantCurrency = (restaurant?.currencyCode ?? '').trim().toUpperCase();

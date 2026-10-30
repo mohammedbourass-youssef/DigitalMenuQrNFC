@@ -25,6 +25,7 @@ namespace NFC_Backend.Controllers
         private readonly ICookieService _cookieService;
         private readonly IConfiguration _configuration;
         private readonly ITokenService _TokenService;
+        private readonly IPermissionRepo _permissionRepo;
 
         public AuthController(
             ILogger<AuthController> logger,
@@ -33,7 +34,7 @@ namespace NFC_Backend.Controllers
             IFileStorageService fileStorage,
             ICookieService cookieService,
             IConfiguration configuration,
-            ITokenService tokenService)
+            ITokenService tokenService , IPermissionRepo permissionRepo)
         {
             _logger = logger;
             _userRepo = repo;
@@ -42,6 +43,7 @@ namespace NFC_Backend.Controllers
             _cookieService = cookieService;
             _configuration = configuration;
             _TokenService = tokenService;
+            _permissionRepo = permissionRepo;
         }
 
         [HttpPost("register")]
@@ -355,6 +357,9 @@ namespace NFC_Backend.Controllers
                     return NotFound(new { error = "Restaurant not found." });
                 }
 
+                var permissiones = await _permissionRepo.UserPermissionsForShowingAsync(userId, tenant.PlanId, default);
+
+
                 _logger.LogInformation("Me called successfully. UserId: {UserId}, TenantId: {TenantId}",
                     userId, tenant.Id);
 
@@ -365,7 +370,9 @@ namespace NFC_Backend.Controllers
                     FullName = user.FullName,
                     RestaurantName = tenant.RestaurantName,
                     Role = user.Role.ToString(),
-                    TenantId = tenant.Id
+                    TenantId = tenant.Id,
+                    Features = permissiones,
+
                 });
             }
             catch (Exception ex)

@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { useToast } from "@/hooks/use-toast";
 import { usePlanQuota } from "@/hooks/usePlanQuota";
 import axiosInstance from "@/lib/axios";
@@ -27,6 +28,8 @@ export default function MenuItemImagesPage() {
   const { menuId } = useParams<{ menuId: string }>();
   const { t } = useTranslation();
   const { toast } = useToast();
+  const { can } = usePermissions();
+  const canEdit = can("Menu", "edit");
   const navigate = useNavigate();
   const { data: quota } = usePlanQuota();
   const maxImages = quota?.maxImagesPerMenuItem;
@@ -45,7 +48,7 @@ export default function MenuItemImagesPage() {
   const galleryImageCount = existingImageCount + additionalFiles.length;
   const remainingImageSlots =
     maxImages === undefined ? undefined : Math.max(0, maxImages - galleryImageCount);
-  const galleryUploadDisabled = isSaving || remainingImageSlots === 0;
+  const galleryUploadDisabled = isSaving || !canEdit || remainingImageSlots === 0;
 
   const loadItem = async () => {
     if (!menuId) return;
@@ -211,7 +214,7 @@ export default function MenuItemImagesPage() {
             <p className="text-sm text-slate-500">Replace cover, add/remove gallery images, and configure display order.</p>
           </div>
         </div>
-        <Button onClick={handleSaveAll} disabled={isSaving}>
+        <Button onClick={handleSaveAll} disabled={isSaving || !canEdit}>
           {isSaving ? <Spinner className="mr-2 h-4 w-4" /> : <Save className="mr-2 h-4 w-4" />}
           Save Changes
         </Button>
@@ -242,6 +245,7 @@ export default function MenuItemImagesPage() {
                   type="file"
                   accept="image/*"
                   className="hidden"
+                  disabled={!canEdit}
                   onChange={handleCoverChange}
                 />
               </Label>
@@ -281,20 +285,23 @@ export default function MenuItemImagesPage() {
                       <Input
                         type="number"
                         className="h-8 w-20"
+                        disabled={!canEdit}
                         value={imageOrders[img.id] ?? img.displayOrder}
                         onChange={(e) =>
                           setImageOrders((prev) => ({ ...prev, [img.id]: Number(e.target.value) }))
                         }
                       />
                     </div>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => void handleDeleteExistingImage(img.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canEdit && (
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => void handleDeleteExistingImage(img.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))}

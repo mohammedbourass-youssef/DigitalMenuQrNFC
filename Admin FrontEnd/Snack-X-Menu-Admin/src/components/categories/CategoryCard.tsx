@@ -3,6 +3,7 @@ import { Eye, FolderInput, ImageOff, Power } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
+import { usePermissions } from "@/contexts/PermissionsContext";
 import { formatRelativeTime } from "@/lib/date";
 import type { AdminCategoryItem } from "@/types";
 import {
@@ -32,6 +33,8 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabel, onDeactivate, onActivate, canActivate, quotaDisplay }: CategoryCardProps) {
   const { i18n, t } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Categories", "edit");
   const navigate = useNavigate();
   const [imageFailed, setImageFailed] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -97,17 +100,17 @@ export function CategoryCard({ category, activeLabel, inactiveLabel, createdLabe
           <Button variant="outline" size="sm" className="flex-1" onClick={viewDetails}>
             <Eye />{t("categories.seeDetails")}
           </Button>
-          {category.isActive ? (
+          {canEdit && category.isActive ? (
             <Button variant="outline" size="sm" className="flex-1 border-red-200 text-red-600 hover:bg-red-50" onClick={() => setConfirmOpen(true)}>
               <Power />{t("categories.deactivate.button")}
             </Button>
-          ) : (
+          ) : canEdit ? (
             <Button variant="outline" size="sm" className="flex-1 border-emerald-200 text-emerald-600 hover:bg-emerald-50" disabled={isActivating || !canActivate} title={!canActivate ? t("categories.quota.activateBlocked", { display: quotaDisplay, defaultValue: `Category limit reached (${quotaDisplay}). Upgrade your plan.` }) : undefined} onClick={() => void handleActivate()}>
               {isActivating && <Spinner className="h-4 w-4" />}<Power />{t("categories.activate.button")}
             </Button>
-          )}
+          ) : null}
         </div>
-        {!category.isActive && !canActivate && (
+        {canEdit && !category.isActive && !canActivate && (
           <p className="text-xs text-amber-800" role="status">
             {t("categories.quota.activateBlocked", { display: quotaDisplay, defaultValue: `Category limit reached (${quotaDisplay}). Upgrade your plan.` })}{" "}
             <Link to="/settings/upgrade" className="font-semibold text-[#714B67] underline underline-offset-2">

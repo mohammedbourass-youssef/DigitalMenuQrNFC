@@ -938,6 +938,13 @@
         },
         "generateReceipt": "Generate Receipt"
     },
+    "forbidden": {
+        "title": "Access denied",
+        "description": "You do not have permission to view this page.",
+        "planDescription": "This page is not included in your current plan.",
+        "back": "Back to dashboard",
+        "upgrade": "Upgrade plan"
+    },
     "permissions": {
         "eyebrow": "Access control",
         "title": "Discover My Permissions",

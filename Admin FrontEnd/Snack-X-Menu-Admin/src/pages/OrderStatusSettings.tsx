@@ -61,12 +61,17 @@ import {
   useUpdateOrderStatusTranslations,
 } from "@/hooks/useOrderStatuses";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import type { OrderStatusItem } from "@/types";
 
 export default function OrderStatusSettingsPage() {
   const { i18n, t } = useTranslation();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { can } = usePermissions();
+  const canCreateStatus = user?.role === "TenantOwner" && can("Orders", "create");
+  const canEditStatus = user?.role === "TenantOwner" && can("Orders", "edit");
+  const canDeleteStatus = user?.role === "TenantOwner" && can("Orders", "delete");
   const dir = i18n.language === "ar" ? "rtl" : "ltr";
   const lang = i18n.language.toLowerCase();
 
@@ -75,7 +80,6 @@ export default function OrderStatusSettingsPage() {
   const [statusToDelete, setStatusToDelete] = useState<OrderStatusItem | null>(null);
   const [translating, setTranslating] = useState<OrderStatusItem | null>(null);
 
-  const isOwner = user?.role === "TenantOwner";
   const query = useOrderStatuses(lang);
   const createMut = useCreateOrderStatus();
   const updateMut = useUpdateOrderStatus();
@@ -196,7 +200,7 @@ export default function OrderStatusSettingsPage() {
             </Badge>
           )}
         </div>
-        {isOwner && (
+        {canCreateStatus && (
           <Button onClick={openCreate}>
             <Plus />
             {t("orders.statuses.add")}
@@ -236,7 +240,7 @@ export default function OrderStatusSettingsPage() {
                 <EmptyTitle>{t("orders.statuses.emptyTitle")}</EmptyTitle>
                 <EmptyDescription>{t("orders.statuses.emptySub")}</EmptyDescription>
               </EmptyHeader>
-              {isOwner && (
+              {canCreateStatus && (
                 <EmptyContent>
                   <Button onClick={openCreate}>
                     <Plus />
@@ -248,7 +252,8 @@ export default function OrderStatusSettingsPage() {
           ) : (
             <StatusTable
               statuses={query.data}
-              isOwner={isOwner}
+              canEdit={canEditStatus}
+              canDelete={canDeleteStatus}
               onEdit={openEdit}
               onDelete={(status) => setStatusToDelete(status)}
               onTranslations={openTranslations}
@@ -257,7 +262,7 @@ export default function OrderStatusSettingsPage() {
         </div>
       </Card>
 
-      {isOwner && (
+      {(canCreateStatus || canEditStatus) && (
         <StatusFormSheet
           open={sheetOpen}
           onOpenChange={setSheetOpen}
@@ -267,7 +272,7 @@ export default function OrderStatusSettingsPage() {
         />
       )}
 
-      {isOwner && (
+      {canEditStatus && (
         <StatusTranslationsSheet
           open={translating !== null}
           onOpenChange={(open) => {
@@ -312,13 +317,15 @@ export default function OrderStatusSettingsPage() {
 
 function StatusTable({
   statuses,
-  isOwner,
+  canEdit,
+  canDelete,
   onEdit,
   onDelete,
   onTranslations,
 }: {
   statuses: OrderStatusItem[];
-  isOwner: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
   onEdit: (status: OrderStatusItem) => void;
   onDelete: (status: OrderStatusItem) => void;
   onTranslations: (status: OrderStatusItem) => void;
@@ -373,36 +380,42 @@ function StatusTable({
                 )}
               </TableCell>
               <TableCell className="text-end">
-                {isOwner && !status.isSystem ? (
+                {!status.isSystem && (canEdit || canDelete) ? (
                   <div className="flex items-center justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onTranslations(status)}
-                      aria-label={t("orders.translations.open", { name: status.name })}
-                      title={t("orders.translations.button")}
-                    >
-                      <Languages className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => onEdit(status)}
-                      aria-label={t("orders.statuses.editStatus", { name: status.name })}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-red-600 hover:text-red-600"
-                      onClick={() => onDelete(status)}
-                      aria-label={t("orders.statuses.deleteStatus", { name: status.name })}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {canEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => onTranslations(status)}
+                        aria-label={t("orders.translations.open", { name: status.name })}
+                        title={t("orders.translations.button")}
+                      >
+                        <Languages className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {canEdit && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => onEdit(status)}
+                        aria-label={t("orders.statuses.editStatus", { name: status.name })}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {canDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-600 hover:text-red-600"
+                        onClick={() => onDelete(status)}
+                        aria-label={t("orders.statuses.deleteStatus", { name: status.name })}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 ) : status.isSystem ? (
                   <Tooltip>

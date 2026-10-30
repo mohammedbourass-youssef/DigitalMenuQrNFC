@@ -156,6 +156,17 @@ export interface RegisterDTO {
   City?: string;
 }
 
+export interface UserPermission {
+  featureId: string;
+  featureCode: string;
+  featureStatus: number | string;
+  inPlan: boolean;
+  canRead: boolean;
+  canWrite: boolean;
+  canEdit: boolean;
+  canDelete: boolean;
+}
+
 export interface UserResponseDto {
   id: string;
   tenantId?: string;
@@ -163,6 +174,7 @@ export interface UserResponseDto {
   fullName: string;
   role: string;
   restaurantName?: string;
+  features: UserPermission[];
 }
 
 export interface AuthState {

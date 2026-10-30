@@ -18,6 +18,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { usePermissions } from "@/contexts/PermissionsContext";
 import axiosInstance from "@/lib/axios";
 import { getMenuItemInfoAdmin } from "@/services/menuService";
 import { CATEGORY_LANGUAGES } from "@/components/categories/categoryLanguages";
@@ -28,6 +29,8 @@ export type EditedTranslations = Record<string, { name: string; description: str
 export default function MenuItemTranslationsPage() {
   const { menuId } = useParams<{ menuId: string }>();
   const { i18n } = useTranslation();
+  const { can } = usePermissions();
+  const canEdit = can("Menu", "edit");
   const navigate = useNavigate();
 
   const [item, setItem] = useState<AdminMenuItem | null>(null);
@@ -70,7 +73,7 @@ export default function MenuItemTranslationsPage() {
   };
 
   const handleSave = async () => {
-    if (!menuId || saving) return;
+    if (!menuId || saving || !canEdit) return;
     setSaving(true);
     setErrorMessage(null);
 
@@ -132,7 +135,7 @@ export default function MenuItemTranslationsPage() {
             <p className="text-sm text-slate-500">View and modify localized names and descriptions for all languages.</p>
           </div>
         </div>
-        <Button onClick={() => setShowConfirm(true)} disabled={saving} className="bg-orange-500 hover:bg-orange-600">
+        <Button onClick={() => setShowConfirm(true)} disabled={saving || !canEdit} className="bg-orange-500 hover:bg-orange-600">
           {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
           Save Changes
         </Button>
@@ -164,7 +167,7 @@ export default function MenuItemTranslationsPage() {
                   <Input
                     value={edited?.name ?? ""}
                     onChange={(e) => handleEdit(lang, "name", e.target.value)}
-                    disabled={saving}
+                    disabled={saving || !canEdit}
                     className="mt-1"
                   />
                 </div>
@@ -174,7 +177,7 @@ export default function MenuItemTranslationsPage() {
                     value={edited?.description ?? ""}
                     onChange={(e) => handleEdit(lang, "description", e.target.value)}
                     rows={3}
-                    disabled={saving}
+                    disabled={saving || !canEdit}
                     className="mt-1 resize-none"
                   />
                 </div>
