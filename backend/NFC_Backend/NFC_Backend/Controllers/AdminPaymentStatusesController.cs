@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Interfaces;
 
 namespace NFC_Backend.Controllers.Admin
@@ -25,6 +26,7 @@ namespace NFC_Backend.Controllers.Admin
 
         // GET api/admin/payment-statuses?includeInactive=true
         [HttpGet]
+        [HasPermission(FeatureCodes.PaymentStatuses, EnPermissionActions.READ)]
         public async Task<ActionResult<List<PaymentStatusDto>>> GetAll([FromQuery] bool includeInactive = true, CancellationToken ct = default)
         {
             var list = await _repo.GetAllAsync(includeInactive, ct);
@@ -33,6 +35,7 @@ namespace NFC_Backend.Controllers.Admin
 
         // GET api/admin/payment-statuses/5
         [HttpGet("{id:int}")]
+        [HasPermission(FeatureCodes.PaymentStatuses, EnPermissionActions.READ)]
         public async Task<ActionResult<PaymentStatusDto>> GetById(int id, CancellationToken ct)
         {
             var s = await _repo.GetByIdAsync(id, ct);
@@ -41,6 +44,7 @@ namespace NFC_Backend.Controllers.Admin
 
         // POST api/admin/payment-statuses
         [HttpPost]
+        [HasPermission(FeatureCodes.PaymentStatuses, EnPermissionActions.WRITE)]
         public async Task<ActionResult<PaymentStatusDto>> Create([FromBody] CreatePaymentStatusDto dto, CancellationToken ct)
         {
             var code = dto.Code.Trim();
@@ -68,6 +72,7 @@ namespace NFC_Backend.Controllers.Admin
 
         // PUT api/admin/payment-statuses/5
         [HttpPut("{id:int}")]
+        [HasPermission(FeatureCodes.PaymentStatuses, EnPermissionActions.UPDATE)]
         public async Task<ActionResult<PaymentStatusDto>> Update(int id, [FromBody] UpdatePaymentStatusDto dto, CancellationToken ct)
         {
             var status = await _repo.GetByIdAsync(id, ct);
@@ -91,7 +96,8 @@ namespace NFC_Backend.Controllers.Admin
 
         // PATCH api/admin/payment-statuses/5/active?value=false
         [HttpPatch("{id:int}/active")]
-       
+        [HasPermission(FeatureCodes.PaymentStatuses, EnPermissionActions.UPDATE)]
+
         public async Task<IActionResult> SetActive(int id, [FromQuery] bool value, CancellationToken ct)
         {
             var status = await _repo.GetByIdAsync(id, ct);
@@ -107,6 +113,7 @@ namespace NFC_Backend.Controllers.Admin
 
         // DELETE api/admin/payment-statuses/5
         [HttpDelete("{id:int}")]
+        [HasPermission(FeatureCodes.PaymentStatuses, EnPermissionActions.DELETE)]
         public async Task<IActionResult> Delete(int id, CancellationToken ct)
         {
             var status = await _repo.GetByIdAsync(id, ct);

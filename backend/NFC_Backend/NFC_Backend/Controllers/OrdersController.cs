@@ -44,6 +44,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPost("NewStatus")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.WRITE)]
         public async Task<ActionResult> CreateStatus(CreateNewStatusRequest request)
         {
             var sw = Stopwatch.StartNew();
@@ -155,6 +156,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPost("Fast/NewStatus")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.WRITE)]
         public async Task<ActionResult> CreateStatusFast([FromBody]string request)
         {
             var sw = Stopwatch.StartNew();
@@ -258,7 +260,8 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpGet("Statuses")]
-        
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
+
         public async Task<ActionResult<List<OrderStatusDto>>> GetStatuses(
     [FromQuery] string lang = "en",
     CancellationToken ct = default)
@@ -293,6 +296,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPut("Status/{id:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateStatus(int id, UpdateStatusRequest request, CancellationToken ct)
         {
             var tenantId = User.GetTenantId();
@@ -383,6 +387,7 @@ namespace NFC_Backend.Controllers
 
         [HttpDelete("Status/{id:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.DELETE)]
         public async Task<ActionResult> DeleteStatus(int id, CancellationToken ct)
         {
             var tenantId = User.GetTenantId();
@@ -428,6 +433,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpGet("Status/{id:int}/Translations")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
         public async Task<ActionResult<StatusTranslationsDto>> GetStatusTranslations(int id, CancellationToken ct)
         {
             var tenantId = User.GetTenantId();
@@ -465,6 +471,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPut("Status/{id:int}/Translations")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateStatusTranslations(
         int id, UpdateStatusTranslationsRequest request, CancellationToken ct)
         {
@@ -535,6 +542,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("current-orders")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
         public async Task<ActionResult<IEnumerable<OrderStatusColumnDto>>> GetCurrentOrders(
        CancellationToken ct)
         {
@@ -569,6 +577,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPatch("{id:guid}/move-to/{statusId:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> ChangeStatus(Guid id, int statusId, CancellationToken ct)
         {
             var tenantId = User.GetTenantId();
@@ -743,6 +752,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("order-history")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
         public async Task<ActionResult<PagedResult<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync( [FromQuery] AdminHistoryFilters historyFilters)
         {
             try

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
 using Minio.DataModel;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
@@ -42,6 +43,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPost]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.WRITE)]
         public async Task<ActionResult<CreateCateogryResponse>> CreateCategory(CreateCateogryRequest request)
         {
             try
@@ -200,7 +202,8 @@ namespace NFC_Backend.Controllers
         }
         [HttpPut("category-languages")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
-        
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
+
         public async Task<ActionResult> UpdatesCategoryLanguages(UpdateCateogryRequest updateCateogry)
         {
             try
@@ -271,6 +274,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpGet("categories-Admin")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> GetAllForAdmin([FromQuery] CategoryAdminRequest request)
         {
             try
@@ -372,6 +376,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPatch("{id}/disactive")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> DisactiveCategory(Guid id)
         {
             try
@@ -440,6 +445,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpPatch("{id}/active")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> ActiveCategory(Guid id)
         {
             try
@@ -524,6 +530,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpGet("{id}/info-Admin")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> GetCategoryInfoOfAdmin(Guid id)
         {
             try
@@ -594,6 +601,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPatch("display")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateCategoryDisplay(UpdateCategoryDisplayRequest request)
         {
             try
@@ -649,6 +657,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("combo")]
         [Authorize]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> GetSimpleInfos([FromQuery] SearchCategoryRequest request)
         {
             try

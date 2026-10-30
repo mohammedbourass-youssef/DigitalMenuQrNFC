@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Win32;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
 using NFC_Backend.Infrastructure.Tools;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
@@ -40,6 +42,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpGet("my-restaurant")]
         [Authorize]
+        [HasPermission(FeatureCodes.Settings, EnPermissionActions.READ)]
         public async Task<ActionResult<MyRestaurantInfosResponse>> GetMyRestaurantInfos()
         {
             try
@@ -70,6 +73,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPut("infos-update")]
         [Authorize]
+        [HasPermission(FeatureCodes.Settings, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateInfos([FromForm] MyRestaurantUpdateInfosDTO myRestaurantUpdateInfosDTO)
         {
             try

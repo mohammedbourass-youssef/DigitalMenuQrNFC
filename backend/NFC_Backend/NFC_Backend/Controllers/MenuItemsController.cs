@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 using NFC_Backend.Services;
@@ -49,6 +51,8 @@ namespace NFC_Backend.Controllers
 
         [HttpPost("main")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.WRITE)]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> CreateNewMenuItem([FromBody] CreateMenuRequest request)
         {
             try
@@ -147,6 +151,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPut("{id}/Images")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UploadImages(Guid id, [FromForm] UploadMenuImagesRequest request)
         {
             try
@@ -253,6 +258,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("Admin-menus")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.READ)]
         public async Task<ActionResult> GetAll([FromQuery] AdminGetAllMenuRequest request)
         {
             try
@@ -334,6 +340,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("{id}/info-Admin")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.READ)]
         public async Task<ActionResult> GetMenuItemInfoOfAdmin(Guid id)
         {
             try
@@ -384,6 +391,7 @@ namespace NFC_Backend.Controllers
         }
         [HttpDelete("{menuId}/images/{imageId}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.DELETE)]
         public async Task<ActionResult> DeleteMenuImage(Guid menuId, Guid imageId)
         {
             try
@@ -412,6 +420,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPatch("{menuId}/images/reorder")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> ReorderMenuImages(
         Guid menuId,
         [FromBody] List<ImageOrderDto> orders,
@@ -436,6 +445,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPut("menu-languages")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateMenuLanguages([FromBody] UpdateCateogryRequest request)
         {
             try
@@ -465,6 +475,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPut("{id}/details")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateMenuItemDetails(Guid id, [FromBody] UpdateMenuItemDetailsDto request)
         {
             try
@@ -496,6 +507,8 @@ namespace NFC_Backend.Controllers
         }
         [HttpPut("{id}/move")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Menu, EnPermissionActions.UPDATE)]
+        [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> MoveMenuItemToCategory(Guid id, [FromBody] MoveMenuItemRequest request)
         {
             try

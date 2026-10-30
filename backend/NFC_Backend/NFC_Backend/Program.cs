@@ -113,6 +113,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
 app.UseCors("AllowFrontend");
 app.UseRateLimiter();
 app.UseAuthentication();
@@ -126,8 +128,8 @@ app.UseWhen(
     );
 app.UseMiddleware<LanguageMiddleware>();
 app.UseMiddleware<CurrencyMiddleware>();
-app.UseAuthorization();
 app.UseMiddleware<PermissionMiddleware>();   // handles [HasPermission]
+app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificationHub>("/hubs/notifications");
 app.MapHub<OrderLiveChangesHub>("/hubs/order-live-changes");

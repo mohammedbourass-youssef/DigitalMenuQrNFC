@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NFC_Backend.Controllers.Admin;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Extensions;
@@ -32,6 +33,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("PlanInformations")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Subscription, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(TenantPlanInformations), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -67,6 +69,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("AllPlans")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Subscription, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(List<PlanPricingDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -119,6 +122,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("Quota")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.Subscription, EnPermissionActions.READ)]
         public async Task<ActionResult<PlanQuotaDTo>> GetPlanQuota(CancellationToken ct)
         {
             var tenantId = User.GetTenantId();

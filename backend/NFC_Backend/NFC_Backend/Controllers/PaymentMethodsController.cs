@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Extensions;
@@ -34,6 +35,7 @@ namespace NFC_Backend.Controllers
         /// <summary>System methods for the "Add payment method" dropdown (AlreadyAdded = true => disable option).</summary>
         [HttpGet("System")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(List<SystemPaymentMethodDto>), StatusCodes.Status200OK)]
         public Task<ActionResult> GetSystemMethods(CancellationToken ct) =>
             RunAsync(nameof(GetSystemMethods), async tenantId =>
@@ -45,6 +47,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Full table for the owner: enabled AND disabled methods.</summary>
         [HttpGet]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(List<TenantPaymentMethodDto>), StatusCodes.Status200OK)]
         public Task<ActionResult> GetAll(CancellationToken ct) =>
             RunAsync(nameof(GetAll), async tenantId =>
@@ -56,6 +59,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Enabled methods only, for the cashier / payment screen. Any authenticated user of the tenant.</summary>
         [HttpGet("Enabled")]
         [Authorize]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(List<TenantPaymentMethodDto>), StatusCodes.Status200OK)]
         public Task<ActionResult> GetEnabled(CancellationToken ct) =>
             RunAsync(nameof(GetEnabled), async tenantId =>
@@ -66,6 +70,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("{id:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(TenantPaymentMethodDto), StatusCodes.Status200OK)]
         public Task<ActionResult> GetById(int id, CancellationToken ct) =>
             RunAsync(nameof(GetById), async tenantId =>
@@ -81,6 +86,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Add a system payment method to this tenant (from the pop-up).</summary>
         [HttpPost]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.WRITE)]
         [ProducesResponseType(typeof(TenantPaymentMethodDto), StatusCodes.Status201Created)]
         public Task<ActionResult> Add([FromBody] AddTenantPaymentMethodRequest request, CancellationToken ct) =>
             RunAsync(nameof(Add), async tenantId =>
@@ -98,6 +104,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Edit custom label and enabled flag.</summary>
         [HttpPut("{id:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.UPDATE)]
         public Task<ActionResult> Update(int id, [FromBody] UpdateTenantPaymentMethodRequest request, CancellationToken ct) =>
             RunAsync(nameof(Update), async tenantId =>
             {
@@ -108,6 +115,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Quick enable/disable switch in the table row.</summary>
         [HttpPatch("{id:int}/enabled")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.UPDATE)]
         public Task<ActionResult> SetEnabled(int id, [FromBody] SetEnabledRequest request, CancellationToken ct) =>
             RunAsync(nameof(SetEnabled), async tenantId =>
             {
@@ -118,6 +126,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Make this method the tenant's default (auto-enables it, unsets the previous default).</summary>
         [HttpPatch("{id:int}/default")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.UPDATE)]
         public Task<ActionResult> SetDefault(int id, CancellationToken ct) =>
             RunAsync(nameof(SetDefault), async tenantId =>
             {
@@ -128,6 +137,7 @@ namespace NFC_Backend.Controllers
         /// <summary>Drag &amp; drop ordering. Send ALL tenant method ids in the new order.</summary>
         [HttpPut("reorder")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.UPDATE)]
         public Task<ActionResult> Reorder([FromBody] ReorderPaymentMethodsRequest request, CancellationToken ct) =>
             RunAsync(nameof(Reorder), async tenantId =>
             {
@@ -137,6 +147,7 @@ namespace NFC_Backend.Controllers
 
         [HttpDelete("{id:int}")]
         [Authorize(Roles = nameof(UserRole.TenantOwner))]
+        [HasPermission(FeatureCodes.PaymentMethods, EnPermissionActions.DELETE)]
         public Task<ActionResult> Delete(int id, CancellationToken ct) =>
             RunAsync(nameof(Delete), async tenantId =>
             {

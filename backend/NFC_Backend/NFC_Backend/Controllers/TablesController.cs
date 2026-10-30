@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
 using NFC_Backend.Extensions;
+using NFC_Backend.MidlleWares;
 using NFC_Backend.Repos.Implementations;
 using NFC_Backend.Repos.Interfaces;
 
@@ -29,6 +31,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet]
         [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.READ)]
         public async Task<ActionResult<List<TableResponseDTO>>> GetAll()
         {
             try
@@ -62,6 +65,7 @@ namespace NFC_Backend.Controllers
 
         [HttpGet("{id:guid}")]
         [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.READ)]
         public async Task<ActionResult<TableResponseDTO>> GetById(Guid id)
         {
             try
@@ -103,6 +107,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPost]
         [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.WRITE)]
         public async Task<ActionResult<TableResponseDTO>> Create([FromBody] CreateTableDTO dto)
         {
             try
@@ -188,6 +193,7 @@ namespace NFC_Backend.Controllers
 
         [HttpPut]
         [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> Update([FromBody] UpdateTableDTO dto)
         {
             try
@@ -239,6 +245,7 @@ namespace NFC_Backend.Controllers
 
         [HttpDelete("{id:guid}")]
         [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.DELETE)]
         public async Task<ActionResult> Delete(Guid id)
         {
             try
