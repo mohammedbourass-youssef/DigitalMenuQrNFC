@@ -69,5 +69,202 @@
         },
         "generateReceipt": "Generate Receipt"
     },
-    "sidebar": {}
+    "settings": {
+        "upgrade": {
+            "roles": "Rollen",
+            "features": {
+                "roles": "{{count}} Rollen"
+            }
+        }
+    },
+    "sidebar": {
+        "hrRoles": "Rollen"
+    },
+    "roles": {
+        "title": "Rollen",
+        "subtitle": "Verwalten Sie Mitarbeiterrollen und die Funktionen, auf die sie zugreifen können.",
+        "add": "Neue Rolle",
+        "refresh": "Aktualisieren",
+        "searchPlaceholder": "Rollen suchen...",
+        "totalCount": "{{count}} Rollen",
+        "loadError": "Rollen konnten nicht geladen werden.",
+        "retry": "Erneut versuchen",
+        "empty_title": "Noch keine Rollen",
+        "empty_sub": "Erstellen Sie eine Rolle, um den Zugriff Ihrer Mitarbeiter zu steuern.",
+        "noResults_title": "Keine Rollen passen zu Ihrer Suche",
+        "noResults_sub": "Versuchen Sie einen anderen Namen oder löschen Sie die Suche.",
+        "system": "System",
+        "selectAll": "Alle benutzerdefinierten Rollen auf dieser Seite auswählen",
+        "selectRow": "{{name}} auswählen",
+        "view": "Ansehen",
+        "usage": "Nutzung",
+        "limitTooltip": "Rollenlimit erreicht ({{display}}). Führen Sie ein Upgrade durch, um weitere Rollen hinzuzufügen.",
+        "selectedCount": "{{count}} ausgewählt",
+        "clearSelection": "Auswahl aufheben",
+        "bulkDelete": "Ausgewählte löschen",
+        "permissionsSummaryLabel": "Lesen: {{read}}, Erstellen: {{add}}, Bearbeiten: {{edit}}, Löschen: {{delete}}",
+        "columns": {
+            "name": "Rolle",
+            "description": "Beschreibung",
+            "users": "Benutzer",
+            "permissions": "Berechtigungen",
+            "createdAt": "Erstellt",
+            "actions": "Aktionen"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "page": "Seite {{page}} von {{pages}}",
+            "pageSize": "Zeilen pro Seite",
+            "previous": "Vorherige Seite",
+            "next": "Nächste Seite"
+        },
+        "form": {
+            "title": "Neue Rolle",
+            "editTitle": "Rolle bearbeiten",
+            "viewTitle": "Rollendetails",
+            "description": "Erstellen Sie eine Rolle und wählen Sie aus, worauf sie zugreifen kann.",
+            "editDescription": "Aktualisieren Sie die Details und Berechtigungen dieser Rolle.",
+            "viewDescription": "Prüfen Sie die Details und Berechtigungen dieser Rolle.",
+            "nameLabel": "Rollenname",
+            "namePlaceholder": "z. B. Schichtleiter",
+            "nameRequired": "Rollenname ist erforderlich.",
+            "nameTooLong": "Der Rollenname darf höchstens 100 Zeichen enthalten.",
+            "descriptionLabel": "Beschreibung",
+            "descriptionPlaceholder": "Wofür ist diese Rolle? (optional)",
+            "descriptionTooLong": "Die Beschreibung darf höchstens 500 Zeichen enthalten.",
+            "permissionsLabel": "Berechtigungen",
+            "permissionsHint": "Wählen Sie die Aktionen, die diese Rolle für jede Funktion ausführen darf.",
+            "selectAll": "Alle",
+            "selectRow": "Alle Aktionen für {{feature}} auswählen",
+            "selectColumn": "{{action}} für alle Funktionen auswählen",
+            "noFeatures": "In Ihrem Plan sind keine Funktionen verfügbar.",
+            "permissionsUnavailable": "Funktionsberechtigungen konnten nicht geladen werden. Versuchen Sie es später erneut.",
+            "read": "Lesen",
+            "add": "Erstellen",
+            "edit": "Bearbeiten",
+            "delete": "Löschen",
+            "createButton": "Rolle erstellen",
+            "updateButton": "Änderungen speichern",
+            "systemNote": "Systemrollen werden vom System verwaltet und können nicht geändert werden."
+        },
+        "delete": {
+            "title": "Diese Rolle löschen?",
+            "description": "„{{name}}“ wird dauerhaft entfernt. Dies kann nicht rückgängig gemacht werden.",
+            "confirm": "Löschen",
+            "bulkTitle": "Ausgewählte Rollen löschen?",
+            "bulkDescription": "{{count}} ausgewählte Rollen werden dauerhaft entfernt. Dies kann nicht rückgängig gemacht werden.",
+            "bulkConfirm": "Rollen löschen"
+        },
+        "toast": {
+            "createSuccess": "Rolle erfolgreich erstellt.",
+            "createError": "Rolle konnte nicht erstellt werden.",
+            "updateSuccess": "Rolle erfolgreich aktualisiert.",
+            "updateError": "Rolle konnte nicht aktualisiert werden.",
+            "deleteSuccess": "Rolle erfolgreich gelöscht.",
+            "deleteError": "Rolle konnte nicht gelöscht werden.",
+            "bulkDeleteSuccess": "Ausgewählte Rollen gelöscht.",
+            "bulkDeleteError": "Die ausgewählten Rollen konnten nicht gelöscht werden."
+        },
+        "errors": {
+            "notAvailable": "Die Rollenverwaltung ist noch nicht verfügbar. Die Backend-Endpunkte müssen noch implementiert werden."
+        },
+        "new": "Neu",
+        "typeFilter": {
+            "all": "Alle",
+            "system": "System",
+            "custom": "Benutzerdefiniert"
+        },
+        "search": {
+            "placeholder": "Rollen suchen...",
+            "filters": "Filter",
+            "type": "Typ",
+            "sortBy": "Sortieren nach",
+            "sortName": "Name",
+            "sortUsers": "Benutzer",
+            "sortCreated": "Erstellt am",
+            "asc": "Aufsteigend",
+            "desc": "Absteigend",
+            "clear": "Zurücksetzen",
+            "active": "Aktive Filter"
+        },
+        "list": {
+            "featureOne": "1 Funktion",
+            "featureMany": "{{count}} Funktionen",
+            "noPermissions": "Keine Berechtigungen",
+            "totalUsers": "Benutzer insgesamt: {{count}}",
+            "openRow": "{{name}} öffnen",
+            "selected": "{{count}} ausgewählt",
+            "actions": "Aktionen",
+            "deleteSelected": "Ausgewählte löschen",
+            "clearSelection": "Auswahl aufheben",
+            "quotaTooltip": "Rollenlimit erreicht ({{display}}). Führen Sie ein Upgrade durch, um weitere Rollen hinzuzufügen.",
+            "selectAll": "Alle Rollen auf dieser Seite auswählen",
+            "selectRow": "{{name}} auswählen",
+            "emptyTitle": "Noch keine Rollen",
+            "emptySub": "Erstellen Sie eine Rolle, um den Zugriff Ihrer Mitarbeiter zu steuern.",
+            "noResultsTitle": "Keine Rollen passen zu Ihren Filtern",
+            "noResultsSub": "Versuchen Sie eine andere Suche oder setzen Sie die Filter zurück.",
+            "loadError": "Rollen konnten nicht geladen werden.",
+            "retry": "Erneut versuchen"
+        },
+        "formPage": {
+            "breadcrumbRoot": "Rollen",
+            "newBreadcrumb": "Neue Rolle",
+            "save": "Speichern",
+            "discard": "Verwerfen",
+            "dirty": "Nicht gespeicherte Änderungen",
+            "actions": "Aktionen",
+            "new": "Neu",
+            "duplicate": "Duplizieren",
+            "delete": "Löschen",
+            "back": "Zurück zu den Rollen",
+            "createdOn": "Erstellt am",
+            "users": "Benutzer",
+            "system": "System",
+            "systemRole": "Systemrolle",
+            "customRole": "Benutzerdefinierte Rolle",
+            "record": "{{index}} / {{total}}",
+            "previous": "Vorherige Rolle",
+            "next": "Nächste Rolle",
+            "notFoundTitle": "Rolle nicht gefunden",
+            "notFoundSub": "Diese Rolle wurde möglicherweise gelöscht oder Sie haben keinen Zugriff.",
+            "readOnlyBanner": "Sie haben keine Berechtigung, diese Rolle zu bearbeiten.",
+            "usersUnavailable": "Die Benutzerzuweisung ist noch nicht verfügbar. Der Backend-Endpunkt muss noch implementiert werden.",
+            "usersCount": "{{count}} Benutzer derzeit zugewiesen",
+            "copySuffix": "Kopie",
+            "tabs": {
+                "permissions": "Berechtigungen",
+                "users": "Benutzer"
+            },
+            "unsavedTitle": "Nicht gespeicherte Änderungen verwerfen?",
+            "unsavedDescription": "Ihre Änderungen an dieser Rolle wurden nicht gespeichert.",
+            "unsavedDiscard": "Änderungen verwerfen",
+            "unsavedStay": "Weiter bearbeiten"
+        },
+        "matrix": {
+            "search": "Funktionen suchen...",
+            "counter": "{{enabled}} / {{total}} Berechtigungen aktiviert",
+            "selectAll": "Alle auswählen",
+            "clearAll": "Alle abwählen",
+            "feature": "Funktion",
+            "all": "Alle",
+            "read": "Lesen",
+            "add": "Hinzufügen",
+            "edit": "Bearbeiten",
+            "delete": "Löschen",
+            "selectRow": "Alle Aktionen für {{feature}} auswählen",
+            "selectColumn": "{{action}} für alle Funktionen auswählen",
+            "noFeatures": "In Ihrem Plan sind keine Funktionen verfügbar.",
+            "unavailable": "Funktionsberechtigungen konnten nicht geladen werden. Versuchen Sie es später erneut.",
+            "noResults": "Keine Funktionen passen zu Ihrer Suche.",
+            "disabledHint": "Sie haben keine Berechtigung, diese Berechtigungen zu ändern."
+        },
+        "create": {
+            "limitReached": "Rollenlimit für Ihren Tarif erreicht.",
+            "duplicateName": "Eine Rolle mit diesem Namen existiert bereits.",
+            "invalidPermissions": "Die ausgewählten Berechtigungen sind ungültig.",
+            "tenantNotFound": "Restaurant nicht gefunden.",
+            "planNotFound": "Ihr Tarif konnte nicht gefunden werden."
+        }
+    }
 }

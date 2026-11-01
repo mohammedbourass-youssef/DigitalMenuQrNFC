@@ -118,6 +118,7 @@ namespace NFC_Backend.Controllers
                     DateTime.UtcNow.AddDays(createUser.DaysToExpire));
 
                 _logger.LogInformation("Registration completed successfully for UserId: {UserId}", newUser.Id);
+
                 return Ok(new UserResponseDto
                 {
                     Email = createUser.Email,

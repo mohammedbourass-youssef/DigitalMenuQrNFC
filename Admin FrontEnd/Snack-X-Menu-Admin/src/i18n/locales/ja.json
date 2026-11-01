@@ -69,5 +69,202 @@
         },
         "generateReceipt": "Generate Receipt"
     },
-    "sidebar": {}
+    "settings": {
+        "upgrade": {
+            "roles": "ロール",
+            "features": {
+                "roles": "{{count}} ロール"
+            }
+        }
+    },
+    "sidebar": {
+        "hrRoles": "ロール"
+    },
+    "roles": {
+        "title": "ロール",
+        "subtitle": "スタッフのロールとアクセスできる機能を管理します。",
+        "add": "新しいロール",
+        "refresh": "更新",
+        "searchPlaceholder": "ロールを検索...",
+        "totalCount": "{{count}} 件のロール",
+        "loadError": "ロールを読み込めませんでした。",
+        "retry": "再試行",
+        "empty_title": "ロールがまだありません",
+        "empty_sub": "スタッフがアクセスできる内容を制御するロールを作成します。",
+        "noResults_title": "検索に一致するロールがありません",
+        "noResults_sub": "別の名前を試すか、検索をクリアしてください。",
+        "system": "システム",
+        "selectAll": "このページのカスタムロールをすべて選択",
+        "selectRow": "{{name}} を選択",
+        "view": "表示",
+        "usage": "使用状況",
+        "limitTooltip": "ロールの上限に達しました ({{display}})。プランをアップグレードしてロールを追加してください。",
+        "selectedCount": "{{count}} 件選択中",
+        "clearSelection": "選択をクリア",
+        "bulkDelete": "選択項目を削除",
+        "permissionsSummaryLabel": "閲覧: {{read}}、作成: {{add}}、編集: {{edit}}、削除: {{delete}}",
+        "columns": {
+            "name": "ロール",
+            "description": "説明",
+            "users": "ユーザー",
+            "permissions": "権限",
+            "createdAt": "作成日",
+            "actions": "操作"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "page": "{{pages}} ページ中 {{page}} ページ",
+            "pageSize": "表示件数",
+            "previous": "前のページ",
+            "next": "次のページ"
+        },
+        "form": {
+            "title": "新しいロール",
+            "editTitle": "ロールを編集",
+            "viewTitle": "ロールの詳細",
+            "description": "ロールを作成し、アクセスできる内容を選択します。",
+            "editDescription": "このロールの詳細と権限を更新します。",
+            "viewDescription": "このロールの詳細と権限を確認します。",
+            "nameLabel": "ロール名",
+            "namePlaceholder": "例: シフト責任者",
+            "nameRequired": "ロール名は必須です。",
+            "nameTooLong": "ロール名は100文字以内で入力してください。",
+            "descriptionLabel": "説明",
+            "descriptionPlaceholder": "このロールの用途 (任意)",
+            "descriptionTooLong": "説明は500文字以内で入力してください。",
+            "permissionsLabel": "権限",
+            "permissionsHint": "各機能に対してこのロールが実行できる操作を選択します。",
+            "selectAll": "すべて",
+            "selectRow": "{{feature}} のすべての操作を選択",
+            "selectColumn": "すべての機能で {{action}} を選択",
+            "noFeatures": "プランで利用できる機能がありません。",
+            "permissionsUnavailable": "機能の権限を読み込めませんでした。後でもう一度お試しください。",
+            "read": "閲覧",
+            "add": "作成",
+            "edit": "編集",
+            "delete": "削除",
+            "createButton": "ロールを作成",
+            "updateButton": "変更を保存",
+            "systemNote": "システムロールはシステムによって管理されており、変更できません。"
+        },
+        "delete": {
+            "title": "このロールを削除しますか？",
+            "description": "「{{name}}」は完全に削除されます。元に戻すことはできません。",
+            "confirm": "削除",
+            "bulkTitle": "選択したロールを削除しますか？",
+            "bulkDescription": "選択した {{count}} 件のロールが完全に削除されます。元に戻すことはできません。",
+            "bulkConfirm": "ロールを削除"
+        },
+        "toast": {
+            "createSuccess": "ロールを作成しました。",
+            "createError": "ロールを作成できませんでした。",
+            "updateSuccess": "ロールを更新しました。",
+            "updateError": "ロールを更新できませんでした。",
+            "deleteSuccess": "ロールを削除しました。",
+            "deleteError": "ロールを削除できませんでした。",
+            "bulkDeleteSuccess": "選択したロールを削除しました。",
+            "bulkDeleteError": "選択したロールを削除できませんでした。"
+        },
+        "errors": {
+            "notAvailable": "ロール管理はまだ利用できません。バックエンドのエンドポイントを実装する必要があります。"
+        },
+        "new": "新規",
+        "typeFilter": {
+            "all": "すべて",
+            "system": "システム",
+            "custom": "カスタム"
+        },
+        "search": {
+            "placeholder": "ロールを検索...",
+            "filters": "フィルター",
+            "type": "種類",
+            "sortBy": "並び替え",
+            "sortName": "名前",
+            "sortUsers": "ユーザー",
+            "sortCreated": "作成日",
+            "asc": "昇順",
+            "desc": "降順",
+            "clear": "クリア",
+            "active": "有効なフィルター"
+        },
+        "list": {
+            "featureOne": "1 機能",
+            "featureMany": "{{count}} 機能",
+            "noPermissions": "権限なし",
+            "totalUsers": "合計ユーザー: {{count}}",
+            "openRow": "{{name}} を開く",
+            "selected": "{{count}} 件選択中",
+            "actions": "アクション",
+            "deleteSelected": "選択項目を削除",
+            "clearSelection": "選択を解除",
+            "quotaTooltip": "ロール上限に達しました ({{display}})。プランをアップグレードしてロールを追加してください。",
+            "selectAll": "このページのすべてのロールを選択",
+            "selectRow": "{{name}} を選択",
+            "emptyTitle": "ロールはまだありません",
+            "emptySub": "スタッフがアクセスできる内容を制御するロールを作成します。",
+            "noResultsTitle": "フィルターに一致するロールがありません",
+            "noResultsSub": "別の検索を試すか、フィルターをクリアしてください。",
+            "loadError": "ロールを読み込めませんでした。",
+            "retry": "再試行"
+        },
+        "formPage": {
+            "breadcrumbRoot": "ロール",
+            "newBreadcrumb": "新しいロール",
+            "save": "保存",
+            "discard": "破棄",
+            "dirty": "未保存の変更",
+            "actions": "アクション",
+            "new": "新規",
+            "duplicate": "複製",
+            "delete": "削除",
+            "back": "ロール一覧に戻る",
+            "createdOn": "作成日",
+            "users": "ユーザー",
+            "system": "システム",
+            "systemRole": "システムロール",
+            "customRole": "カスタムロール",
+            "record": "{{index}} / {{total}}",
+            "previous": "前のロール",
+            "next": "次のロール",
+            "notFoundTitle": "ロールが見つかりません",
+            "notFoundSub": "このロールは削除されたか、アクセス権がない可能性があります。",
+            "readOnlyBanner": "このロールを編集する権限がありません。",
+            "usersUnavailable": "ユーザーの割り当てはまだ利用できません。バックエンドのエンドポイントがまだ実装されていません。",
+            "usersCount": "現在 {{count}} 人のユーザーが割り当てられています",
+            "copySuffix": "コピー",
+            "tabs": {
+                "permissions": "権限",
+                "users": "ユーザー"
+            },
+            "unsavedTitle": "未保存の変更を破棄しますか？",
+            "unsavedDescription": "このロールへの変更は保存されていません。",
+            "unsavedDiscard": "変更を破棄",
+            "unsavedStay": "編集を続ける"
+        },
+        "matrix": {
+            "search": "機能を検索...",
+            "counter": "{{enabled}} / {{total}} 件の権限が有効",
+            "selectAll": "すべて選択",
+            "clearAll": "すべてクリア",
+            "feature": "機能",
+            "all": "すべて",
+            "read": "閲覧",
+            "add": "追加",
+            "edit": "編集",
+            "delete": "削除",
+            "selectRow": "{{feature}} のすべてのアクションを選択",
+            "selectColumn": "すべての機能で {{action}} を選択",
+            "noFeatures": "プランで利用できる機能がありません。",
+            "unavailable": "機能の権限を読み込めませんでした。後でもう一度お試しください。",
+            "noResults": "検索に一致する機能がありません。",
+            "disabledHint": "これらの権限を変更する権限がありません。"
+        },
+        "create": {
+            "limitReached": "プランのロール上限に達しました。",
+            "duplicateName": "この名前のロールはすでに存在します。",
+            "invalidPermissions": "選択した権限が無効です。",
+            "tenantNotFound": "レストランが見つかりません。",
+            "planNotFound": "プランが見つかりませんでした。"
+        }
+    }
 }

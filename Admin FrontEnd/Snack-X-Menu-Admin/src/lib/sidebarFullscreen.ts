@@ -1,12 +1,19 @@
 export const FULLSCREEN_BOARD_ROUTE = "/orders";
-export const FULL_WIDTH_CONTENT_ROUTES = [FULLSCREEN_BOARD_ROUTE, "/orders/history"] as const;
+export const FULL_WIDTH_CONTENT_ROUTES = [
+  FULLSCREEN_BOARD_ROUTE,
+  "/orders/history",
+  "/roles",
+] as const;
 
 export function isFullscreenBoardRoute(path: string): boolean {
   return path === FULLSCREEN_BOARD_ROUTE;
 }
 
 export function isFullWidthContentRoute(path: string): boolean {
-  return (FULL_WIDTH_CONTENT_ROUTES as readonly string[]).includes(path);
+  return (
+    (FULL_WIDTH_CONTENT_ROUTES as readonly string[]).includes(path) ||
+    path.startsWith("/roles/")
+  );
 }
 
 export interface SidebarNavState {

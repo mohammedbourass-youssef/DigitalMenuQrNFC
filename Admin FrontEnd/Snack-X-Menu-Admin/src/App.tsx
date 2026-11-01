@@ -35,6 +35,8 @@ import PaymentStatusPage from '@/pages/PaymentsStatus';
 import SettingsPage from '@/pages/Settings';
 import SystemPreferencesPage from '@/pages/settings/system-preferences/SystemPreferences';
 import RestaurantInformationPage from '@/pages/settings/restaurant-information/RestaurantInformation';
+import RoleFormPage from '@/pages/hr/RoleForm';
+import RolesPage from '@/pages/hr/Roles';
 import UserInformationPage from '@/pages/settings/user-information/UserInformation';
 import UpgradePage from '@/pages/settings/upgrade/UpgradePage';
 import TablesPage from '@/pages/Tables';
@@ -171,9 +173,15 @@ function ProtectedLayout() {
                   <Route path="user-information" element={<UserInformationPage />} />
                   <Route path="upgrade" element={<UpgradePage />} />
                 </Route>
-                {HR_PAGE_CONFIG.map(({ path, component: HrPage }) => (
-                  <Route key={path} path={path} element={<HrPage />} />
-                ))}
+                <Route path="/roles" element={<RolesPage />} />
+                <Route path="/roles/new" element={<RoleFormPage />} />
+                <Route path="/roles/:roleId" element={<RoleFormPage />} />
+                <Route path="/hr/roles" element={<Navigate to="/roles" replace />} />
+                {HR_PAGE_CONFIG.filter(({ path }) => path !== '/roles').map(
+                  ({ path, component: HrPage }) => (
+                    <Route key={path} path={path} element={<HrPage />} />
+                  )
+                )}
                 <Route path="/forbidden" element={<ForbiddenPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

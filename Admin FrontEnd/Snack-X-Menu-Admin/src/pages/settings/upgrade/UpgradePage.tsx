@@ -87,6 +87,7 @@ function CurrentPlanCard({ plan }: { plan: TenantPlanInformations }) {
           <UsageRow label={t("settings.upgrade.categories")} value={plan.usedCategoriesFromTotal} />
           <UsageRow label={t("settings.upgrade.menuItems")} value={plan.usedMenuItemsFromTotal} />
           <UsageRow label={t("settings.upgrade.tables")} value={plan.usedTablesFromTotal} />
+          <UsageRow label={t("settings.upgrade.roles")} value={plan.usedRolesFromTotal} />
           <UsageRow label={t("settings.upgrade.languages")} value={plan.usedLanguagesTotal} />
           <PlanInfo
             label={t("settings.upgrade.maxImages")}

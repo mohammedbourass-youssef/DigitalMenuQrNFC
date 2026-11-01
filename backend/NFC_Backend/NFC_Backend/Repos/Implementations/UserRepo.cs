@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
 using NFC_Backend.Exceptions;
@@ -34,10 +35,14 @@ namespace NFC_Backend.Repos.Implementations
                 UpdatedAt = null,
                 IsRevoked = false,
                 RefreshTokenRevockedAt = null,
-                
             };
 
-             await _dbContext.Users.AddAsync(user);
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.UserRoles.AddAsync(new TenantUserRole
+            {
+                RoleId = RoleIds.TenantAdmin,
+                UserId = user.Id
+            });
             await _dbContext.SaveChangesAsync();
             return user; 
         }

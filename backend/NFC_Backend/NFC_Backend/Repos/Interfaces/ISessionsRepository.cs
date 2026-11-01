@@ -5,7 +5,7 @@ namespace NFC_Backend.Repos.Interfaces
     public interface ISessionsRepository
     {
         // Creates a new session row and persists it. Returns the tracked entity
-        // (CategoryId/CreatedAt/ExpiresAt populated).
+        // (CategoryId/CreatedAtUTC/ExpiresAt populated).
         Task<Session> CreateAsync(
             string tokenHash,
             Guid? tenantId,

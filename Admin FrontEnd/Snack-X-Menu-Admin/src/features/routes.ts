@@ -27,7 +27,7 @@ export const FEATURE_ROUTES: readonly FeatureRouteDefinition[] = [
   { path: '/hr/audit-log', feature: 'AuditLog', action: 'read' },
   { path: '/hr/settings', feature: 'HRGeneralSettings', action: 'read' },
   { path: '/hr/users', feature: 'Users', action: 'read' },
-  { path: '/hr/roles', feature: 'Roles', action: 'read' },
+  { path: '/roles', feature: 'Roles', action: 'read' },
 ];
 
 const ROUTES_BY_LENGTH = [...FEATURE_ROUTES].sort(

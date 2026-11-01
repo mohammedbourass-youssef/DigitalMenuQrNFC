@@ -16,6 +16,8 @@ namespace NFC_Backend.Domain.DTOS
         public string UsedCategoriesFromTotal { get; set; }
         public string UsedMenuItemsFromTotal { get; set; }
         public string UsedTablesFromTotal { get; set; }
+
+        public string UsedRolesFromTotal { get; set; }
         public int MaxImagesPerMenu { get; set; }
         public string UsedLanguagesTotal { get; set; }
         public DateTime? StartAtUTC { get; set; }
@@ -37,7 +39,7 @@ namespace NFC_Backend.Domain.DTOS
         public int MaxTables { get; set; }
         public int MaxImagesPerMenuItem { get; set; }
         public int MaxLanguages { get; set; }
-
+        public int MaxRoles { get; set; }
         public bool IsCurrent { get; set; }
         // Pricing
         public bool IsFree { get; set; }
@@ -75,6 +77,7 @@ namespace NFC_Backend.Domain.DTOS
         public QuotaItemDto MenuItems { get; set; } = new();
         public QuotaItemDto Tables { get; set; } = new();
         public QuotaItemDto Users { get; set; } = new();
+        public QuotaItemDto Roles { get; set; } = new();
         public int MaxImagesPerMenuItem { get; set; }
     }
 

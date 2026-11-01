@@ -42,7 +42,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.WRITE)]
         public async Task<ActionResult<CreateCateogryResponse>> CreateCategory(CreateCateogryRequest request)
         {
@@ -201,7 +201,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpPut("category-languages")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
 
         public async Task<ActionResult> UpdatesCategoryLanguages(UpdateCateogryRequest updateCateogry)
@@ -273,7 +273,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpGet("categories-Admin")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> GetAllForAdmin([FromQuery] CategoryAdminRequest request)
         {
@@ -375,7 +375,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpPatch("{id}/disactive")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> DisactiveCategory(Guid id)
         {
@@ -444,7 +444,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpPatch("{id}/active")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> ActiveCategory(Guid id)
         {
@@ -529,7 +529,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpGet("{id}/info-Admin")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.READ)]
         public async Task<ActionResult> GetCategoryInfoOfAdmin(Guid id)
         {
@@ -600,7 +600,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpPatch("display")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Categories, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateCategoryDisplay(UpdateCategoryDisplayRequest request)
         {

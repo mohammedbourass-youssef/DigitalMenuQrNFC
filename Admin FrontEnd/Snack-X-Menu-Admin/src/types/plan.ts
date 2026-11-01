@@ -11,6 +11,7 @@ export interface TenantPlanInformations {
   usedCategoriesFromTotal: string;
   usedMenuItemsFromTotal: string;
   usedTablesFromTotal: string;
+  usedRolesFromTotal: string;
   maxImagesPerMenu: number;
   usedLanguagesTotal: string;
   startAtUTC: string | null;

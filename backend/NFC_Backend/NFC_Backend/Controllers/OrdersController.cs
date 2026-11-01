@@ -43,7 +43,7 @@ namespace NFC_Backend.Controllers
             _invoiceRepo = iinvoice;
         }
         [HttpPost("NewStatus")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.WRITE)]
         public async Task<ActionResult> CreateStatus(CreateNewStatusRequest request)
         {
@@ -155,7 +155,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpPost("Fast/NewStatus")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.WRITE)]
         public async Task<ActionResult> CreateStatusFast([FromBody]string request)
         {
@@ -295,7 +295,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpPut("Status/{id:int}")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateStatus(int id, UpdateStatusRequest request, CancellationToken ct)
         {
@@ -386,7 +386,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpDelete("Status/{id:int}")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.DELETE)]
         public async Task<ActionResult> DeleteStatus(int id, CancellationToken ct)
         {
@@ -432,7 +432,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpGet("Status/{id:int}/Translations")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
         public async Task<ActionResult<StatusTranslationsDto>> GetStatusTranslations(int id, CancellationToken ct)
         {
@@ -470,7 +470,7 @@ namespace NFC_Backend.Controllers
             }
         }
         [HttpPut("Status/{id:int}/Translations")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> UpdateStatusTranslations(
         int id, UpdateStatusTranslationsRequest request, CancellationToken ct)
@@ -541,7 +541,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpGet("current-orders")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
         public async Task<ActionResult<IEnumerable<OrderStatusColumnDto>>> GetCurrentOrders(
        CancellationToken ct)
@@ -576,7 +576,7 @@ namespace NFC_Backend.Controllers
 
 
         [HttpPatch("{id:guid}/move-to/{statusId:int}")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.UPDATE)]
         public async Task<ActionResult> ChangeStatus(Guid id, int statusId, CancellationToken ct)
         {
@@ -617,7 +617,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpPost("Pay")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         public async Task<ActionResult> Pay([FromBody]PayOrder pay, CancellationToken ct)
         {
             try
@@ -699,7 +699,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpGet("{orderId:guid}/Payment")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         public async Task<ActionResult<PaymentReceiptDto>> GetPaymentReceipt(Guid orderId, CancellationToken ct)
         {
             try
@@ -751,7 +751,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpGet("order-history")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Orders, EnPermissionActions.READ)]
         public async Task<ActionResult<PagedResult<AdminOrdersHistoryDTO>>> GetOrderHistoryAsync( [FromQuery] AdminHistoryFilters historyFilters)
         {

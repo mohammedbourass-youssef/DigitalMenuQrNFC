@@ -17,6 +17,10 @@ const ACTION_PERMISSION_KEYS = {
   delete: 'canDelete',
 } as const satisfies Record<FeatureAction, keyof UserPermission>;
 
+// These features are not gated by the plan's feature list. Their usage is
+// limited by the plan quota (Max* / Used*FromTotal) instead of a Pro flag.
+const QUOTA_CONTROLLED_FEATURES: ReadonlySet<FeatureCode> = new Set(['Roles']);
+
 interface PermissionsContextValue {
   isLoading: boolean;
   can: (feature: FeatureCode, action: FeatureAction) => boolean;
@@ -41,22 +45,25 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
     return permissions;
   }, [user]);
 
+  const isFeatureInPlan = useCallback(
+    (feature: FeatureCode) =>
+      QUOTA_CONTROLLED_FEATURES.has(feature) ||
+      featurePermissions.get(feature)?.inPlan === true,
+    [featurePermissions]
+  );
+
   const can = useCallback(
     (feature: FeatureCode, action: FeatureAction) => {
       const permission = featurePermissions.get(feature);
-      return Boolean(permission?.inPlan && permission[ACTION_PERMISSION_KEYS[action]]);
+      const inPlan = QUOTA_CONTROLLED_FEATURES.has(feature) || permission?.inPlan === true;
+      return Boolean(inPlan && permission?.[ACTION_PERMISSION_KEYS[action]]);
     },
     [featurePermissions]
   );
 
-  const isFeatureInPlan = useCallback(
-    (feature: FeatureCode) => featurePermissions.get(feature)?.inPlan === true,
-    [featurePermissions]
-  );
-
   const isFeatureLocked = useCallback(
-    (feature: FeatureCode) => featurePermissions.get(feature)?.inPlan !== true,
-    [featurePermissions]
+    (feature: FeatureCode) => !isFeatureInPlan(feature),
+    [isFeatureInPlan]
   );
 
   const value = useMemo<PermissionsContextValue>(

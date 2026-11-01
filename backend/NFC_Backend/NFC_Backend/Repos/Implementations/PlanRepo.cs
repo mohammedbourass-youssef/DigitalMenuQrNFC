@@ -47,6 +47,7 @@ namespace NFC_Backend.Repos.Implementations
                     t.Plan.IsFree,
                     t.Plan.MaxCategories,
                     t.Plan.MaxMenuItems,
+                    t.Plan.MaxRoles,
                     t.Plan.MaxTables,
                     t.Plan.MaxUsers,
                     t.Plan.MaxLanguages,
@@ -57,6 +58,7 @@ namespace NFC_Backend.Repos.Implementations
                     MenuItems = _db.MenuItems.Count(m => m.TenantId == t.Id),
                     Tables = _db.Tables.Count(x => x.TenantId == t.Id),
                     Users = _db.Users.Count(u => u.TenantId == t.Id),
+                    Roles = _db.Roles.Count(r=>r.TenantId == t.Id)
                 })
                 .FirstOrDefaultAsync(ct);
 
@@ -73,7 +75,7 @@ namespace NFC_Backend.Repos.Implementations
                 BillingCycle = raw.BillingCycle,
                 StartAtUTC = raw.PlanStartedAt,
                 ExpiresATutc = raw.SubscriptionEndsAt,
-
+                UsedRolesFromTotal = FormatUsage(raw.Roles , raw.MaxRoles),
                 UsedCategoriesFromTotal = FormatUsage(raw.Categories, raw.MaxCategories),
                 UsedMenuItemsFromTotal = FormatUsage(raw.MenuItems, raw.MaxMenuItems),
                 UsedTablesFromTotal = FormatUsage(raw.Tables, raw.MaxTables),
@@ -135,7 +137,6 @@ namespace NFC_Backend.Repos.Implementations
                     Name = p.Name,
                     Description = p.Description,
                     IsFree = p.IsFree,
-                   
                     Price = Math.Round(basePrice * rate, 2),           
                     YearlySavingsPercent = savings,
                     DisplayOrder = p.DisplayOrder,
@@ -144,6 +145,7 @@ namespace NFC_Backend.Repos.Implementations
                     MaxUsers = p.MaxUsers,
                     MaxCategories = p.MaxCategories,
                     MaxMenuItems = p.MaxMenuItems,
+                    MaxRoles = p.MaxRoles,
                     MaxTables = p.MaxTables,
                     MaxImagesPerMenuItem = p.MaxImagesPerMenuItem,
                     MaxLanguages = p.MaxLanguages
@@ -205,10 +207,12 @@ namespace NFC_Backend.Repos.Implementations
                     p.MaxTables,
                     p.MaxUsers,
                     p.MaxImagesPerMenuItem,
+                    p.MaxRoles,
                     Categories = _db.Categories.Count(c => c.TenantId == tenantId),
                     MenuItems = _db.MenuItems.Count(m => m.TenantId == tenantId),
                     Tables = _db.Tables.Count(t => t.TenantId == tenantId),
                     Users = _db.Users.Count(u => u.TenantId == tenantId),
+                    Roles = _db.Roles.Count(u => u.TenantId == tenantId),
                 })
                 .FirstOrDefaultAsync(ct);                       // <-- ct was missing
 
@@ -222,6 +226,11 @@ namespace NFC_Backend.Repos.Implementations
                 MenuItems = new() { Used = raw.MenuItems, Max = raw.MaxMenuItems },
                 Tables = new() { Used = raw.Tables, Max = raw.MaxTables },
                 Users = new() { Used = raw.Users, Max = raw.MaxUsers },
+                Roles = new()
+                {
+                    Used = raw.Roles,
+                    Max = raw.MaxRoles == Plan.Unlimited ? null : raw.MaxRoles
+                },
                 MaxImagesPerMenuItem = raw.MaxImagesPerMenuItem,
             };
         }

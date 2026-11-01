@@ -39,7 +39,7 @@ export interface HrPageDefinition {
 export const HR_PAGE_CONFIG: HrPageDefinition[] = [
   { path: '/hr/employees', title: 'Employees', labelKey: 'sidebar.hrEmployees', icon: Users, component: EmployeesPage },
   { path: '/hr/users', title: 'Users', labelKey: 'sidebar.hrUsers', icon: UserRoundCog, component: UsersPage },
-  { path: '/hr/roles', title: 'Roles', labelKey: 'sidebar.hrRoles', icon: ShieldCheck, component: RolesPage },
+  { path: '/roles', title: 'Roles', labelKey: 'sidebar.hrRoles', icon: ShieldCheck, component: RolesPage },
   { path: '/hr/my-permissions', title: 'Discover My Permissions', labelKey: 'sidebar.hrMyPermissions', icon: KeyRound, component: DiscoverMyPermissionsPage },
   { path: '/hr/departments', title: 'Departments', labelKey: 'sidebar.hrDepartments', icon: Building2, component: DepartmentsPage },
   { path: '/hr/job-titles', title: 'Job Titles', labelKey: 'sidebar.hrJobTitles', icon: BriefcaseBusiness, component: JobTitlesPage },
@@ -60,6 +60,6 @@ export const HR_SETTINGS_GROUP = {
     labelKey,
     defaultLabel: title,
     icon,
-    end: true,
+    end: path !== '/roles',
   })),
 };

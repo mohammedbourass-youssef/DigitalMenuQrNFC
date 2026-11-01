@@ -69,5 +69,202 @@
         },
         "generateReceipt": "Generate Receipt"
     },
-    "sidebar": {}
+    "settings": {
+        "upgrade": {
+            "roles": "Ruoli",
+            "features": {
+                "roles": "{{count}} ruoli"
+            }
+        }
+    },
+    "sidebar": {
+        "hrRoles": "Ruoli"
+    },
+    "roles": {
+        "title": "Ruoli",
+        "subtitle": "Gestisci i ruoli del personale e le funzioni a cui possono accedere.",
+        "add": "Nuovo ruolo",
+        "refresh": "Aggiorna",
+        "searchPlaceholder": "Cerca ruoli...",
+        "totalCount": "{{count}} ruoli",
+        "loadError": "Impossibile caricare i ruoli.",
+        "retry": "Riprova",
+        "empty_title": "Nessun ruolo",
+        "empty_sub": "Crea un ruolo per controllare a cosa può accedere il tuo personale.",
+        "noResults_title": "Nessun ruolo corrisponde alla ricerca",
+        "noResults_sub": "Prova un altro nome o cancella la ricerca.",
+        "system": "Sistema",
+        "selectAll": "Seleziona tutti i ruoli personalizzati in questa pagina",
+        "selectRow": "Seleziona {{name}}",
+        "view": "Visualizza",
+        "usage": "Utilizzo",
+        "limitTooltip": "Limite di ruoli raggiunto ({{display}}). Aggiorna il piano per aggiungere altri ruoli.",
+        "selectedCount": "{{count}} selezionati",
+        "clearSelection": "Cancella selezione",
+        "bulkDelete": "Elimina selezionati",
+        "permissionsSummaryLabel": "Lettura: {{read}}, creazione: {{add}}, modifica: {{edit}}, eliminazione: {{delete}}",
+        "columns": {
+            "name": "Ruolo",
+            "description": "Descrizione",
+            "users": "Utenti",
+            "permissions": "Permessi",
+            "createdAt": "Creato",
+            "actions": "Azioni"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "page": "Pagina {{page}} di {{pages}}",
+            "pageSize": "Righe per pagina",
+            "previous": "Pagina precedente",
+            "next": "Pagina successiva"
+        },
+        "form": {
+            "title": "Nuovo ruolo",
+            "editTitle": "Modifica ruolo",
+            "viewTitle": "Dettagli ruolo",
+            "description": "Crea un ruolo e scegli a cosa può accedere.",
+            "editDescription": "Aggiorna i dettagli e i permessi di questo ruolo.",
+            "viewDescription": "Esamina i dettagli e i permessi di questo ruolo.",
+            "nameLabel": "Nome ruolo",
+            "namePlaceholder": "es. Responsabile turno",
+            "nameRequired": "Il nome del ruolo è obbligatorio.",
+            "nameTooLong": "Il nome del ruolo deve contenere al massimo 100 caratteri.",
+            "descriptionLabel": "Descrizione",
+            "descriptionPlaceholder": "A cosa serve questo ruolo? (facoltativo)",
+            "descriptionTooLong": "La descrizione deve contenere al massimo 500 caratteri.",
+            "permissionsLabel": "Permessi",
+            "permissionsHint": "Scegli le azioni che questo ruolo può eseguire per ogni funzione.",
+            "selectAll": "Tutti",
+            "selectRow": "Seleziona tutte le azioni per {{feature}}",
+            "selectColumn": "Seleziona {{action}} per tutte le funzioni",
+            "noFeatures": "Nessuna funzione disponibile nel tuo piano.",
+            "permissionsUnavailable": "Impossibile caricare i permessi delle funzioni. Riprova più tardi.",
+            "read": "Lettura",
+            "add": "Creazione",
+            "edit": "Modifica",
+            "delete": "Eliminazione",
+            "createButton": "Crea ruolo",
+            "updateButton": "Salva modifiche",
+            "systemNote": "I ruoli di sistema sono gestiti dal sistema e non possono essere modificati."
+        },
+        "delete": {
+            "title": "Eliminare questo ruolo?",
+            "description": "\"{{name}}\" verrà rimosso definitivamente. L'operazione non può essere annullata.",
+            "confirm": "Elimina",
+            "bulkTitle": "Eliminare i ruoli selezionati?",
+            "bulkDescription": "{{count}} ruoli selezionati verranno rimossi definitivamente. L'operazione non può essere annullata.",
+            "bulkConfirm": "Elimina ruoli"
+        },
+        "toast": {
+            "createSuccess": "Ruolo creato con successo.",
+            "createError": "Impossibile creare il ruolo.",
+            "updateSuccess": "Ruolo aggiornato con successo.",
+            "updateError": "Impossibile aggiornare il ruolo.",
+            "deleteSuccess": "Ruolo eliminato con successo.",
+            "deleteError": "Impossibile eliminare il ruolo.",
+            "bulkDeleteSuccess": "Ruoli selezionati eliminati.",
+            "bulkDeleteError": "Impossibile eliminare i ruoli selezionati."
+        },
+        "errors": {
+            "notAvailable": "La gestione dei ruoli non è ancora disponibile. Gli endpoint backend devono ancora essere implementati."
+        },
+        "new": "Nuovo",
+        "typeFilter": {
+            "all": "Tutti",
+            "system": "Sistema",
+            "custom": "Personalizzato"
+        },
+        "search": {
+            "placeholder": "Cerca ruoli...",
+            "filters": "Filtri",
+            "type": "Tipo",
+            "sortBy": "Ordina per",
+            "sortName": "Nome",
+            "sortUsers": "Utenti",
+            "sortCreated": "Creato il",
+            "asc": "Crescente",
+            "desc": "Decrescente",
+            "clear": "Cancella",
+            "active": "Filtri attivi"
+        },
+        "list": {
+            "featureOne": "1 funzionalità",
+            "featureMany": "{{count}} funzionalità",
+            "noPermissions": "Nessun permesso",
+            "totalUsers": "Utenti totali: {{count}}",
+            "openRow": "Apri {{name}}",
+            "selected": "{{count}} selezionati",
+            "actions": "Azioni",
+            "deleteSelected": "Elimina selezionati",
+            "clearSelection": "Cancella selezione",
+            "quotaTooltip": "Limite di ruoli raggiunto ({{display}}). Aggiorna il piano per aggiungere altri ruoli.",
+            "selectAll": "Seleziona tutti i ruoli in questa pagina",
+            "selectRow": "Seleziona {{name}}",
+            "emptyTitle": "Nessun ruolo ancora",
+            "emptySub": "Crea un ruolo per controllare a cosa può accedere il tuo staff.",
+            "noResultsTitle": "Nessun ruolo corrisponde ai filtri",
+            "noResultsSub": "Prova una ricerca diversa o cancella i filtri.",
+            "loadError": "Impossibile caricare i ruoli.",
+            "retry": "Riprova"
+        },
+        "formPage": {
+            "breadcrumbRoot": "Ruoli",
+            "newBreadcrumb": "Nuovo ruolo",
+            "save": "Salva",
+            "discard": "Scarta",
+            "dirty": "Modifiche non salvate",
+            "actions": "Azioni",
+            "new": "Nuovo",
+            "duplicate": "Duplica",
+            "delete": "Elimina",
+            "back": "Torna ai ruoli",
+            "createdOn": "Creato il",
+            "users": "Utenti",
+            "system": "Sistema",
+            "systemRole": "Ruolo di sistema",
+            "customRole": "Ruolo personalizzato",
+            "record": "{{index}} / {{total}}",
+            "previous": "Ruolo precedente",
+            "next": "Ruolo successivo",
+            "notFoundTitle": "Ruolo non trovato",
+            "notFoundSub": "Questo ruolo potrebbe essere stato eliminato o potresti non avere accesso.",
+            "readOnlyBanner": "Non hai il permesso di modificare questo ruolo.",
+            "usersUnavailable": "L'assegnazione degli utenti non è ancora disponibile. L'endpoint backend deve ancora essere implementato.",
+            "usersCount": "{{count}} utenti attualmente assegnati",
+            "copySuffix": "copia",
+            "tabs": {
+                "permissions": "Permessi",
+                "users": "Utenti"
+            },
+            "unsavedTitle": "Scartare le modifiche non salvate?",
+            "unsavedDescription": "Le modifiche a questo ruolo non sono state salvate.",
+            "unsavedDiscard": "Scarta modifiche",
+            "unsavedStay": "Continua a modificare"
+        },
+        "matrix": {
+            "search": "Cerca funzionalità...",
+            "counter": "{{enabled}} / {{total}} permessi attivati",
+            "selectAll": "Seleziona tutto",
+            "clearAll": "Cancella tutto",
+            "feature": "Funzionalità",
+            "all": "Tutto",
+            "read": "Lettura",
+            "add": "Aggiunta",
+            "edit": "Modifica",
+            "delete": "Eliminazione",
+            "selectRow": "Seleziona tutte le azioni per {{feature}}",
+            "selectColumn": "Seleziona {{action}} per tutte le funzionalità",
+            "noFeatures": "Nessuna funzionalità disponibile nel tuo piano.",
+            "unavailable": "Impossibile caricare i permessi delle funzionalità. Riprova più tardi.",
+            "noResults": "Nessuna funzionalità corrisponde alla ricerca.",
+            "disabledHint": "Non hai il permesso di modificare questi permessi."
+        },
+        "create": {
+            "limitReached": "Limite dei ruoli raggiunto per il tuo piano.",
+            "duplicateName": "Esiste già un ruolo con questo nome.",
+            "invalidPermissions": "Le autorizzazioni selezionate non sono valide.",
+            "tenantNotFound": "Ristorante non trovato.",
+            "planNotFound": "Impossibile trovare il tuo piano."
+        }
+    }
 }

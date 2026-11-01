@@ -723,6 +723,7 @@ namespace NFC_Backend.Infrastructure.Data
                         MaxCategories = 5,
                         MaxMenuItems = 20,
                         MaxTables = 5,
+                        MaxRoles = 1,
                         MaxImagesPerMenuItem = 1,
                         MaxLanguages = 2,
                         DisplayOrder = 1,
@@ -748,6 +749,7 @@ namespace NFC_Backend.Infrastructure.Data
                         MaxImagesPerMenuItem = 3,
                         MaxLanguages = 5,
                         DisplayOrder = 2,
+                        MaxRoles = 3 ,
                         IsActive = true,
                         CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
                     },
@@ -769,6 +771,7 @@ namespace NFC_Backend.Infrastructure.Data
                         MaxTables = Plan.Unlimited,
                         MaxImagesPerMenuItem = 6,
                         MaxLanguages = 9,
+                        MaxRoles = 9,
                         DisplayOrder = 3,
                         IsActive = true,
                         CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)
@@ -932,8 +935,8 @@ namespace NFC_Backend.Infrastructure.Data
             var proPlans = new[] { 2, 3 };
             var professionalPlan = new[] { 3 };
 
-            AddFor(allPlans, FeatureIds.Menu, FeatureIds.Categories, FeatureIds.Tables, FeatureIds.Orders, FeatureIds.Users);
-            AddFor(proPlans, FeatureIds.Invoices, FeatureIds.Roles, FeatureIds.AiAgent);
+            AddFor(allPlans, FeatureIds.Menu, FeatureIds.Categories, FeatureIds.Tables, FeatureIds.Orders, FeatureIds.Users , FeatureIds.Roles);
+            AddFor(proPlans, FeatureIds.Invoices,FeatureIds.AiAgent);
             AddFor(professionalPlan, FeatureIds.DataAnalyst, FeatureIds.Chatbot);
 
             AddFor(allPlans, FeatureIds.Notifications, FeatureIds.Settings, FeatureIds.Subscription, FeatureIds.Employees, FeatureIds.Departments, FeatureIds.JobTitles);
@@ -948,6 +951,7 @@ namespace NFC_Backend.Infrastructure.Data
                 Id = RoleIds.TenantAdmin,
                 TenantId = null,                       // null = platform role / template
                 Name = "TenantAdmin",
+                Description = "All Permissions",
                 IsSystem = true,                       // tenants cannot edit or delete it
                 CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc)   // fixed, not UtcNow
             });

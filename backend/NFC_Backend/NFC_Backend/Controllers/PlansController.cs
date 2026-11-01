@@ -32,7 +32,7 @@ namespace NFC_Backend.Controllers
         }
 
         [HttpGet("PlanInformations")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Subscription, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(TenantPlanInformations), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -68,7 +68,7 @@ namespace NFC_Backend.Controllers
 
 
         [HttpGet("AllPlans")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Subscription, EnPermissionActions.READ)]
         [ProducesResponseType(typeof(List<PlanPricingDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -121,7 +121,7 @@ namespace NFC_Backend.Controllers
 
 
         [HttpGet("Quota")]
-        [Authorize(Roles = nameof(UserRole.TenantOwner))]
+                [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         [HasPermission(FeatureCodes.Subscription, EnPermissionActions.READ)]
         public async Task<ActionResult<PlanQuotaDTo>> GetPlanQuota(CancellationToken ct)
         {

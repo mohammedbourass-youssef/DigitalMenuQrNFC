@@ -17,4 +17,5 @@ export interface PlanPricing {
   maxTables: number;
   maxImagesPerMenuItem: number;
   maxLanguages: number;
+  maxRoles: number;
 }

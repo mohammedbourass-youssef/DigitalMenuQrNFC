@@ -27,6 +27,7 @@ namespace NFC_Backend.Extensions
             services.AddScoped<IPlanRepo, PlanRepo>();
             services.AddScoped<IFeatureRepo, FeatureRepo>();
             services.AddScoped<IPermissionRepo, PermissionRepo>();
+            services.AddScoped<IRoleRepo, RoleRepo>();
             //Services
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IFileStorageService, MinioFileStorageService>();

@@ -13,6 +13,7 @@ export function PlanFeatureList({ plan }: { plan: PlanPricing }) {
     ["tables", plan.maxTables],
     ["imagesPerMenuItem", plan.maxImagesPerMenuItem],
     ["languages", plan.maxLanguages],
+    ["roles", plan.maxRoles],
   ];
 
   return (

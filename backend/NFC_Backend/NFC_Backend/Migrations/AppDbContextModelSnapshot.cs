@@ -1791,6 +1791,9 @@ namespace NFC_Backend.Migrations
                     b.Property<int>("MaxMenuItems")
                         .HasColumnType("integer");
 
+                    b.Property<int>("MaxRoles")
+                        .HasColumnType("integer");
+
                     b.Property<int>("MaxTables")
                         .HasColumnType("integer");
 
@@ -1837,6 +1840,7 @@ namespace NFC_Backend.Migrations
                             MaxImagesPerMenuItem = 1,
                             MaxLanguages = 2,
                             MaxMenuItems = 20,
+                            MaxRoles = 1,
                             MaxTables = 5,
                             MaxUsers = 2,
                             Name = "Free",
@@ -1859,6 +1863,7 @@ namespace NFC_Backend.Migrations
                             MaxImagesPerMenuItem = 3,
                             MaxLanguages = 5,
                             MaxMenuItems = 150,
+                            MaxRoles = 3,
                             MaxTables = 30,
                             MaxUsers = 5,
                             Name = "Pro",
@@ -1881,6 +1886,7 @@ namespace NFC_Backend.Migrations
                             MaxImagesPerMenuItem = 6,
                             MaxLanguages = 9,
                             MaxMenuItems = -1,
+                            MaxRoles = 9,
                             MaxTables = -1,
                             MaxUsers = 15,
                             Name = "Professional",
@@ -1931,6 +1937,11 @@ namespace NFC_Backend.Migrations
                         },
                         new
                         {
+                            PlanId = 1,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000007")
+                        },
+                        new
+                        {
                             PlanId = 2,
                             FeatureId = new Guid("a1000000-0000-0000-0000-000000000001")
                         },
@@ -1953,41 +1964,46 @@ namespace NFC_Backend.Migrations
                         {
                             PlanId = 2,
                             FeatureId = new Guid("a1000000-0000-0000-0000-000000000006")
-                        },
-                        new
-                        {
-                            PlanId = 3,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000001")
-                        },
-                        new
-                        {
-                            PlanId = 3,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000002")
-                        },
-                        new
-                        {
-                            PlanId = 3,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000003")
-                        },
-                        new
-                        {
-                            PlanId = 3,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000004")
-                        },
-                        new
-                        {
-                            PlanId = 3,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000006")
-                        },
-                        new
-                        {
-                            PlanId = 2,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000005")
                         },
                         new
                         {
                             PlanId = 2,
                             FeatureId = new Guid("a1000000-0000-0000-0000-000000000007")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000001")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000002")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000003")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000004")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000006")
+                        },
+                        new
+                        {
+                            PlanId = 3,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000007")
+                        },
+                        new
+                        {
+                            PlanId = 2,
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000005")
                         },
                         new
                         {
@@ -1998,11 +2014,6 @@ namespace NFC_Backend.Migrations
                         {
                             PlanId = 3,
                             FeatureId = new Guid("a1000000-0000-0000-0000-000000000005")
-                        },
-                        new
-                        {
-                            PlanId = 3,
-                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000007")
                         },
                         new
                         {
@@ -2192,6 +2203,10 @@ namespace NFC_Backend.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("NOW()");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<bool>("IsSystem")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -2226,6 +2241,7 @@ namespace NFC_Backend.Migrations
                         {
                             Id = new Guid("11111111-1111-1111-1111-111111111111"),
                             CreatedAt = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "All Permissions",
                             IsSystem = true,
                             Name = "TenantAdmin"
                         });
@@ -2306,6 +2322,15 @@ namespace NFC_Backend.Migrations
                         {
                             RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
                             FeatureId = new Guid("a1000000-0000-0000-0000-000000000006"),
+                            CanAdd = true,
+                            CanDelete = true,
+                            CanEdit = true,
+                            CanRead = true
+                        },
+                        new
+                        {
+                            RoleId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            FeatureId = new Guid("a1000000-0000-0000-0000-000000000007"),
                             CanAdd = true,
                             CanDelete = true,
                             CanEdit = true,

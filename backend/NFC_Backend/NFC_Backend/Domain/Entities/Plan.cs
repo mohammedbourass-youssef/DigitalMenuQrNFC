@@ -54,6 +54,7 @@ namespace NFC_Backend.Domain.Entities
         public int MaxMenuItems { get; set; }
         public int MaxTables { get; set; }
         public int MaxImagesPerMenuItem { get; set; }
+        public int MaxRoles { get; set; }
         public int MaxLanguages { get; set; }
 
         // ── Meta ─────────────────────────────────────────────

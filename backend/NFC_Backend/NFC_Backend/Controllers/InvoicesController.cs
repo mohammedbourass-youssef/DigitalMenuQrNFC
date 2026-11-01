@@ -49,7 +49,7 @@ namespace NFC_Backend.Controllers
         }
 
         //[HttpPost("Pay")]
-        //[Authorize(Roles = nameof(UserRole.TenantOwner))]
+        //        [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
         //public async Task<ActionResult> PayTheOrder(PayInvoiceRequest request , CancellationToken ct)
         //{
         //    var tenantId = User.GetTenantId();

@@ -11,7 +11,7 @@ namespace NFC_Backend.Controllers.Admin
 {
     [Route("api/admin/payment-statuses")]
     [ApiController]
-    [Authorize(Roles = nameof(UserRole.TenantOwner))]
+            [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
 
     public class AdminPaymentStatusesController : ControllerBase
     {

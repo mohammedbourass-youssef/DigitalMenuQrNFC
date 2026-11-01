@@ -12,7 +12,8 @@ export interface PlanQuota {
   menuItems: PlanQuotaLimit;
   tables: PlanQuotaLimit;
   users: PlanQuotaLimit;
+  roles: PlanQuotaLimit;
   maxImagesPerMenuItem: number;
 }
 
-export type PlanQuotaResource = 'categories' | 'menuItems' | 'tables' | 'users';
+export type PlanQuotaResource = 'categories' | 'menuItems' | 'tables' | 'users' | 'roles';

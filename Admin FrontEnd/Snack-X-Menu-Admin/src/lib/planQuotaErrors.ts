@@ -19,6 +19,7 @@ const LIMIT_CODES: Record<PlanQuotaResource, string> = {
   menuItems: 'MENUITEM_LIMIT_REACHED',
   tables: 'TABLE_LIMIT_REACHED',
   users: 'USER_LIMIT_REACHED',
+  roles: 'ROLE_LIMIT_REACHED',
 };
 
 export function getPlanQuotaApiError(error: unknown): PlanQuotaApiErrorBody | undefined {
@@ -32,7 +33,8 @@ export function isPlanQuotaLimitError(error: unknown): boolean {
   return code === LIMIT_CODES.categories
     || code === LIMIT_CODES.menuItems
     || code === LIMIT_CODES.tables
-    || code === LIMIT_CODES.users;
+    || code === LIMIT_CODES.users
+    || code === LIMIT_CODES.roles;
 }
 
 export function handlePlanQuotaLimitError(

@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   isFullscreenBoardRoute,
+  isFullWidthContentRoute,
   transitionSidebarOnNav,
 } from "../src/lib/sidebarFullscreen.ts";
 
@@ -14,6 +15,14 @@ test("isFullscreenBoardRoute matches only the board route", () => {
   assert.equal(isFullscreenBoardRoute("/orders/status-settings"), false);
   assert.equal(isFullscreenBoardRoute("/dashboard"), false);
   assert.equal(isFullscreenBoardRoute("/"), false);
+});
+
+test("roles list and record pages use the full-width content layout", () => {
+  assert.equal(isFullWidthContentRoute("/roles"), true);
+  assert.equal(isFullWidthContentRoute("/roles/new"), true);
+  assert.equal(isFullWidthContentRoute("/roles/abc"), true);
+  assert.equal(isFullWidthContentRoute("/roles-other"), false);
+  assert.equal(isFullWidthContentRoute("/hr/roles"), false);
 });
 
 test("entering the board collapses the sidebar and keeps the previous state in the snapshot", () => {
