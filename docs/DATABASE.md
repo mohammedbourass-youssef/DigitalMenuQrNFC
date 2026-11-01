@@ -70,6 +70,11 @@ conventions are *not* interchangeable in raw SQL.
 | TenantPaymentMethod | `tenant_payment_methods` |
 | Invoice | `invoices` |
 | Notification | `Notifications` ⚠️ |
+| Feature | `features` |
+| Role | `roles` |
+| PlanFeature | `plan_features` (composite PK PlanId + FeatureId) |
+| RolePermission | `role_permissions` (composite PK RoleId + FeatureId) |
+| TenantUserRole | `user_roles` (composite PK UserId + RoleId) |
 
 > ⚠️ When writing raw SQL, quote PascalCase tables/columns: `SELECT * FROM "MenuItems"`.
 
@@ -213,7 +218,43 @@ Populated by the Quartz `ExchangeRateJob`.
 
 ---
 
-## 5. Money & currency
+## 5. Access control (RBAC)
+
+**`features`** — `Feature.cs`
+Platform feature registry. `Id` Guid PK; `Code` (max 50, unique) and `Name` (max 100);
+`Status` stored as string (max 20). Seeded 23 platform features (`AppDbContext.cs`).
+Frontend must keep `FeatureCodes` (`backend/NFC_Backend/NFC_Backend/Domain/Constants/FeatureIds.cs`)
+in sync with this table — the feature-catalog check (`npm run check:features`) enforces it.
+
+**`roles`** — `Role.cs`
+`Id` Guid PK; optional `TenantId` (Cascade → `tenants`; null = platform/system role);
+`Name` (max 100); `Description`; `IsSystem` (default false, protected roles cannot be
+edited/deleted by tenants); `CreatedAt` default `NOW()`. Filtered unique indexes:
+one role name per tenant (`UQ_Role_Name_PerTenant`) and one platform-wide name
+(`UQ_Role_Name_Platform`).
+
+**`role_permissions`** — `RolePermission.cs`
+Composite PK (`RoleId`, `FeatureId`). Boolean flags `CanRead`, `CanAdd`, `CanEdit`,
+`CanDelete` (default false). `RoleId` Cascade → `roles`; `FeatureId` Restrict →
+`features`. The matrix UI sends these four flags per feature; a row is only persisted
+when at least one flag is true.
+
+**`plan_features`** — `PlanFeature.cs`
+Composite PK (`PlanId`, `FeatureId`). Links a `plan` to the `features` it includes.
+Cascade from both sides. Seeded during registration (plan → all platform features).
+
+**`TenantUserRole`** — `user_roles`
+Composite PK (`UserId`, `RoleId`). Assigns a role to a user within a tenant. `UserId`
+Cascade → `users`; `RoleId` Cascade → `roles`. A user's effective permissions are the
+union of all rows for `(UserId, tenant's roles)`. Used by the Users list and role
+editor.
+
+**Seed data** — `AppDbContext.cs`
+Platform role `TenantAdmin` (`RoleIds.TenantAdmin`, `IsSystem = true`) is seeded with
+all permissions for all plan features, so new tenants get a ready-made admin role.
+Custom roles are created per-tenant via `POST api/Roles/Create`.
+
+## 6. Money & currency
 
 - All monetary columns are `decimal(18,2)`; exchange rates `decimal(18,6)`.
 - Prices are stored in the tenant's default currency (`DefaultCurrencyCode`), with
@@ -223,13 +264,39 @@ Populated by the Quartz `ExchangeRateJob`.
 
 ---
 
-## 6. Migrations
+## 7. Migrations
 
-20 migrations to date (earliest `20260911103721_AddTenantTable`, latest
-`20261007142238_ChangestheDefaultsIsSystem`). Wrapped in an out-of-process SQL
+26 migrations to date (earliest `20260911103721_AddTenantTable`, latest
+`20261031201900_Check`). Wrapped in an out-of-process SQL
 Server-style pattern — **they target PostgreSQL**, so `NOW()`/filtered indexes are
 used throughout (the `GETDATE()` comment at `AppDbContext.cs:137` is a red herring
 left over from a template).
+
+| Migration | Summary |
+|---|---|
+| `20260911103721_AddTenantTable` | Base `tenants` + `users` |
+| `20260911142901_modifyTent` | `tenants.BucketName` |
+| `20260911224926_AddIsRevokedToUsers` | `users.IsRevoked`, `RefreshTokenRevockedAt` |
+| `20260912221320_AddCurrencyToTenant` | `Currencies`, `ExchangeRates`, `tenants.CurrencyCode` |
+| `20260914133439_AddVerificationCodes` | `verification_codes` |
+| `20260914224732_AddCategoriesAndTranslations` | `categories`, `category_translations` |
+| `20260918134405_AddMenuItems` | `MenuItems`, `MenuImages`, `MenuItemTranslations` |
+| `20260922001836_AddSessionTable` | `sessions` |
+| `20260926184554_CreateTablesTable` | `tables` (+ `sessions.TableId`) |
+| `20260929114828_AddOrders` | `orders`, `order_items`, statuses/payments (+ translations/history) |
+| `20260929155847_AddTenantToTranslation` | `order_statuses.TenantId` |
+| `20261003231132_AddNotifications` | `Notifications` |
+| `20261005174136_AddPaymentMethods` | payment methods + translations + tenant mapping |
+| `20261005183119_AddInvoices` | `invoices` + `CK_Invoice_Amounts` |
+| `20261007141844_ChangestheDefaults` | payment-status code rename |
+| `20261007142238_ChangestheDefaultsIsSystem` | `payment_statuses.IsSystem` |
+| `20261015192630_AddCurrencyToInvoice` | `invoices.CurrencyCode` |
+| `20261021160742_AddPlans` | `plans`, tenant `PlanId`/`BillingCycle`, `CK_Plan_Prices` |
+| `20261028173502_AddAccessControl` | `features`, `roles`, `plan_features`, `role_permissions`, `user_roles` |
+| `20261030194715_AddPermissionIndexes` | seed TenantAdmin role + role_permissions |
+| `20261031170032_RolesConstraints` | `plans.MaxRoles` + Roles feature/permission |
+| `20261031181003_RolesConstraintsDesc` | (empty / description only) |
+| `20261031201900_Check` | additional constraints |
 
 Common commands (run from `backend/NFC_Backend/NFC_Backend`):
 
@@ -256,7 +323,7 @@ on startup.
 
 ---
 
-## 7. Adding translations
+## 8. Adding translations
 
 Supported languages are centralised in
 `Domain/Constants/TranslationLanguages.cs`:
@@ -272,7 +339,7 @@ Supported languages are centralised in
 
 ---
 
-## 8. Known schema gotchas (summary)
+## 9. Known schema gotchas (summary)
 
 1. Mixed `snake_case` / `PascalCase` table naming — see §2. **Quote in raw SQL.**
 2. No Postgres RLS — tenant isolation is code-only.

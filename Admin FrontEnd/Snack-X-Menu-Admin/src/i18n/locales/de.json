@@ -266,5 +266,80 @@
             "tenantNotFound": "Restaurant nicht gefunden.",
             "planNotFound": "Ihr Tarif konnte nicht gefunden werden."
         }
+    },
+    "users": {
+        "title": "Benutzer",
+        "total": "{{count}} Benutzer",
+        "refresh": "Aktualisieren",
+        "searchPlaceholder": "Nach Name, E-Mail oder Rolle suchen...",
+        "filters": {
+            "status": "Status",
+            "email": "E-Mail"
+        },
+        "statusOptions": {
+            "all": "Alle",
+            "active": "Aktiv",
+            "inactive": "Inaktiv"
+        },
+        "verificationOptions": {
+            "all": "Alle",
+            "verified": "Verifiziert",
+            "unverified": "Nicht verifiziert"
+        },
+        "status": {
+            "active": "Aktiv",
+            "inactive": "Inaktiv"
+        },
+        "verification": {
+            "verified": "Verifiziert",
+            "unverified": "Nicht verifiziert"
+        },
+        "columns": {
+            "user": "Benutzer",
+            "role": "Rolle",
+            "status": "Status",
+            "email": "E-Mail",
+            "lastLogin": "Letzte Anmeldung",
+            "createdAt": "Erstellt"
+        },
+        "systemRoles": {
+            "tenantOwner": "Inhaber",
+            "tenantStaff": "Mitarbeiter",
+            "superAdmin": "Superadmin"
+        },
+        "moreRoles": "+{{count}}",
+        "never": "Nie",
+        "list": {
+            "loadError": "Benutzer konnten nicht geladen werden.",
+            "retry": "Erneut versuchen",
+            "emptyTitle": "Noch keine Benutzer",
+            "emptySub": "Benutzer dieses Restaurants werden hier angezeigt.",
+            "noResultsTitle": "Keine Benutzer entsprechen den Filtern",
+            "noResultsSub": "Versuchen Sie eine andere Suche oder setzen Sie die Filter zurück.",
+            "clearFilters": "Filter löschen"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "previous": "Vorherige Seite",
+            "next": "Nächste Seite",
+            "pageSize": "Zeilen pro Seite"
+        },
+        "subtitle": "{{count}} Benutzer",
+        "addTitle": "Benutzer hinzufügen",
+        "addDescription": "Erstellen Sie ein neues Benutzerkonto für dieses Restaurant.",
+        "add": "Benutzer hinzufügen",
+        "form": {
+            "fullNameLabel": "Vollständiger Name",
+            "emailLabel": "E-Mail",
+            "passwordLabel": "Passwort (optional)",
+            "passwordHint": "Feld leer lassen, um ein temporäres Passwort zu generieren.",
+            "roleLabel": "Rolle",
+            "selectRole": "Rolle auswählen",
+            "createButton": "Benutzer erstellen"
+        },
+        "toast": {
+            "createSuccess": "Benutzer erfolgreich erstellt.",
+            "createError": "Fehler beim Erstellen des Benutzers."
+        }
     }
 }

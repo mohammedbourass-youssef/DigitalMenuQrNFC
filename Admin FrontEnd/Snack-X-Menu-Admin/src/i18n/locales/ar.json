@@ -1130,5 +1130,80 @@
             "tenantNotFound": "المطعم غير موجود.",
             "planNotFound": "تعذر العثور على خطتك."
         }
+    },
+    "users": {
+        "title": "المستخدمون",
+        "total": "{{count}} مستخدم",
+        "refresh": "تحديث",
+        "searchPlaceholder": "ابحث بالاسم أو البريد الإلكتروني أو الدور...",
+        "filters": {
+            "status": "الحالة",
+            "email": "البريد الإلكتروني"
+        },
+        "statusOptions": {
+            "all": "الكل",
+            "active": "نشط",
+            "inactive": "غير نشط"
+        },
+        "verificationOptions": {
+            "all": "الكل",
+            "verified": "موثّق",
+            "unverified": "غير موثّق"
+        },
+        "status": {
+            "active": "نشط",
+            "inactive": "غير نشط"
+        },
+        "verification": {
+            "verified": "موثّق",
+            "unverified": "غير موثّق"
+        },
+        "columns": {
+            "user": "المستخدم",
+            "role": "الدور",
+            "status": "الحالة",
+            "email": "البريد الإلكتروني",
+            "lastLogin": "آخر تسجيل دخول",
+            "createdAt": "تاريخ الإنشاء"
+        },
+        "systemRoles": {
+            "tenantOwner": "المالك",
+            "tenantStaff": "موظف",
+            "superAdmin": "مدير عام"
+        },
+        "moreRoles": "+{{count}}",
+        "never": "أبدًا",
+        "list": {
+            "loadError": "تعذّر تحميل المستخدمين.",
+            "retry": "إعادة المحاولة",
+            "emptyTitle": "لا يوجد مستخدمون بعد",
+            "emptySub": "سيظهر المستخدمون المضافون إلى هذا المطعم هنا.",
+            "noResultsTitle": "لا يوجد مستخدمون يطابقون عوامل التصفية",
+            "noResultsSub": "جرّب بحثًا مختلفًا أو امسح عوامل التصفية.",
+            "clearFilters": "مسح عوامل التصفية"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "previous": "الصفحة السابقة",
+            "next": "الصفحة التالية",
+            "pageSize": "الصفوف في الصفحة"
+        },
+        "subtitle": "{{count}} مستخدم",
+        "addTitle": "إضافة مستخدم",
+        "addDescription": "إنشاء حساب مستخدم جديد لهذا المطعم.",
+        "add": "إضافة مستخدم",
+        "form": {
+            "fullNameLabel": "الاسم الكامل",
+            "emailLabel": "البريد الإلكتروني",
+            "passwordLabel": "كلمة المرور (اختياري)",
+            "passwordHint": "اتركها فارغة لإنشاء كلمة مرور مؤقتة.",
+            "roleLabel": "الدور",
+            "selectRole": "اختر دورًا",
+            "createButton": "إنشاء المستخدم"
+        },
+        "toast": {
+            "createSuccess": "تم إنشاء المستخدم بنجاح.",
+            "createError": "فشل إنشاء المستخدم."
+        }
     }
 }

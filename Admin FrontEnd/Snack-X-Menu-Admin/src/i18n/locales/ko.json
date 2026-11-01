@@ -266,5 +266,80 @@
             "tenantNotFound": "레스토랑을 찾을 수 없습니다.",
             "planNotFound": "플랜을 찾을 수 없습니다."
         }
+    },
+    "users": {
+        "title": "사용자",
+        "total": "사용자 {{count}}명",
+        "refresh": "새로 고침",
+        "searchPlaceholder": "이름, 이메일 또는 역할로 검색...",
+        "filters": {
+            "status": "상태",
+            "email": "이메일"
+        },
+        "statusOptions": {
+            "all": "전체",
+            "active": "활성",
+            "inactive": "비활성"
+        },
+        "verificationOptions": {
+            "all": "전체",
+            "verified": "인증됨",
+            "unverified": "미인증"
+        },
+        "status": {
+            "active": "활성",
+            "inactive": "비활성"
+        },
+        "verification": {
+            "verified": "인증됨",
+            "unverified": "미인증"
+        },
+        "columns": {
+            "user": "사용자",
+            "role": "역할",
+            "status": "상태",
+            "email": "이메일",
+            "lastLogin": "마지막 로그인",
+            "createdAt": "생성일"
+        },
+        "systemRoles": {
+            "tenantOwner": "소유자",
+            "tenantStaff": "직원",
+            "superAdmin": "슈퍼 관리자"
+        },
+        "moreRoles": "+{{count}}",
+        "never": "없음",
+        "list": {
+            "loadError": "사용자를 불러오지 못했습니다.",
+            "retry": "다시 시도",
+            "emptyTitle": "사용자가 없습니다",
+            "emptySub": "이 레스토랑에 추가된 사용자가 여기에 표시됩니다.",
+            "noResultsTitle": "필터와 일치하는 사용자가 없습니다",
+            "noResultsSub": "다른 검색어를 입력하거나 필터를 지우세요.",
+            "clearFilters": "필터 지우기"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "previous": "이전 페이지",
+            "next": "다음 페이지",
+            "pageSize": "페이지당 행 수"
+        },
+        "subtitle": "사용자 {{count}}명",
+        "addTitle": "사용자 추가",
+        "addDescription": "이 레스토랑용 새 사용자 계정을 만듭니다.",
+        "add": "사용자 추가",
+        "form": {
+            "fullNameLabel": "성명",
+            "emailLabel": "이메일",
+            "passwordLabel": "비밀번호 (선택 사항)",
+            "passwordHint": "비워 두면 임시 비밀번호가 생성됩니다.",
+            "roleLabel": "역할",
+            "selectRole": "역할 선택",
+            "createButton": "사용자 생성"
+        },
+        "toast": {
+            "createSuccess": "사용자가 생성되었습니다.",
+            "createError": "사용자 생성에 실패했습니다."
+        }
     }
 }

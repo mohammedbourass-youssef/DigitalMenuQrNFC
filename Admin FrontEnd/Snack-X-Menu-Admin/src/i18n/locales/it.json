@@ -266,5 +266,80 @@
             "tenantNotFound": "Ristorante non trovato.",
             "planNotFound": "Impossibile trovare il tuo piano."
         }
+    },
+    "users": {
+        "title": "Utenti",
+        "total": "{{count}} utenti",
+        "refresh": "Aggiorna",
+        "searchPlaceholder": "Cerca per nome, email o ruolo...",
+        "filters": {
+            "status": "Stato",
+            "email": "Email"
+        },
+        "statusOptions": {
+            "all": "Tutti",
+            "active": "Attivo",
+            "inactive": "Inattivo"
+        },
+        "verificationOptions": {
+            "all": "Tutti",
+            "verified": "Verificato",
+            "unverified": "Non verificato"
+        },
+        "status": {
+            "active": "Attivo",
+            "inactive": "Inattivo"
+        },
+        "verification": {
+            "verified": "Verificato",
+            "unverified": "Non verificato"
+        },
+        "columns": {
+            "user": "Utente",
+            "role": "Ruolo",
+            "status": "Stato",
+            "email": "Email",
+            "lastLogin": "Ultimo accesso",
+            "createdAt": "Creato"
+        },
+        "systemRoles": {
+            "tenantOwner": "Proprietario",
+            "tenantStaff": "Staff",
+            "superAdmin": "Super amministratore"
+        },
+        "moreRoles": "+{{count}}",
+        "never": "Mai",
+        "list": {
+            "loadError": "Impossibile caricare gli utenti.",
+            "retry": "Riprova",
+            "emptyTitle": "Nessun utente",
+            "emptySub": "Gli utenti aggiunti a questo ristorante appariranno qui.",
+            "noResultsTitle": "Nessun utente corrisponde ai filtri",
+            "noResultsSub": "Prova una ricerca diversa o cancella i filtri.",
+            "clearFilters": "Cancella filtri"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "previous": "Pagina precedente",
+            "next": "Pagina successiva",
+            "pageSize": "Righe per pagina"
+        },
+        "subtitle": "{{count}} utenti",
+        "addTitle": "Aggiungi utente",
+        "addDescription": "Creare un nuovo account utente per questo ristorante.",
+        "add": "Aggiungi utente",
+        "form": {
+            "fullNameLabel": "Nome completo",
+            "emailLabel": "Email",
+            "passwordLabel": "Password (opzionale)",
+            "passwordHint": "Lascia vuoto per generare una password temporanea.",
+            "roleLabel": "Ruolo",
+            "selectRole": "Seleziona ruolo",
+            "createButton": "Crea utente"
+        },
+        "toast": {
+            "createSuccess": "Utente creato con successo.",
+            "createError": "Impossibile creare l'utente."
+        }
     }
 }

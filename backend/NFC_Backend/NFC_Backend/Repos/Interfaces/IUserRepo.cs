@@ -13,6 +13,15 @@ namespace NFC_Backend.Repos.Interfaces
         public  Task UpdateLastLoginAt(Guid Id);
         public  Task<User?> GetUserByRefreshToken(string HashedRefreshToken);
         public Task<User?> GetUserByID(Guid Id);
+        public Task<List<TenantRoleDTO>> GetTenantRolesAsync(Guid tenantId, CancellationToken ct = default);
+        public Task<PagedUserListDTO> GetTenantUsersAsync(
+            Guid tenantId,
+            UserListRequest request,
+            CancellationToken ct = default);
+        public Task<CreateTenantUserResponse> CreateTenantUserAsync(
+            CreateTenantUserRequest request,
+            Guid tenantId,
+            CancellationToken ct = default);
 
         public  Task UpdateMyProfileAsync(Guid userId, UpdateMyProfileDTO dto);
         public Task<MyProfileResponse> GetMyProfileAsync(Guid userId);

@@ -266,5 +266,80 @@
             "tenantNotFound": "レストランが見つかりません。",
             "planNotFound": "プランが見つかりませんでした。"
         }
+    },
+    "users": {
+        "title": "ユーザー",
+        "total": "{{count}} 人のユーザー",
+        "refresh": "更新",
+        "searchPlaceholder": "名前、メール、ロールで検索...",
+        "filters": {
+            "status": "ステータス",
+            "email": "メール"
+        },
+        "statusOptions": {
+            "all": "すべて",
+            "active": "有効",
+            "inactive": "無効"
+        },
+        "verificationOptions": {
+            "all": "すべて",
+            "verified": "確認済み",
+            "unverified": "未確認"
+        },
+        "status": {
+            "active": "有効",
+            "inactive": "無効"
+        },
+        "verification": {
+            "verified": "確認済み",
+            "unverified": "未確認"
+        },
+        "columns": {
+            "user": "ユーザー",
+            "role": "ロール",
+            "status": "ステータス",
+            "email": "メール",
+            "lastLogin": "最終ログイン",
+            "createdAt": "作成日"
+        },
+        "systemRoles": {
+            "tenantOwner": "オーナー",
+            "tenantStaff": "スタッフ",
+            "superAdmin": "スーパー管理者"
+        },
+        "moreRoles": "+{{count}}",
+        "never": "なし",
+        "list": {
+            "loadError": "ユーザーを読み込めませんでした。",
+            "retry": "再試行",
+            "emptyTitle": "ユーザーがいません",
+            "emptySub": "このレストランに追加されたユーザーがここに表示されます。",
+            "noResultsTitle": "フィルターに一致するユーザーがいません",
+            "noResultsSub": "別の検索語を試すか、フィルターをクリアしてください。",
+            "clearFilters": "フィルターをクリア"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "previous": "前のページ",
+            "next": "次のページ",
+            "pageSize": "ページあたりの行数"
+        },
+        "subtitle": "{{count}} 人のユーザー",
+        "addTitle": "ユーザーを追加",
+        "addDescription": "このレストラン用の新しいユーザーアカウントを作成します。",
+        "add": "ユーザーを追加",
+        "form": {
+            "fullNameLabel": "氏名",
+            "emailLabel": "メール",
+            "passwordLabel": "パスワード（任意）",
+            "passwordHint": "空白の場合は一時パスワードを生成します。",
+            "roleLabel": "ロール",
+            "selectRole": "ロールを選択",
+            "createButton": "ユーザーを作成"
+        },
+        "toast": {
+            "createSuccess": "ユーザーを作成しました。",
+            "createError": "ユーザーの作成に失敗しました。"
+        }
     }
 }

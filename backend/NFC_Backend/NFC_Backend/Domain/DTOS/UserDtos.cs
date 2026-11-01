@@ -1,4 +1,5 @@
-﻿using NFC_Backend.Domain.Entities;
+﻿using System.ComponentModel.DataAnnotations;
+using NFC_Backend.Domain.Entities;
 
 namespace NFC_Backend.Domain.DTOS
 {
@@ -46,7 +47,68 @@ namespace NFC_Backend.Domain.DTOS
        public List<UserPermissionsDto> Features { get; set; }
 
     }
-    
+
+    public class UserListItemDTO
+    {
+        public Guid Id { get; set; }
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string SystemRole { get; set; } = string.Empty;
+        public List<string> RoleNames { get; set; } = new();
+        public bool IsActive { get; set; }
+        public bool EmailConfirmed { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+        public DateTime CreatedAtUTC { get; set; }
+    }
+
+    public class TenantRoleDTO
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class CreateTenantUserRequest
+    {
+        [Required, MaxLength(100)]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string? Password { get; set; }
+
+        [Required]
+        public Guid RoleId { get; set; }
+    }
+
+    public class CreateTenantUserResponse
+    {
+        public Guid Id { get; set; }
+        public string? TemporaryPassword { get; set; }
+    }
+
+    public class UserListRequest
+    {
+        public string? Search { get; set; }
+        public string? Status { get; set; }
+        public string? Verification { get; set; }
+        public string? SortKey { get; set; }
+        public string? SortDirection { get; set; }
+        public int Page { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+
+    public class PagedUserListDTO
+    {
+        public List<UserListItemDTO> Items { get; set; } = new();
+        public int Total { get; set; }
+        public int Page { get; set; }
+        public int PageSize { get; set; }
+        public int PageCount { get; set; }
+    }
+
     public record TenantResponse(Guid Id , string SubDomaine );
 
 }

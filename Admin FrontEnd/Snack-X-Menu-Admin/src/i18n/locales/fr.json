@@ -1126,5 +1126,80 @@
             "tenantNotFound": "Restaurant introuvable.",
             "planNotFound": "Votre forfait est introuvable."
         }
+    },
+    "users": {
+        "title": "Utilisateurs",
+        "total": "{{count}} utilisateurs",
+        "refresh": "Actualiser",
+        "searchPlaceholder": "Rechercher par nom, e-mail ou rôle...",
+        "filters": {
+            "status": "Statut",
+            "email": "E-mail"
+        },
+        "statusOptions": {
+            "all": "Tous",
+            "active": "Actif",
+            "inactive": "Inactif"
+        },
+        "verificationOptions": {
+            "all": "Tous",
+            "verified": "Vérifié",
+            "unverified": "Non vérifié"
+        },
+        "status": {
+            "active": "Actif",
+            "inactive": "Inactif"
+        },
+        "verification": {
+            "verified": "Vérifié",
+            "unverified": "Non vérifié"
+        },
+        "columns": {
+            "user": "Utilisateur",
+            "role": "Rôle",
+            "status": "Statut",
+            "email": "E-mail",
+            "lastLogin": "Dernière connexion",
+            "createdAt": "Créé"
+        },
+        "systemRoles": {
+            "tenantOwner": "Propriétaire",
+            "tenantStaff": "Personnel",
+            "superAdmin": "Super administrateur"
+        },
+        "moreRoles": "+{{count}}",
+        "never": "Jamais",
+        "list": {
+            "loadError": "Impossible de charger les utilisateurs.",
+            "retry": "Réessayer",
+            "emptyTitle": "Aucun utilisateur pour le moment",
+            "emptySub": "Les utilisateurs ajoutés à ce restaurant apparaîtront ici.",
+            "noResultsTitle": "Aucun utilisateur ne correspond aux filtres",
+            "noResultsSub": "Essayez une autre recherche ou effacez les filtres.",
+            "clearFilters": "Effacer les filtres"
+        },
+        "pagination": {
+            "range": "{{from}}-{{to}} / {{total}}",
+            "previous": "Page précédente",
+            "next": "Page suivante",
+            "pageSize": "Lignes par page"
+        },
+        "subtitle": "{{count}} utilisateurs",
+        "addTitle": "Ajouter un utilisateur",
+        "addDescription": "Créer un nouveau compte utilisateur pour ce restaurant.",
+        "add": "Ajouter un utilisateur",
+        "form": {
+            "fullNameLabel": "Nom complet",
+            "emailLabel": "E-mail",
+            "passwordLabel": "Mot de passe (facultatif)",
+            "passwordHint": "Laissez vide pour générer un mot de passe temporaire.",
+            "roleLabel": "Rôle",
+            "selectRole": "Sélectionner un rôle",
+            "createButton": "Créer l'utilisateur"
+        },
+        "toast": {
+            "createSuccess": "Utilisateur créé avec succès.",
+            "createError": "Échec de la création de l'utilisateur."
+        }
     }
 }
