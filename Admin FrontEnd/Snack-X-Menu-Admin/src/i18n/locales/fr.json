@@ -181,7 +181,7 @@
         }
     },
     "tables": {
-        "title": "Tables",
+        "title": "QR Code",
         "add": "Ajouter une table",
         "total_one": "{{count}} table",
         "total_other": "{{count}} tables",
@@ -222,13 +222,19 @@
             "updateError": "Échec de la mise à jour de la table.",
             "availabilitySuccess": "Disponibilité de la table mise à jour.",
             "deleteSuccess": "Table supprimée avec succès.",
-            "deleteError": "Échec de la suppression de la table."
+            "deleteError": "Échec de la suppression de la table.",
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         },
         "delete": {
             "title": "Supprimer cette table ?",
             "description": "La table n°{{number}} ({{name}}) sera supprimée définitivement. Cette action est irréversible.",
             "confirm": "Supprimer"
-        }
+        },
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code..."
     },
     "orders": {
         "title": "Commandes",
@@ -1155,12 +1161,7 @@
             "unverified": "Non vérifié"
         },
         "columns": {
-            "user": "Utilisateur",
-            "role": "Rôle",
-            "status": "Statut",
-            "email": "E-mail",
-            "lastLogin": "Dernière connexion",
-            "createdAt": "Créé"
+            "actions": "Actions"
         },
         "systemRoles": {
             "tenantOwner": "Propriétaire",
@@ -1189,17 +1190,26 @@
         "addDescription": "Créer un nouveau compte utilisateur pour ce restaurant.",
         "add": "Ajouter un utilisateur",
         "form": {
-            "fullNameLabel": "Nom complet",
-            "emailLabel": "E-mail",
-            "passwordLabel": "Mot de passe (facultatif)",
-            "passwordHint": "Laissez vide pour générer un mot de passe temporaire.",
-            "roleLabel": "Rôle",
-            "selectRole": "Sélectionner un rôle",
-            "createButton": "Créer l'utilisateur"
+            "editButton": "Enregistrer les modifications"
         },
         "toast": {
-            "createSuccess": "Utilisateur créé avec succès.",
-            "createError": "Échec de la création de l'utilisateur."
+            "editSuccess": "Utilisateur mis à jour avec succès.",
+            "editError": "Échec de la mise à jour de l'utilisateur.",
+            "deleteSuccess": "Utilisateur désactivé.",
+            "deleteError": "Échec de la désactivation de l'utilisateur."
+        },
+        "editTitle": "Modifier l'utilisateur",
+        "editDescription": "Mettre à jour les détails et le rôle de l'utilisateur.",
+        "edit": "Modifier",
+        "delete": "Désactiver",
+        "actions": {
+            "edit": "Modifier",
+            "delete": "Désactiver"
+        },
+        "dialog": {
+            "deleteTitle": "Désactiver cet utilisateur ?",
+            "deleteDescription": "L'utilisateur perdra l'accès au restaurant. Réversible.",
+            "confirmDelete": "Désactiver"
         }
     }
 }

@@ -181,7 +181,7 @@
         }
     },
     "tables": {
-        "title": "الطاولات",
+        "title": "QR Code",
         "add": "إضافة طاولة",
         "total_one": "{{count}} طاولة",
         "total_other": "{{count}} طاولات",
@@ -222,13 +222,19 @@
             "updateError": "فشل تحديث الطاولة.",
             "availabilitySuccess": "تم تحديث توفر الطاولة.",
             "deleteSuccess": "تم حذف الطاولة بنجاح.",
-            "deleteError": "فشل حذف الطاولة."
+            "deleteError": "فشل حذف الطاولة.",
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         },
         "delete": {
             "title": "حذف هذه الطاولة؟",
             "description": "سيتم حذف الطاولة رقم {{number}} ({{name}}) نهائياً. لا يمكن التراجع عن هذا الإجراء.",
             "confirm": "حذف"
-        }
+        },
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code..."
     },
     "orders": {
         "title": "الطلبات",
@@ -1159,12 +1165,7 @@
             "unverified": "غير موثّق"
         },
         "columns": {
-            "user": "المستخدم",
-            "role": "الدور",
-            "status": "الحالة",
-            "email": "البريد الإلكتروني",
-            "lastLogin": "آخر تسجيل دخول",
-            "createdAt": "تاريخ الإنشاء"
+            "actions": "الإجراءات"
         },
         "systemRoles": {
             "tenantOwner": "المالك",
@@ -1193,17 +1194,26 @@
         "addDescription": "إنشاء حساب مستخدم جديد لهذا المطعم.",
         "add": "إضافة مستخدم",
         "form": {
-            "fullNameLabel": "الاسم الكامل",
-            "emailLabel": "البريد الإلكتروني",
-            "passwordLabel": "كلمة المرور (اختياري)",
-            "passwordHint": "اتركها فارغة لإنشاء كلمة مرور مؤقتة.",
-            "roleLabel": "الدور",
-            "selectRole": "اختر دورًا",
-            "createButton": "إنشاء المستخدم"
+            "editButton": "حفظ التغييرات"
         },
         "toast": {
-            "createSuccess": "تم إنشاء المستخدم بنجاح.",
-            "createError": "فشل إنشاء المستخدم."
+            "editSuccess": "تم تحديث المستخدم بنجاح.",
+            "editError": "فشل تحديث المستخدم.",
+            "deleteSuccess": "تم إلغاء تفعيل المستخدم.",
+            "deleteError": "فشل إلغاء تفعيل المستخدم."
+        },
+        "editTitle": "تعديل مستخدم",
+        "editDescription": "تحديث بيانات المستخدم ودوره.",
+        "edit": "تعديل",
+        "delete": "إلغاء التفعيل",
+        "actions": {
+            "edit": "تعديل",
+            "delete": "إلغاء التفعيل"
+        },
+        "dialog": {
+            "deleteTitle": "إلغاء تفعيل هذا المستخدم؟",
+            "deleteDescription": "فقد المستخدم إمكانية الوصول إلى المطعم. يمكن التراجع عن ذلك.",
+            "confirmDelete": "إلغاء التفعيل"
         }
     }
 }

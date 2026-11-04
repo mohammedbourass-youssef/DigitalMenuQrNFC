@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { createTable, deleteTable, getTables, updateTable } from "@/services/tableService";
+import {
+  createTable,
+  deleteTable,
+  generateQrCode,
+  getQrCode,
+  getTables,
+  updateTable,
+} from "@/services/tableService";
 import type { CreateTablePayload, UpdateTablePayload } from "@/types";
 import { PLAN_QUOTA_QUERY_KEY } from "@/hooks/usePlanQuota";
 
@@ -43,6 +50,16 @@ export function useDeleteTable() {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: tablesQueryKey });
       void queryClient.invalidateQueries({ queryKey: PLAN_QUOTA_QUERY_KEY });
+    },
+  });
+}
+
+export function useGenerateQrCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: generateQrCode,
+    onSuccess: (_, variables) => {
+      void queryClient.invalidateQueries({ queryKey: tablesQueryKey });
     },
   });
 }

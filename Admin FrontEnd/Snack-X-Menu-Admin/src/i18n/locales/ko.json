@@ -295,12 +295,7 @@
             "unverified": "미인증"
         },
         "columns": {
-            "user": "사용자",
-            "role": "역할",
-            "status": "상태",
-            "email": "이메일",
-            "lastLogin": "마지막 로그인",
-            "createdAt": "생성일"
+            "actions": "작업"
         },
         "systemRoles": {
             "tenantOwner": "소유자",
@@ -329,17 +324,37 @@
         "addDescription": "이 레스토랑용 새 사용자 계정을 만듭니다.",
         "add": "사용자 추가",
         "form": {
-            "fullNameLabel": "성명",
-            "emailLabel": "이메일",
-            "passwordLabel": "비밀번호 (선택 사항)",
-            "passwordHint": "비워 두면 임시 비밀번호가 생성됩니다.",
-            "roleLabel": "역할",
-            "selectRole": "역할 선택",
-            "createButton": "사용자 생성"
+            "editButton": "변경 사항 저장"
         },
         "toast": {
-            "createSuccess": "사용자가 생성되었습니다.",
-            "createError": "사용자 생성에 실패했습니다."
+            "editSuccess": "사용자가 수정되었습니다.",
+            "editError": "사용자 수정에 실패했습니다.",
+            "deleteSuccess": "사용자가 비활성화되었습니다.",
+            "deleteError": "사용자 비활성화에 실패했습니다."
+        },
+        "editTitle": "사용자 수정",
+        "editDescription": "사용자 정보와 역할을 업데이트합니다.",
+        "edit": "수정",
+        "delete": "비활성화",
+        "actions": {
+            "edit": "수정",
+            "delete": "비활성화"
+        },
+        "dialog": {
+            "deleteTitle": "이 사용자를 비활성화할까요?",
+            "deleteDescription": "사용자가 레스토랑에 대한 접근 권한을 잃게 됩니다. 되돌릴 수 있습니다.",
+            "confirmDelete": "비활성화"
+        }
+    },
+    "tables": {
+        "title": "QR Code",
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code...",
+        "toast": {
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         }
     }
 }

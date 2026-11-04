@@ -35,5 +35,6 @@ namespace NFC_Backend.Domain.DTOS
         public int Number { get; set; }
         public string Name { get; set; } = string.Empty;
         public bool IsAvailable { get; set; }
+        public string? QrCodeUrl { get; set; }
     }
 }

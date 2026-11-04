@@ -52,6 +52,25 @@ namespace NFC_Backend.Repos.Implementations
             await _context.SaveChangesAsync();
         }
 
+        public async Task<string?> GenerateQrCodeUrlAsync(Guid id, Guid tenantId, string baseDomain)
+        {
+            var table = await _context.Tables
+                .Include(t => t.Tenant)
+                .FirstOrDefaultAsync(t => t.Id == id && t.TenantId == tenantId);
+
+            if (table == null)
+                return null;
+
+            var subdomain = table.Tenant?.Subdomain ?? string.Empty;
+            var qrUrl = $"http://{subdomain}.{baseDomain}/table/{table.Number}";
+
+            table.QrCodeUrl = qrUrl;
+            _context.Tables.Update(table);
+            await _context.SaveChangesAsync();
+
+            return qrUrl;
+        }
+
         public async Task<bool> NumberExistsAsync(Guid tenantId, int number, Guid? excludeId = null)
         {
             return await _context.Tables.AnyAsync(t =>

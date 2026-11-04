@@ -55,10 +55,31 @@ namespace NFC_Backend.Domain.DTOS
         public string Email { get; set; } = string.Empty;
         public string SystemRole { get; set; } = string.Empty;
         public List<string> RoleNames { get; set; } = new();
+        public Guid RoleId { get; set; }
         public bool IsActive { get; set; }
         public bool EmailConfirmed { get; set; }
         public DateTime? LastLoginAt { get; set; }
         public DateTime CreatedAtUTC { get; set; }
+    }
+
+    public class UpdateTenantUserRequest
+    {
+        [Required, MaxLength(100)]
+        public string FullName { get; set; } = string.Empty;
+
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string? Password { get; set; }
+
+        [Required]
+        public Guid RoleId { get; set; }
+    }
+
+    public class UpdateTenantUserResponse
+    {
+        public Guid Id { get; set; }
     }
 
     public class TenantRoleDTO

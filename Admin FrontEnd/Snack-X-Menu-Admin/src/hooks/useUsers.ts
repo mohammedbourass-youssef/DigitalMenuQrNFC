@@ -3,10 +3,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
   createTenantUser,
+  deleteTenantUser,
   getTenantRoles,
   getUsers,
+  updateTenantUser,
 } from "@/services/userService";
-import type { CreateTenantUserRequest } from "@/types/user";
+import type {
+  CreateTenantUserRequest,
+  UpdateTenantUserRequest,
+} from "@/types/user";
 import type { UserListRequest } from "@/types/user";
 
 export const usersQueryKey = ["admin-users"] as const;
@@ -66,4 +71,31 @@ export function useCreateTenantUser() {
   });
 }
 
-export type { CreateTenantUserRequest };
+export function useUpdateTenantUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateTenantUserRequest }) =>
+      updateTenantUser(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: usersQueryKey });
+      queryClient.invalidateQueries({ queryKey: tenantRolesQueryKey });
+    },
+  });
+}
+
+export function useDeleteTenantUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteTenantUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: usersQueryKey });
+    },
+  });
+}
+
+export type {
+  CreateTenantUserRequest,
+  UpdateTenantUserRequest,
+};

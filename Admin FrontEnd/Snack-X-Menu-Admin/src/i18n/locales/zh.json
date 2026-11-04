@@ -295,12 +295,7 @@
             "unverified": "未验证"
         },
         "columns": {
-            "user": "用户",
-            "role": "角色",
-            "status": "状态",
-            "email": "邮箱",
-            "lastLogin": "上次登录",
-            "createdAt": "创建时间"
+            "actions": "操作"
         },
         "systemRoles": {
             "tenantOwner": "所有者",
@@ -329,17 +324,37 @@
         "addDescription": "为此餐厅创建新用户账户。",
         "add": "添加用户",
         "form": {
-            "fullNameLabel": "全名",
-            "emailLabel": "邮箱",
-            "passwordLabel": "密码（可选）",
-            "passwordHint": "留空将生成临时密码。",
-            "roleLabel": "角色",
-            "selectRole": "选择角色",
-            "createButton": "创建用户"
+            "editButton": "保存更改"
         },
         "toast": {
-            "createSuccess": "用户创建成功。",
-            "createError": "创建用户失败。"
+            "editSuccess": "用户更新成功。",
+            "editError": "更新用户失败。",
+            "deleteSuccess": "用户已停用。",
+            "deleteError": "停用用户失败。"
+        },
+        "editTitle": "编辑用户",
+        "editDescription": "更新用户详细信息和角色。",
+        "edit": "编辑",
+        "delete": "停用",
+        "actions": {
+            "edit": "编辑",
+            "delete": "停用"
+        },
+        "dialog": {
+            "deleteTitle": "停用此用户？",
+            "deleteDescription": "用户将失去对此餐厅的访问权限。可撤销。",
+            "confirmDelete": "停用"
+        }
+    },
+    "tables": {
+        "title": "QR Code",
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code...",
+        "toast": {
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         }
     }
 }

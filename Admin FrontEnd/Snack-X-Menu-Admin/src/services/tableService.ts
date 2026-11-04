@@ -25,3 +25,18 @@ export const deleteTable = async (id: string): Promise<{ message: string }> => {
   const { data } = await axiosInstance.delete<{ message: string }>(`tables/${id}`);
   return data;
 };
+
+export interface QrCodeResponse {
+  qrCodeUrl: string;
+  qrData: string;
+}
+
+export const getQrCode = async (id: string): Promise<QrCodeResponse> => {
+  const { data } = await axiosInstance.get<QrCodeResponse>(`tables/${id}/qr`);
+  return data;
+};
+
+export const generateQrCode = async (id: string): Promise<QrCodeResponse> => {
+  const { data } = await axiosInstance.post<QrCodeResponse>(`tables/${id}/qr/generate`);
+  return data;
+};

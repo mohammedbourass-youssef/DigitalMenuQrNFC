@@ -1,16 +1,21 @@
 import { useState } from "react";
 import {
   AlertCircle,
+  ArrowRight,
+  Download,
   Grid2X2,
   MoreHorizontal,
   Pencil,
+  QrCode as QrCodeIcon,
   RefreshCw,
   Trash2,
   Plus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
+import QRCode from "qrcode";
 
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -51,7 +56,7 @@ import { usePermissions } from "@/contexts/PermissionsContext";
 import { useToast } from "@/hooks/use-toast";
 import { friendlyErrorMessage } from "@/lib/apiErrors";
 import { cn } from "@/lib/utils";
-import { tablesQueryKey, useCreateTable, useDeleteTable, useTables, useUpdateTable } from "@/hooks/useTables";
+import { tablesQueryKey, useCreateTable, useDeleteTable, useGenerateQrCode, useTables, useUpdateTable } from "@/hooks/useTables";
 import { TableFormSheet, type TableFormValues } from "@/components/tables/TableFormSheet";
 import type { TableItem } from "@/types";
 import { usePlanQuota } from "@/hooks/usePlanQuota";
@@ -65,16 +70,20 @@ export default function TablesPage() {
   const { data: quota } = usePlanQuota();
   const { can } = usePermissions();
   const canAddTable = can("Tables", "create") && quota?.tables.canAdd !== false;
+  const canGenerateQr = can("Tables", "edit");
   const dir = i18n.language === "ar" ? "rtl" : "ltr";
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editing, setEditing] = useState<TableItem | null>(null);
   const [tableToDelete, setTableToDelete] = useState<TableItem | null>(null);
+  const [qrCodeOpen, setQrCodeOpen] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState<string | null>(null);
 
   const query = useTables();
   const createMut = useCreateTable();
   const updateMut = useUpdateTable();
   const deleteMut = useDeleteTable();
+  const generateQrMut = useGenerateQrCode();
 
   const errorMessage = query.error
     ? friendlyErrorMessage(query.error, t("tables.loadError"))
@@ -136,6 +145,46 @@ export default function TablesPage() {
       },
       onError: () => toast({ variant: "destructive", title: t("tables.toast.deleteError") }),
     });
+  };
+
+  const openQrCode = async (table: TableItem) => {
+    setQrCodeData(null);
+    setQrCodeOpen(true);
+
+    const qrUrl = table.qrCodeUrl || (await generateQrMut.mutateAsync(table.id)).qrCodeUrl;
+
+    try {
+      const dataUrl = await QRCode.toDataURL(qrUrl, {
+        width: 400,
+        margin: 2,
+        color: { dark: "#000000", light: "#ffffff" },
+      });
+      setQrCodeData(dataUrl);
+    } catch (error) {
+      toast({ variant: "destructive", title: t("tables.toast.qrError") });
+      setQrCodeOpen(false);
+    }
+  };
+
+  const handleDownloadQrCode = async () => {
+    if (!qrCodeData) return;
+
+    try {
+      const dataUrl = await QRCode.toDataURL(qrCodeData, {
+        width: 400,
+        margin: 2,
+        color: { dark: "#000000", light: "#ffffff" },
+      });
+
+      const link = document.createElement("a");
+      link.download = `qr-table-${qrCodeData.split("/table/")[1] ?? "unknown"}.png`;
+      link.href = dataUrl;
+      link.click();
+
+      toast({ title: t("tables.toast.qrDownloaded") });
+    } catch (error) {
+      toast({ variant: "destructive", title: t("tables.toast.qrError") });
+    }
   };
 
   return (
@@ -203,6 +252,8 @@ export default function TablesPage() {
               onEdit={openEdit}
               onDelete={(row) => setTableToDelete(row)}
               onToggle={handleToggle}
+              onQrCode={openQrCode}
+              canGenerateQr={canGenerateQr}
             />
           )}
         </div>
@@ -248,6 +299,13 @@ export default function TablesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <QrCodeModal
+        open={qrCodeOpen}
+        onOpenChange={setQrCodeOpen}
+        qrData={qrCodeData}
+        onDownload={handleDownloadQrCode}
+      />
     </div>
   );
 }
@@ -257,11 +315,15 @@ function TablesTable({
   onEdit,
   onDelete,
   onToggle,
+  onQrCode,
+  canGenerateQr,
 }: {
   tables: TableItem[];
   onEdit: (table: TableItem) => void;
   onDelete: (table: TableItem) => void;
   onToggle: (table: TableItem) => void;
+  onQrCode: (table: TableItem) => void;
+  canGenerateQr: boolean;
 }) {
   const { t } = useTranslation();
   const { can } = usePermissions();
@@ -340,6 +402,15 @@ function TablesTable({
                         {t("common.delete")}
                       </DropdownMenuItem>
                     )}
+                    {canGenerateQr && (
+                      <DropdownMenuItem
+                        onClick={() => onQrCode(table)}
+                        className="text-blue-600 focus:text-blue-600"
+                      >
+                        <QrCodeIcon className="mr-2 h-4 w-4 text-blue-600" />
+                        {t("tables.qr.generate")}
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
@@ -386,5 +457,50 @@ function TablesTableSkeleton() {
         ))}
       </TableBody>
     </Table>
+  );
+}
+
+function QrCodeModal({
+  open,
+  onOpenChange,
+  qrData,
+  onDownload,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  qrData: string | null;
+  onDownload: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[440px] p-6">
+        <DialogHeader>
+          <DialogTitle>{t("tables.qr.title")}</DialogTitle>
+          <DialogDescription>{t("tables.qr.subtitle")}</DialogDescription>
+        </DialogHeader>
+        <div className="flex flex-col items-center justify-center gap-4 p-4">
+          {qrData ? (
+            <div className="bg-white p-2 rounded-lg border border-slate-200">
+              <img
+                src={`data:image/png;base64,${qrData}`}
+                alt="QR Code"
+                className="w-48 h-48"
+              />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2 p-4 text-slate-500">
+              <Spinner className="h-6 w-6" />
+              <p>{t("tables.qr.loading")}</p>
+            </div>
+          )}
+          <Button onClick={onDownload} disabled={!qrData}>
+            <Download className="mr-2 h-4 w-4" />
+            {t("tables.qr.download")}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

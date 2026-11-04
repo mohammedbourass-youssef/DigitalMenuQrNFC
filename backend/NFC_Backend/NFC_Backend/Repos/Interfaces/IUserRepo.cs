@@ -23,6 +23,17 @@ namespace NFC_Backend.Repos.Interfaces
             Guid tenantId,
             CancellationToken ct = default);
 
+        public Task<UpdateTenantUserResponse> UpdateTenantUserAsync(
+            Guid userId,
+            UpdateTenantUserRequest request,
+            Guid tenantId,
+            CancellationToken ct = default);
+
+        public Task DeleteTenantUserAsync(
+            Guid userId,
+            Guid tenantId,
+            CancellationToken ct = default);
+
         public  Task UpdateMyProfileAsync(Guid userId, UpdateMyProfileDTO dto);
         public Task<MyProfileResponse> GetMyProfileAsync(Guid userId);
         public Task<int> RequestForVerification(Guid userId);

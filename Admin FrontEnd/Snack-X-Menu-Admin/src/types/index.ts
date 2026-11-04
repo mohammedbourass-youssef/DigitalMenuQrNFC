@@ -92,6 +92,7 @@ export interface TableItem {
   number: number;
   name: string;
   isAvailable: boolean;
+  qrCodeUrl?: string;
 }
 
 export interface CreateTablePayload {
