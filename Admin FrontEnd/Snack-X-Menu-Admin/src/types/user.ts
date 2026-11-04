@@ -4,6 +4,7 @@ export interface UserListItem {
   email: string;
   systemRole: string;
   roleNames: string[];
+  roleId: string;
   isActive: boolean;
   emailConfirmed: boolean;
   lastLoginAt: string | null;
@@ -52,4 +53,15 @@ export interface CreateTenantUserRequest {
 export interface CreateTenantUserResponse {
   id: string;
   temporaryPassword?: string;
+}
+
+export interface UpdateTenantUserRequest {
+  fullName: string;
+  email: string;
+  password?: string;
+  roleId: string;
+}
+
+export interface UpdateTenantUserResponse {
+  id: string;
 }

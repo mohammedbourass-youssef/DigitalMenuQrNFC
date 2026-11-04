@@ -120,7 +120,7 @@ namespace NFC_Backend.Repos.Implementations
 
             var userIds = pageUsers.Select(user => user.Id).ToList();
 
-            var roleNames = await _dbContext.UserRoles
+            var roleInfos = await _dbContext.UserRoles
                 .AsNoTracking()
                 .Where(userRole =>
                     userIds.Contains(userRole.UserId) &&
@@ -129,13 +129,14 @@ namespace NFC_Backend.Repos.Implementations
                 .Select(userRole => new
                 {
                     userRole.UserId,
-                    RoleName = userRole.Role.Name
+                    RoleName = userRole.Role.Name,
+                    RoleId = userRole.RoleId
                 })
                 .ToListAsync(ct);
 
-            var roleNamesByUser = roleNames
+            var rolesByUser = roleInfos
                 .GroupBy(r => r.UserId)
-                .ToDictionary(g => g.Key, g => g.Select(r => r.RoleName).ToList());
+                .ToDictionary(g => g.Key, g => g.ToList());
 
             var pageCount = total == 0 ? 1 : (int)Math.Ceiling((double)total / pageSize);
 
@@ -147,7 +148,12 @@ namespace NFC_Backend.Repos.Implementations
                     FullName = row.FullName,
                     Email = row.Email,
                     SystemRole = row.Role.ToString(),
-                    RoleNames = roleNamesByUser.TryGetValue(row.Id, out var names) ? names : new List<string>(),
+                    RoleId = rolesByUser.TryGetValue(row.Id, out var infos)
+                        ? infos.First().RoleId
+                        : Guid.Empty,
+                    RoleNames = rolesByUser.TryGetValue(row.Id, out var infos2)
+                        ? infos2.Select(i => i.RoleName).ToList()
+                        : new List<string>(),
                     IsActive = row.IsActive,
                     EmailConfirmed = row.EmailConfirmed,
                     LastLoginAt = row.LastLoginAt,
@@ -231,6 +237,84 @@ namespace NFC_Backend.Repos.Implementations
                 Id = user.Id,
                 TemporaryPassword = string.IsNullOrWhiteSpace(request.Password) ? password : null
             };
+        }
+
+        public async Task<UpdateTenantUserResponse> UpdateTenantUserAsync(
+            Guid userId,
+            UpdateTenantUserRequest request,
+            Guid tenantId,
+            CancellationToken ct = default)
+        {
+            var user = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Id == userId && u.TenantId == tenantId, ct);
+
+            if (user is null)
+                throw new NotFoundException("User not found.");
+
+            var email = request.Email.Trim();
+            var emailTaken = await _dbContext.Users
+                .AnyAsync(u => u.Email == email && u.TenantId == tenantId && u.Id != userId, ct);
+
+            if (emailTaken)
+                throw new BadRequestException("A user with this email already exists.");
+
+            var role = await _dbContext.Roles
+                .FirstOrDefaultAsync(r => r.Id == request.RoleId && r.TenantId == tenantId && !r.IsSystem, ct);
+
+            if (role is null)
+                throw new BadRequestException("Invalid role.");
+
+            user.FullName = request.FullName.Trim();
+            user.Email = email;
+            user.Role = UserRole.TenantStaff;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            if (!string.IsNullOrWhiteSpace(request.Password))
+                user.PasswordHash = _tokenService.HashPassword(request.Password.Trim());
+
+            await _dbContext.SaveChangesAsync(ct);
+
+            await UpdateUserRoleAsync(userId, role.Id, ct);
+
+            return new UpdateTenantUserResponse { Id = user.Id };
+        }
+
+        public async Task DeleteTenantUserAsync(
+            Guid userId,
+            Guid tenantId,
+            CancellationToken ct = default)
+        {
+            var user = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Id == userId && u.TenantId == tenantId, ct);
+
+            if (user is null)
+                throw new NotFoundException("User not found.");
+
+            user.IsActive = false;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync(ct);
+        }
+
+        private async Task UpdateUserRoleAsync(Guid userId, Guid roleId, CancellationToken ct)
+        {
+            var existing = await _dbContext.UserRoles
+                .FirstOrDefaultAsync(ur => ur.UserId == userId, ct);
+
+            if (existing is null)
+            {
+                await _dbContext.UserRoles.AddAsync(new TenantUserRole
+                {
+                    RoleId = roleId,
+                    UserId = userId
+                }, ct);
+            }
+            else
+            {
+                existing.RoleId = roleId;
+                _dbContext.UserRoles.Update(existing);
+            }
+
+            await _dbContext.SaveChangesAsync(ct);
         }
 
         private static string GenerateTemporaryPassword()

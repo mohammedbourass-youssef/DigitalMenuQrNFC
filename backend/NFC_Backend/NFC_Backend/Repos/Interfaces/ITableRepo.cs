@@ -11,5 +11,6 @@ namespace NFC_Backend.Repos.Interfaces
         Task<Table> UpdateAsync(Table table);
         Task DeleteAsync(Table table);
         Task<bool> NumberExistsAsync(Guid tenantId, int number, Guid? excludeId = null);
+        Task<string?> GenerateQrCodeUrlAsync(Guid id, Guid tenantId, string baseDomain);
     }
 }

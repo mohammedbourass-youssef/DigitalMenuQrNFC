@@ -5,6 +5,8 @@ import type {
   CreateTenantUserResponse,
   PagedUserList,
   TenantRole,
+  UpdateTenantUserRequest,
+  UpdateTenantUserResponse,
   UserListItem,
   UserListRequest,
 } from "@/types/user";
@@ -173,4 +175,25 @@ export const getUsers = async (
   );
 
   return normalizeUserList(data ?? {});
+};
+
+export const updateTenantUser = async (
+  id: string,
+  payload: UpdateTenantUserRequest
+): Promise<UpdateTenantUserResponse> => {
+  const { data } = await axiosInstance.put<UpdateTenantUserResponse>(
+    `Users/${id}`,
+    payload,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+
+  return data;
+};
+
+export const deleteTenantUser = async (id: string): Promise<void> => {
+  await axiosInstance.delete(`Users/${id}`, {
+    headers: getAuthHeaders(),
+  });
 };

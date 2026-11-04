@@ -174,6 +174,88 @@ public class UsersController : ControllerBase
         }
     }
 
+    // PUT api/users/{id}
+    [HttpPut("{id}")]
+    [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
+    [HasPermission(FeatureCodes.Users, EnPermissionActions.UPDATE)]
+    public async Task<ActionResult> UpdateTenantUser(
+        Guid id,
+        [FromBody] UpdateTenantUserRequest request,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var tenantId = User.GetTenantId();
+            if (tenantId == null)
+            {
+                _logger.LogWarning("UpdateTenantUser failed - TenantId claim missing from token");
+                return Unauthorized(new { error = "Invalid token." });
+            }
+
+            var result = await _userService.UpdateTenantUserAsync(id, request, tenantId.Value, ct);
+
+            return Ok(new { id = result.Id });
+        }
+        catch (BadRequestException ex)
+        {
+            _logger.LogWarning(ex.Message);
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (NotFoundException ex)
+        {
+            _logger.LogWarning(ex.Message);
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "UpdateTenantUser unexpected error");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
+    // DELETE api/users/{id}
+    [HttpDelete("{id}")]
+    [Authorize(Roles = $"{nameof(UserRole.TenantOwner)},{nameof(UserRole.TenantStaff)}")]
+    [HasPermission(FeatureCodes.Users, EnPermissionActions.DELETE)]
+    public async Task<ActionResult> DeleteTenantUser(
+        Guid id,
+        CancellationToken ct = default)
+    {
+        try
+        {
+            var tenantId = User.GetTenantId();
+            if (tenantId == null)
+            {
+                _logger.LogWarning("DeleteTenantUser failed - TenantId claim missing from token");
+                return Unauthorized(new { error = "Invalid token." });
+            }
+
+            var currentUserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (currentUserIdClaim != null &&
+                Guid.TryParse(currentUserIdClaim, out var currentUserId) &&
+                currentUserId == id)
+            {
+                return BadRequest(new { error = "You cannot deactivate your own account." });
+            }
+
+            await _userService.DeleteTenantUserAsync(id, tenantId.Value, ct);
+            return NoContent();
+        }
+        catch (NotFoundException ex)
+        {
+            _logger.LogWarning(ex.Message);
+            return NotFound(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "DeleteTenantUser unexpected error");
+            return StatusCode(500, new { error = "An unexpected error occurred." });
+        }
+    }
+
     // GET api/users/my-profile
     [HttpGet("my-profile")]
     public async Task<ActionResult<MyProfileResponse>> GetMyProfile()

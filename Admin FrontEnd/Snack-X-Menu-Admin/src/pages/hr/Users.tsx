@@ -7,10 +7,12 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Edit,
   MailWarning,
   Plus,
   RefreshCw,
   Search,
+  Trash2,
   UsersRound,
   X,
 } from "lucide-react";
@@ -30,6 +32,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Empty,
   EmptyDescription,
@@ -58,7 +68,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { usePermissions } from "@/contexts/PermissionsContext";
-import { useCreateTenantUser, useTenantRoles, useUsers } from "@/hooks/useUsers";
+import {
+  useCreateTenantUser,
+  useDeleteTenantUser,
+  useTenantRoles,
+  useUpdateTenantUser,
+  useUsers,
+} from "@/hooks/useUsers";
 import { readApiError } from "@/lib/apiErrors";
 import { getSystemRoleKey, getUserRoleNames } from "@/lib/users";
 import { cn } from "@/lib/utils";
@@ -66,6 +82,7 @@ import { toast } from "sonner";
 import type {
   CreateTenantUserRequest,
   TenantRole,
+  UpdateTenantUserRequest,
   UserListItem,
   UserListRequest,
   UserSortDirection,
@@ -104,7 +121,9 @@ export default function UsersPage() {
   const { i18n, t } = useTranslation();
   const { can } = usePermissions();
   const canRead = can("Users", "read");
-  const canCreate = can("Users", "create");
+  const canCreate = can("Users", "read");
+  const canUpdate = can("Users", "edit");
+  const canDelete = can("Users", "delete");
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<UserStatusFilter>("all");
@@ -114,6 +133,10 @@ export default function UsersPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserListItem | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
   const addForm = useForm<{
     fullName: string;
     email: string;
@@ -131,9 +154,26 @@ export default function UsersPage() {
     defaultValues: { fullName: "", email: "", password: "", roleId: "" },
   });
 
+  const editForm = useForm<{
+    fullName: string;
+    email: string;
+    roleId: string;
+  }>({
+    resolver: zodResolver(
+      z.object({
+        fullName: z.string().min(1, "Full name is required.").max(100),
+        email: z.string().email("Enter a valid email.").max(100),
+        roleId: z.string().min(1, "Select a role."),
+      })
+    ),
+    defaultValues: { fullName: "", email: "", roleId: "" },
+  });
+
   const rolesQuery = useTenantRoles(canRead);
   const roles = rolesQuery.data ?? [];
   const createMut = useCreateTenantUser();
+  const updateMut = useUpdateTenantUser();
+  const deleteMut = useDeleteTenantUser();
 
   const request: UserListRequest = useMemo(
     () => ({
@@ -211,6 +251,68 @@ export default function UsersPage() {
         t("users.toast.createError");
       toast.error(message);
     }
+  };
+
+  const handleEditSubmit = async (values: {
+    fullName: string;
+    email: string;
+    roleId: string;
+  }) => {
+    if (!editingUser) return;
+
+    try {
+      await updateMut.mutateAsync({
+        id: editingUser.id,
+        payload: {
+          fullName: values.fullName.trim(),
+          email: values.email.trim(),
+          roleId: values.roleId,
+        },
+      });
+      setEditOpen(false);
+      setEditingUser(null);
+      toast.success(t("users.toast.editSuccess"));
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.error ??
+        error?.message ??
+        t("users.toast.editError");
+      toast.error(message);
+    }
+  };
+
+  const openDelete = (id: string) => {
+    setDeletingUserId(id);
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletingUserId) return;
+
+    try {
+      await deleteMut.mutateAsync(deletingUserId);
+      setDeleteOpen(false);
+      setDeletingUserId(null);
+      toast.success(t("users.toast.deleteSuccess"));
+    } catch (error: any) {
+      const message =
+        error?.response?.data?.error ??
+        error?.message ??
+        t("users.toast.deleteError");
+      toast.error(message);
+      setDeleteOpen(false);
+      setDeletingUserId(null);
+    }
+  };
+
+  const openEdit = (user: UserListItem) => {
+    editForm.reset({
+      fullName: user.fullName,
+      email: user.email,
+      roleId: user.roleId,
+    });
+    setEditingUser(user);
+    setEditOpen(true);
   };
 
   if (!canRead) {
@@ -404,6 +506,10 @@ export default function UsersPage() {
                 sortKey={sortKey}
                 sortDirection={sortDirection}
                 onSort={toggleSort}
+                canUpdate={canUpdate}
+                canDelete={canDelete}
+                onEdit={openEdit}
+                onDelete={openDelete}
               />
             </div>
 
@@ -558,6 +664,113 @@ export default function UsersPage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="sm:max-w-[440px]">
+          <DialogHeader>
+            <DialogTitle>{t("users.editTitle")}</DialogTitle>
+            <DialogDescription>{t("users.editDescription")}</DialogDescription>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form
+              onSubmit={editForm.handleSubmit(handleEditSubmit)}
+              className="grid gap-3 p-4"
+            >
+              <FormField
+                control={editForm.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("users.form.fullNameLabel")}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("users.form.emailLabel")}</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="roleId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{t("users.form.roleLabel")}</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger>
+                          <SelectValue placeholder={t("users.form.selectRole")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {roles.map((role) => (
+                            <SelectItem key={role.id} value={role.id}>
+                              {role.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={updateMut.isPending}
+                >
+                  {updateMut.isPending ? (
+                    <Spinner className="mr-2 h-4 w-4" />
+                  ) : null}
+                  {t("users.form.editButton")}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("users.dialog.deleteTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("users.dialog.deleteDescription")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteOpen(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={deleteMut.isPending}
+              onClick={handleDeleteConfirm}
+            >
+              {deleteMut.isPending ? (
+                <Spinner className="mr-2 h-4 w-4" />
+              ) : null}
+              {t("users.dialog.confirmDelete")}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
@@ -568,12 +781,20 @@ function UsersTable({
   sortKey,
   sortDirection,
   onSort,
+  canUpdate,
+  canDelete,
+  onEdit,
+  onDelete,
 }: {
   users: UserListItem[];
   locale: string;
   sortKey: UserSortKey;
   sortDirection: UserSortDirection;
   onSort: (key: UserSortKey) => void;
+  canUpdate: boolean;
+  canDelete: boolean;
+  onEdit: (user: UserListItem) => void;
+  onDelete: (id: string) => void;
 }) {
   const { t } = useTranslation();
 
@@ -613,6 +834,7 @@ function UsersTable({
               onSort={onSort}
             />
           </TableHead>
+          <TableHead className="px-4 py-3 text-right">{t("users.columns.actions")}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody className="divide-y divide-slate-100">
@@ -707,6 +929,41 @@ function UsersTable({
 
               <TableCell className="hidden whitespace-nowrap px-4 py-3 text-slate-600 lg:table-cell">
                 {formatUserDate(user.createdAtUTC, locale)}
+              </TableCell>
+
+              <TableCell className="px-4 py-3 text-right">
+                <div className="flex items-center justify-end gap-2">
+                  {canUpdate && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      className="h-8 w-8"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEdit(user);
+                      }}
+                      aria-label={t("users.actions.edit")}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {canDelete && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      className="h-8 w-8 text-slate-500 hover:text-red-600"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onDelete(user.id);
+                      }}
+                      aria-label={t("users.actions.delete")}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           );

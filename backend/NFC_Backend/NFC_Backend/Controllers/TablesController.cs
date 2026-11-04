@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using NFC_Backend.Domain.Constants;
 using NFC_Backend.Domain.DTOS;
 using NFC_Backend.Domain.Entities;
@@ -20,13 +21,15 @@ namespace NFC_Backend.Controllers
         private readonly ILogger<TablesController> _logger;
         private readonly IPlanRepo _PlanRepo;
         private readonly ITenantRepo _tenantRepo;
+        private readonly IConfiguration _configuration;
 
-        public TablesController(ITableRepo tableRepo, ILogger<TablesController> logger , IPlanRepo planRepo , ITenantRepo tenantRepo)
+        public TablesController(ITableRepo tableRepo, ILogger<TablesController> logger , IPlanRepo planRepo , ITenantRepo tenantRepo, IConfiguration configuration)
         {
             _tableRepo = tableRepo;
             _logger = logger;
             _PlanRepo = planRepo;
             _tenantRepo = tenantRepo;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -50,7 +53,8 @@ namespace NFC_Backend.Controllers
                     Id = t.Id,
                     Number = t.Number,
                     Name = t.Name,
-                    IsAvailable = t.IsAvailable
+                    IsAvailable = t.IsAvailable,
+                    QrCodeUrl = t.QrCodeUrl
                 }).ToList();
 
                 return Ok(result);
@@ -89,7 +93,8 @@ namespace NFC_Backend.Controllers
                     Id = table.Id,
                     Number = table.Number,
                     Name = table.Name,
-                    IsAvailable = table.IsAvailable
+                    IsAvailable = table.IsAvailable,
+                    QrCodeUrl = table.QrCodeUrl
                 });
             }
             catch (NotFoundException ex)
@@ -179,13 +184,94 @@ namespace NFC_Backend.Controllers
                     Id = table.Id,
                     Number = table.Number,
                     Name = table.Name,
-                    IsAvailable = table.IsAvailable
+                    IsAvailable = table.IsAvailable,
+                    QrCodeUrl = table.QrCodeUrl
                 });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error in Create table for TenantId: {TenantId}",
                     User.GetTenantId());
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { error = "An unexpected error occurred. Please try again." });
+            }
+        }
+
+        // GET api/tables/{id}/qr
+        [HttpGet("{id:guid}/qr")]
+        [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.READ)]
+        public async Task<IActionResult> GetQrCode(Guid id)
+        {
+            try
+            {
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("GetQrCode failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                var baseDomain = _configuration["AppSettings:BaseDomain"]?.Trim().TrimStart('.');
+                if (string.IsNullOrEmpty(baseDomain))
+                {
+                    _logger.LogWarning("GetQrCode failed - AppSettings:BaseDomain not configured");
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        new { error = "QR code base domain not configured." });
+                }
+
+                var qrUrl = await _tableRepo.GenerateQrCodeUrlAsync(id, tenantId.Value, baseDomain);
+                if (qrUrl is null)
+                {
+                    _logger.LogWarning("GetQrCode failed - table not found. Id: {Id}, TenantId: {TenantId}", id, tenantId);
+                    return NotFound(new { error = "Table not found." });
+                }
+
+                return Ok(new { qrCodeUrl = qrUrl, qrData = qrUrl });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in GetQrCode. Id: {Id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { error = "An unexpected error occurred. Please try again." });
+            }
+        }
+
+        // POST api/tables/{id}/qr/generate
+        [HttpPost("{id:guid}/qr/generate")]
+        [Authorize]
+        [HasPermission(FeatureCodes.Tables, EnPermissionActions.UPDATE)]
+        public async Task<IActionResult> GenerateQrCode(Guid id)
+        {
+            try
+            {
+                var tenantId = User.GetTenantId();
+                if (tenantId == null)
+                {
+                    _logger.LogWarning("GenerateQrCode failed - TenantId claim missing from token");
+                    return Unauthorized(new { error = "Invalid token." });
+                }
+
+                var baseDomain = _configuration["AppSettings:BaseDomain"]?.Trim().TrimStart('.');
+                if (string.IsNullOrEmpty(baseDomain))
+                {
+                    _logger.LogWarning("GenerateQrCode failed - AppSettings:BaseDomain not configured");
+                    return StatusCode(StatusCodes.Status500InternalServerError,
+                        new { error = "QR code base domain not configured." });
+                }
+
+                var qrUrl = await _tableRepo.GenerateQrCodeUrlAsync(id, tenantId.Value, baseDomain);
+                if (qrUrl is null)
+                {
+                    _logger.LogWarning("GenerateQrCode failed - table not found. Id: {Id}, TenantId: {TenantId}", id, tenantId);
+                    return NotFound(new { error = "Table not found." });
+                }
+
+                return Ok(new { qrCodeUrl = qrUrl, qrData = qrUrl });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error in GenerateQrCode. Id: {Id}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { error = "An unexpected error occurred. Please try again." });
             }

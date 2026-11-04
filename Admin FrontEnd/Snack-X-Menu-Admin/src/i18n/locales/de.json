@@ -295,12 +295,7 @@
             "unverified": "Nicht verifiziert"
         },
         "columns": {
-            "user": "Benutzer",
-            "role": "Rolle",
-            "status": "Status",
-            "email": "E-Mail",
-            "lastLogin": "Letzte Anmeldung",
-            "createdAt": "Erstellt"
+            "actions": "Aktionen"
         },
         "systemRoles": {
             "tenantOwner": "Inhaber",
@@ -329,17 +324,37 @@
         "addDescription": "Erstellen Sie ein neues Benutzerkonto für dieses Restaurant.",
         "add": "Benutzer hinzufügen",
         "form": {
-            "fullNameLabel": "Vollständiger Name",
-            "emailLabel": "E-Mail",
-            "passwordLabel": "Passwort (optional)",
-            "passwordHint": "Feld leer lassen, um ein temporäres Passwort zu generieren.",
-            "roleLabel": "Rolle",
-            "selectRole": "Rolle auswählen",
-            "createButton": "Benutzer erstellen"
+            "editButton": "Änderungen speichern"
         },
         "toast": {
-            "createSuccess": "Benutzer erfolgreich erstellt.",
-            "createError": "Fehler beim Erstellen des Benutzers."
+            "editSuccess": "Benutzer erfolgreich aktualisiert.",
+            "editError": "Fehler beim Aktualisieren des Benutzers.",
+            "deleteSuccess": "Benutzer deaktiviert.",
+            "deleteError": "Fehler beim Deaktivieren des Benutzers."
+        },
+        "editTitle": "Benutzer bearbeiten",
+        "editDescription": "Details und Rolle des Benutzers aktualisieren.",
+        "edit": "Bearbeiten",
+        "delete": "Deaktivieren",
+        "actions": {
+            "edit": "Bearbeiten",
+            "delete": "Deaktivieren"
+        },
+        "dialog": {
+            "deleteTitle": "Dieser Benutzer deaktivieren?",
+            "deleteDescription": "Der Benutzer verliert den Zugriff auf das Restaurant. Kann rückgängig gemacht werden.",
+            "confirmDelete": "Deaktivieren"
+        }
+    },
+    "tables": {
+        "title": "QR Code",
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code...",
+        "toast": {
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         }
     }
 }

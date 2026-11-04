@@ -182,7 +182,7 @@
         }
     },
     "tables": {
-        "title": "Tables",
+        "title": "QR Code",
         "add": "Add Table",
         "total_one": "{{count}} table",
         "total_other": "{{count}} tables",
@@ -223,13 +223,26 @@
             "updateError": "Failed to update table.",
             "availabilitySuccess": "Table availability updated.",
             "deleteSuccess": "Table deleted successfully.",
-            "deleteError": "Failed to delete table."
+            "deleteError": "Failed to delete table.",
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         },
         "delete": {
             "title": "Delete this table?",
             "description": "Table #{{number}} ({{name}}) will be permanently removed. This cannot be undone.",
             "confirm": "Delete"
-        }
+        },
+        "qr": {
+            "title": "QR Code",
+            "subtitle": "Scan to access the table menu",
+            "generate": "Generate QR",
+            "download": "Download QR",
+            "loading": "Generating QR code..."
+        },
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code..."
     },
     "orders": {
         "title": "Orders",
@@ -1208,12 +1221,7 @@
             "unverified": "Unverified"
         },
         "columns": {
-            "user": "User",
-            "role": "Role",
-            "status": "Status",
-            "email": "Email",
-            "lastLogin": "Last login",
-            "createdAt": "Created"
+            "actions": "Actions"
         },
         "systemRoles": {
             "tenantOwner": "Owner",
@@ -1242,17 +1250,26 @@
         "addDescription": "Create a new user account for this restaurant.",
         "add": "Add User",
         "form": {
-            "fullNameLabel": "Full name",
-            "emailLabel": "Email",
-            "passwordLabel": "Password (optional)",
-            "passwordHint": "Leave blank to generate a temporary password.",
-            "roleLabel": "Role",
-            "selectRole": "Select role",
-            "createButton": "Create user"
+            "editButton": "Save changes"
         },
         "toast": {
-            "createSuccess": "User created successfully.",
-            "createError": "Failed to create user."
+            "editSuccess": "User updated successfully.",
+            "editError": "Failed to update user.",
+            "deleteSuccess": "User deactivated.",
+            "deleteError": "Failed to deactivate user."
+        },
+        "editTitle": "Edit User",
+        "editDescription": "Update the user's details and role.",
+        "edit": "Edit",
+        "delete": "Deactivate",
+        "actions": {
+            "edit": "Edit",
+            "delete": "Deactivate"
+        },
+        "dialog": {
+            "deleteTitle": "Deactivate this user?",
+            "deleteDescription": "The user will lose access to the restaurant. This can be reversed.",
+            "confirmDelete": "Deactivate"
         }
     }
 }

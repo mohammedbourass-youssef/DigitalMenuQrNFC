@@ -295,12 +295,7 @@
             "unverified": "未確認"
         },
         "columns": {
-            "user": "ユーザー",
-            "role": "ロール",
-            "status": "ステータス",
-            "email": "メール",
-            "lastLogin": "最終ログイン",
-            "createdAt": "作成日"
+            "actions": "操作"
         },
         "systemRoles": {
             "tenantOwner": "オーナー",
@@ -329,17 +324,37 @@
         "addDescription": "このレストラン用の新しいユーザーアカウントを作成します。",
         "add": "ユーザーを追加",
         "form": {
-            "fullNameLabel": "氏名",
-            "emailLabel": "メール",
-            "passwordLabel": "パスワード（任意）",
-            "passwordHint": "空白の場合は一時パスワードを生成します。",
-            "roleLabel": "ロール",
-            "selectRole": "ロールを選択",
-            "createButton": "ユーザーを作成"
+            "editButton": "変更を保存"
         },
         "toast": {
-            "createSuccess": "ユーザーを作成しました。",
-            "createError": "ユーザーの作成に失敗しました。"
+            "editSuccess": "ユーザーを更新しました。",
+            "editError": "ユーザーの更新に失敗しました。",
+            "deleteSuccess": "ユーザーを無効化しました。",
+            "deleteError": "ユーザーの無効化に失敗しました。"
+        },
+        "editTitle": "ユーザーを編集",
+        "editDescription": "ユーザーの詳細とロールを更新します。",
+        "edit": "編集",
+        "delete": "無効化",
+        "actions": {
+            "edit": "編集",
+            "delete": "無効化"
+        },
+        "dialog": {
+            "deleteTitle": "このユーザーを無効化しますか？",
+            "deleteDescription": "ユーザーはレストランへのアクセスを失います。元に戻せます。",
+            "confirmDelete": "無効化"
+        }
+    },
+    "tables": {
+        "title": "QR Code",
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code...",
+        "toast": {
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         }
     }
 }

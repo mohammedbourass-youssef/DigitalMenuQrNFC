@@ -295,12 +295,7 @@
             "unverified": "Non verificato"
         },
         "columns": {
-            "user": "Utente",
-            "role": "Ruolo",
-            "status": "Stato",
-            "email": "Email",
-            "lastLogin": "Ultimo accesso",
-            "createdAt": "Creato"
+            "actions": "Azioni"
         },
         "systemRoles": {
             "tenantOwner": "Proprietario",
@@ -329,17 +324,37 @@
         "addDescription": "Creare un nuovo account utente per questo ristorante.",
         "add": "Aggiungi utente",
         "form": {
-            "fullNameLabel": "Nome completo",
-            "emailLabel": "Email",
-            "passwordLabel": "Password (opzionale)",
-            "passwordHint": "Lascia vuoto per generare una password temporanea.",
-            "roleLabel": "Ruolo",
-            "selectRole": "Seleziona ruolo",
-            "createButton": "Crea utente"
+            "editButton": "Salva modifiche"
         },
         "toast": {
-            "createSuccess": "Utente creato con successo.",
-            "createError": "Impossibile creare l'utente."
+            "editSuccess": "Utente aggiornato con successo.",
+            "editError": "Impossibile aggiornare l'utente.",
+            "deleteSuccess": "Utente disattivato.",
+            "deleteError": "Impossibile disattivare l'utente."
+        },
+        "editTitle": "Modifica utente",
+        "editDescription": "Aggiorna i dettagli e il ruolo dell'utente.",
+        "edit": "Modifica",
+        "delete": "Disattiva",
+        "actions": {
+            "edit": "Modifica",
+            "delete": "Disattiva"
+        },
+        "dialog": {
+            "deleteTitle": "Disattivare questo utente?",
+            "deleteDescription": "L'utente perderà l'accesso al ristorante. È reversibile.",
+            "confirmDelete": "Disattiva"
+        }
+    },
+    "tables": {
+        "title": "QR Code",
+        "subtitle": "Scan to access the table menu",
+        "generate": "Generate QR",
+        "download": "Download QR",
+        "loading": "Generating QR code...",
+        "toast": {
+            "qrError": "Failed to generate QR code.",
+            "qrDownloaded": "QR code downloaded."
         }
     }
 }
